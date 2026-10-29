@@ -1,4 +1,5 @@
 import type { NoteColor } from "./constants";
+import type { AdminOverview } from "./admin.types";
 
 export type Profile = {
   id: string;
@@ -63,6 +64,15 @@ export type Database = {
     Views: { [_ in never]: never };
     Functions: {
       ensure_my_profile: { Args: Record<string, never>; Returns: Profile };
+      is_admin: { Args: Record<string, never>; Returns: boolean };
+      admin_overview: {
+        Args: { p_query?: string; p_role?: string; p_page?: number };
+        Returns: AdminOverview;
+      };
+      admin_set_role: {
+        Args: { p_user_id: string; p_is_admin: boolean };
+        Returns: undefined;
+      };
     };
     Enums: { [_ in never]: never };
     CompositeTypes: { [_ in never]: never };

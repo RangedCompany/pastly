@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
-import { Analytics } from "@vercel/analytics/next";
-import { SpeedInsights } from "@vercel/speed-insights/next";
+import { Telemetry } from "@/components/telemetry";
 import { Navbar, Footer } from "@/components/navbar";
 import { getUser } from "@/lib/auth";
+import { getIsAdmin } from "@/lib/admin";
 import { siteUrl } from "@/lib/env";
 import "./globals.css";
 
@@ -22,19 +22,19 @@ export default async function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   const user = await getUser();
+  const isAdmin = await getIsAdmin();
   return (
     <html lang="fr">
       <body>
         <a className="skip-link" href="#main">
           Aller au contenu
         </a>
-        <Navbar user={user} />
+        <Navbar user={user} isAdmin={isAdmin} />
         <main id="main" className="site-main">
           {children}
         </main>
         <Footer />
-        <Analytics />
-        <SpeedInsights />
+        <Telemetry />
       </body>
     </html>
   );

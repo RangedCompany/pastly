@@ -201,6 +201,8 @@ Référence : [guide Vercel Speed Insights](https://vercel.com/docs/speed-insigh
 
 ## Structure
 
+L’administration (`/admin`), sa migration et l’initialisation du premier administrateur sont détaillées dans [le guide d’administration](docs/administration.md).
+
 ```text
 src/app/                 Pages App Router, callbacks et actions serveur
 src/components/          Navigation, cartes, éditeur, formulaires, états et dialogues
@@ -216,7 +218,7 @@ scripts/                 Intégration Supabase réelle à déclencher manuelleme
 
 ## Limites V1
 
-Texte brut uniquement, 120 caractères de titre et 5 000 de contenu, six couleurs, 12 notes par page et tri récent. Recherche partielle avec index trigrammes, sans classement sémantique. Le nom d’utilisateur modifie l’URL du profil sans redirection de l’ancien nom. Le bouton de partage nécessite un contexte sécurisé HTTPS ou localhost et l’autorisation du presse-papiers. Pas de commentaires, likes, abonnements, paiements, chat, administration, ni authentification Google. Les quotas et limites Auth/email/base dépendent de votre offre Supabase. Aucune garantie d’effacement des copies déjà téléchargées d’une note précédemment publique.
+Texte brut uniquement, 120 caractères de titre et 5 000 de contenu, six couleurs, 12 notes par page et tri récent. Recherche partielle avec index trigrammes, sans classement sémantique. Le nom d’utilisateur modifie l’URL du profil sans redirection de l’ancien nom. Le bouton de partage nécessite un contexte sécurisé HTTPS ou localhost et l’autorisation du presse-papiers. Pas de commentaires, likes, abonnements, paiements, chat, ni authentification Google. L’administration couvre la supervision des comptes et des notes ainsi que les rôles admin ; elle ne supprime ni comptes ni notes. Les quotas et limites Auth/email/base dépendent de votre offre Supabase. Aucune garantie d’effacement des copies déjà téléchargées d’une note précédemment publique.
 
 ## Résultats de livraison locale — 29 octobre 2026
 

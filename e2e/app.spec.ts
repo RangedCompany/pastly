@@ -14,6 +14,20 @@ test("accueil français, navigation et affichage responsive", async ({
     page.getByRole("link", { name: "Explorer les post-it", exact: true }),
   ).toBeVisible();
   expect(
+    await page
+      .locator(".hero-actions .button")
+      .first()
+      .evaluate((el) => parseFloat(getComputedStyle(el).fontSize)),
+  ).toBeGreaterThanOrEqual(14);
+  expect(
+    await page
+      .locator(".nav-create")
+      .evaluate((el) => parseFloat(getComputedStyle(el).fontSize)),
+  ).toBeGreaterThanOrEqual(14);
+  await expect(
+    page.getByRole("link", { name: "Administration", exact: true }),
+  ).toHaveCount(0);
+  expect(
     await page.evaluate(
       () => document.documentElement.scrollWidth <= window.innerWidth,
     ),
@@ -36,6 +50,7 @@ test("les routes d'écriture exigent une connexion", async ({ page }) => {
     "/dashboard",
     "/notes/new",
     "/profile",
+    "/admin",
     "/notes/aaaaaaaa-aaaa-4aaa-aaaa-aaaaaaaaaaaa/edit",
   ]) {
     await page.goto(path);

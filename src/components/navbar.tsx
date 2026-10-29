@@ -5,13 +5,20 @@ import {
   LayoutGrid,
   LogOut,
   Plus,
+  ShieldCheck,
   StickyNote,
   UserRound,
 } from "lucide-react";
 import type { User } from "@supabase/supabase-js";
 import { signOut } from "@/app/actions/auth";
 
-export function Navbar({ user }: { user: User | null }) {
+export function Navbar({
+  user,
+  isAdmin = false,
+}: {
+  user: User | null;
+  isAdmin?: boolean;
+}) {
   return (
     <header className="site-header">
       <nav aria-label="Navigation principale" className="nav-inner">
@@ -34,6 +41,16 @@ export function Navbar({ user }: { user: User | null }) {
           )}
         </div>
         <div className="nav-actions">
+          {user && isAdmin && (
+            <Link
+              href="/admin"
+              className="icon-button"
+              aria-label="Administration"
+              title="Administration"
+            >
+              <ShieldCheck size={21} />
+            </Link>
+          )}
           {user ? (
             <>
               <Link
