@@ -183,6 +183,22 @@ La CI GitHub exécute lint, types, tests SQL/validation, build et tests navigate
 
 Aucun déploiement, push Git ou changement de projet Supabase distant n’est nécessaire au développement local et n’est automatisé ici.
 
+### Vercel Web Analytics
+
+Le paquet `@vercel/analytics` et le composant Next.js `<Analytics />` sont intégrés au layout racine pour mesurer les visites et les changements de page.
+
+Dans le projet Vercel, ouvrez **Analytics** et activez **Web Analytics** si nécessaire. Déployez ensuite cette version et visitez le site pour alimenter le tableau de bord. Aucune variable d’environnement supplémentaire n’est nécessaire. Si les visites ne remontent pas, vérifiez les bloqueurs de contenu du navigateur.
+
+Référence : [guide Vercel Web Analytics](https://vercel.com/docs/analytics/quickstart).
+
+### Vercel Speed Insights
+
+Le paquet `@vercel/speed-insights` et le composant Next.js `<SpeedInsights />` sont intégrés au layout racine pour mesurer les performances des pages auprès des visiteurs.
+
+Dans le projet Vercel, ouvrez **Speed Insights** et activez le service si nécessaire. Déployez ensuite cette version et visitez plusieurs pages pour commencer la collecte. Aucune variable d’environnement supplémentaire n’est nécessaire. Si aucune mesure ne remonte, vérifiez les bloqueurs de contenu du navigateur.
+
+Référence : [guide Vercel Speed Insights](https://vercel.com/docs/speed-insights/quickstart).
+
 ## Structure
 
 ```text

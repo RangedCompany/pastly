@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import { Analytics } from "@vercel/analytics/next";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 import { Navbar, Footer } from "@/components/navbar";
 import { getUser } from "@/lib/auth";
 import { siteUrl } from "@/lib/env";
@@ -31,6 +33,8 @@ export default async function RootLayout({
           {children}
         </main>
         <Footer />
+        <Analytics />
+        <SpeedInsights />
       </body>
     </html>
   );
