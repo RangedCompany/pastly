@@ -4,6 +4,8 @@ import { getUser } from "@/lib/auth";
 import { safeNext } from "@/lib/validation";
 import { AuthForm } from "@/components/auth-form";
 import { AuthShell } from "@/components/auth-shell";
+import { GoogleSignIn } from "@/components/google-sign-in";
+import { isGoogleAuthEnabled } from "@/lib/env";
 export const metadata: Metadata = {
   title: "Connexion",
   robots: { index: false },
@@ -37,6 +39,14 @@ export default async function Login({
           demandez un nouveau lien de réinitialisation.
         </p>
       )}
+      {(params.error === "google" || params.error === "google-cancelled") && (
+        <p className="message message-error" role="alert">
+          {params.error === "google-cancelled"
+            ? "La connexion Google a été annulée. Vous pouvez réessayer."
+            : "La connexion Google n’a pas abouti ou le lien a expiré. Réessayez."}
+        </p>
+      )}
+      {isGoogleAuthEnabled() && <GoogleSignIn next={next} />}
       <AuthForm mode="login" next={next} />
     </AuthShell>
   );

@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="141" height="52" viewBox="0 0 141 52" role="img" aria-labelledby="title"><title id="title">Pastly</title><!-- StickyNote icon: Lucide. ISC License
+
+Copyright (c) 2026 Lucide Icons and Contributors
+
+Permission to use, copy, modify, and/or distribute this software for any
+purpose with or without fee is hereby granted, provided that the above
+copyright notice and this permission notice appear in all copies.
+
+THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
+WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
+MERCHANTABILITY AND FITNESS. IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR
+ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES
+WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN
+ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
+OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+
+---
+
+The following Lucide icons are derived from the Feather project:
+
+airplay, alert-circle, alert-octagon, alert-triangle, aperture, arrow-down-circle, arrow-down-left, arrow-down-right, arrow-down, arrow-left-circle, arrow-left, arrow-right-circle, arrow-right, arrow-up-circle, arrow-up-left, arrow-up-right, arrow-up, at-sign, calendar, cast, check, chevron-down, chevron-left, chevron-right, chevron-up, chevrons-down, chevrons-left, chevrons-right, chevrons-up, circle, clipboard, clock, code, columns, command, compass, corner-down-left, corner-down-right, corner-left-down, corner-left-up, corner-right-down, corner-right-up, corner-up-left, corner-up-right, crosshair, database, divide-circle, divide-square, dollar-sign, download, external-link, feather, frown, hash, headphones, help-circle, info, italic, key, layout, life-buoy, link-2, link, loader, lock, log-in, log-out, maximize, meh, minimize, minimize-2, minus-circle, minus-square, minus, monitor, moon, more-horizontal, more-vertical, move, music, navigation-2, navigation, octagon, pause-circle, percent, plus-circle, plus-square, plus, power, radio, rss, search, server, share, shopping-bag, sidebar, smartphone, smile, square, table-2, tablet, target, terminal, trash-2, trash, triangle, tv, type, upload, x-circle, x-octagon, x-square, x, zoom-in, zoom-out
+
+The MIT License (MIT) (for the icons listed above)
+
+Copyright (c) 2013-present Cole Bemis
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE. --><g transform="rotate(-8 26 26)">
+  <rect x="8" y="8" width="36" height="36" rx="8" fill="#f9edac"/>
+  <g transform="translate(15 15) scale(.916666667)" fill="none" stroke="#28372e" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M21 9a2.4 2.4 0 0 0-.706-1.706l-3.588-3.588A2.4 2.4 0 0 0 15 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2z"/>
+    <path d="M15 3v5a1 1 0 0 0 1 1h5"/>
+  </g>
+</g><path fill="#28372e" d="M58.636 34.257 L58.577 34.257 L58.577 42.899 L53.948 42.899 L53.948 21 L58.577 21 L58.577 23.256 L58.636 23.256 C59.778 21.508 61.385 20.634 63.455 20.634 C65.398 20.634 66.9 21.3 67.959 22.633 C69.019 23.966 69.549 25.78 69.549 28.075 C69.549 30.575 68.931 32.582 67.696 34.096 C66.46 35.609 64.817 36.366 62.767 36.366 C60.96 36.366 59.583 35.663 58.636 34.257 Z M58.504 28.104 L58.504 29.306 C58.504 30.341 58.777 31.186 59.324 31.84 C59.871 32.494 60.589 32.821 61.478 32.821 C62.532 32.821 63.35 32.414 63.931 31.598 C64.512 30.783 64.803 29.628 64.803 28.134 C64.803 25.497 63.777 24.179 61.727 24.179 C60.779 24.179 60.005 24.538 59.405 25.255 C58.804 25.973 58.504 26.923 58.504 28.104 Z"/><path fill="#28372e" d="M83.332 36 L78.952 36 L78.952 33.847 L78.894 33.847 C77.888 35.526 76.399 36.366 74.426 36.366 C72.971 36.366 71.826 35.954 70.991 35.128 C70.156 34.303 69.738 33.202 69.738 31.825 C69.738 28.915 71.462 27.235 74.909 26.786 L78.982 26.244 C78.982 24.604 78.093 23.783 76.316 23.783 C74.529 23.783 72.829 24.315 71.218 25.38 L71.218 21.894 C71.863 21.562 72.744 21.269 73.862 21.015 C74.98 20.761 75.998 20.634 76.916 20.634 C81.194 20.634 83.332 22.768 83.332 27.035 Z M78.982 29.906 L78.982 28.896 L76.257 29.247 C74.753 29.442 74.001 30.121 74.001 31.283 C74.001 31.811 74.184 32.243 74.55 32.58 C74.917 32.917 75.412 33.085 76.037 33.085 C76.906 33.085 77.614 32.785 78.161 32.184 C78.708 31.583 78.982 30.824 78.982 29.906 Z"/><path fill="#28372e" d="M84.313 35.604 L84.313 31.854 C85.075 32.313 85.834 32.655 86.591 32.88 C87.348 33.104 88.063 33.217 88.737 33.217 C89.557 33.217 90.204 33.104 90.678 32.88 C91.151 32.655 91.388 32.313 91.388 31.854 C91.388 31.562 91.281 31.317 91.066 31.122 C90.851 30.927 90.575 30.756 90.238 30.609 C89.901 30.463 89.533 30.331 89.132 30.214 C88.732 30.097 88.346 29.965 87.975 29.818 C87.379 29.594 86.854 29.352 86.4 29.093 C85.946 28.834 85.565 28.534 85.258 28.192 C84.95 27.851 84.716 27.455 84.555 27.006 C84.393 26.557 84.313 26.024 84.313 25.409 C84.313 24.569 84.496 23.847 84.862 23.241 C85.228 22.636 85.717 22.14 86.327 21.754 C86.937 21.369 87.636 21.085 88.422 20.905 C89.208 20.724 90.026 20.634 90.875 20.634 C91.539 20.634 92.213 20.685 92.897 20.788 C93.58 20.89 94.254 21.039 94.918 21.234 L94.918 24.809 C94.332 24.467 93.705 24.21 93.036 24.04 C92.367 23.869 91.71 23.783 91.066 23.783 C90.763 23.783 90.477 23.81 90.209 23.864 C89.94 23.917 89.704 23.996 89.498 24.098 C89.293 24.201 89.132 24.333 89.015 24.494 C88.898 24.655 88.839 24.838 88.839 25.043 C88.839 25.316 88.927 25.551 89.103 25.746 C89.279 25.941 89.508 26.11 89.791 26.251 C90.075 26.393 90.39 26.52 90.736 26.632 C91.083 26.745 91.427 26.859 91.769 26.977 C92.384 27.191 92.941 27.426 93.439 27.68 C93.937 27.934 94.364 28.231 94.721 28.573 C95.077 28.915 95.35 29.315 95.541 29.774 C95.731 30.233 95.827 30.78 95.827 31.415 C95.827 32.304 95.634 33.063 95.248 33.693 C94.862 34.323 94.35 34.835 93.71 35.231 C93.07 35.626 92.333 35.915 91.498 36.095 C90.663 36.276 89.796 36.366 88.898 36.366 C87.247 36.366 85.719 36.112 84.313 35.604 Z"/><path fill="#28372e" d="M105.86 35.824 C105.176 36.186 104.146 36.366 102.769 36.366 C99.507 36.366 97.877 34.672 97.877 31.283 L97.877 24.413 L95.445 24.413 L95.445 21 L97.877 21 L97.877 17.763 L102.491 16.444 L102.491 21 L105.86 21 L105.86 24.413 L102.491 24.413 L102.491 30.478 C102.491 32.04 103.111 32.821 104.351 32.821 C104.839 32.821 105.342 32.68 105.86 32.396 Z"/><path fill="#28372e" d="M111.396 36 L106.767 36 L106.767 13.793 L111.396 13.793 Z"/><path fill="#28372e" d="M127.875 21 L121.781 37.201 C120.316 41.098 118.109 43.046 115.16 43.046 C114.037 43.046 113.114 42.919 112.392 42.665 L112.392 38.974 C113.007 39.335 113.676 39.516 114.398 39.516 C115.59 39.516 116.42 38.954 116.889 37.831 L117.68 35.971 L111.586 21 L116.713 21 L119.511 30.126 C119.687 30.692 119.823 31.361 119.921 32.133 L119.979 32.133 C120.067 31.566 120.229 30.907 120.463 30.155 L123.29 21 Z"/><path fill="#d39838" d="M130.101 36.366 C129.339 36.366 128.704 36.132 128.196 35.663 C127.689 35.194 127.435 34.618 127.435 33.935 C127.435 33.231 127.696 32.655 128.218 32.206 C128.741 31.757 129.393 31.532 130.174 31.532 C130.965 31.532 131.612 31.759 132.115 32.213 C132.618 32.667 132.869 33.241 132.869 33.935 C132.869 34.647 132.613 35.231 132.1 35.685 C131.588 36.139 130.921 36.366 130.101 36.366 Z"/></svg>

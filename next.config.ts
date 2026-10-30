@@ -1,5 +1,15 @@
 import type { NextConfig } from "next";
 
+const googleAuthEnabled =
+  process.env.NEXT_PUBLIC_GOOGLE_AUTH_ENABLED === "true";
+const supabaseOrigin = process.env.NEXT_PUBLIC_SUPABASE_URL
+  ? new URL(process.env.NEXT_PUBLIC_SUPABASE_URL).origin
+  : null;
+const formSources =
+  googleAuthEnabled && supabaseOrigin
+    ? `'self' ${supabaseOrigin} https://accounts.google.com`
+    : "'self'";
+
 const config: NextConfig = {
   poweredByHeader: false,
   async headers() {
@@ -16,10 +26,13 @@ const config: NextConfig = {
           },
           {
             key: "Content-Security-Policy",
-            value:
-              "frame-ancestors 'none'; base-uri 'self'; form-action 'self'",
+            value: `frame-ancestors 'none'; base-uri 'self'; form-action ${formSources}`,
           },
         ],
+      },
+      {
+        source: "/auth/:path*",
+        headers: [{ key: "Referrer-Policy", value: "no-referrer" }],
       },
     ];
   },

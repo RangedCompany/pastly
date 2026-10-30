@@ -13,6 +13,12 @@ export function supabaseEnv() {
     key: process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!,
   };
 }
+export function isGoogleAuthEnabled() {
+  return (
+    process.env.NEXT_PUBLIC_GOOGLE_AUTH_ENABLED === "true" &&
+    isSupabaseConfigured()
+  );
+}
 export function siteUrl() {
   const value = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
   return new URL(value).origin;

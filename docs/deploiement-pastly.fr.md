@@ -15,6 +15,7 @@ Dans les variables de l’environnement **Production**, saisir :
 | `NEXT_PUBLIC_SUPABASE_URL`             | L’URL du projet Supabase configuré dans `.env.local`          |
 | `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | La même clé publique `sb_publishable_…` que dans `.env.local` |
 | `NEXT_PUBLIC_SITE_URL`                 | `https://pastly.fr`                                           |
+| `NEXT_PUBLIC_GOOGLE_AUTH_ENABLED`     | `true` après configuration Google/Supabase, sinon `false`     |
 
 Les mots de passe et les variables `PASTLY_TEST_*` restent locaux. Ils ne sont pas nécessaires dans Vercel. Les tests réels ne sont pas lancés lors du build.
 
@@ -69,10 +70,13 @@ Les modèles d’email du README utilisent `{{ .SiteURL }}` : leurs liens pointe
 
 Conserver les URL locales seulement si ce même projet est encore utilisé en développement. Pour tester les emails sur localhost sans les envoyer vers la production, préférer un projet Supabase de développement distinct avec sa propre Site URL.
 
+Pour Google, suivre le [guide de configuration Google Cloud/Supabase](auth-google.md) et ajouter `https://pastly.fr/auth/callback?flow=google&next=**` aux Redirect URLs. Le client OAuth Web Google reçoit le callback Supabase `https://VOTRE_REFERENCE.supabase.co/auth/v1/callback`. Ses identifiants restent dans Supabase. Activer ensuite `NEXT_PUBLIC_GOOGLE_AUTH_ENABLED=true` dans Vercel et redéployer.
+
 ## 5. Recette après déploiement
 
 - Accueil et Explorer accessibles sans connexion.
 - Inscription, email de confirmation, connexion et déconnexion sur `pastly.fr`.
+- Si Google est activé : première inscription, reconnexion au même compte, retour à une page protégée et annulation du consentement.
 - Note publique visible dans Explorer et par lien anonyme.
 - Passage en privé : disparition d’Explorer et contenu inaccessible en rechargeant l’ancien lien dans un autre navigateur.
 - Réinitialisation par email et connexion avec le nouveau mot de passe.

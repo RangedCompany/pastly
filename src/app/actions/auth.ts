@@ -8,7 +8,43 @@ import {
   safeNext,
   type ActionState,
 } from "@/lib/validation";
-import { isSupabaseConfigured, siteUrl } from "@/lib/env";
+import { isGoogleAuthEnabled, isSupabaseConfigured, siteUrl } from "@/lib/env";
+
+export async function signInWithGoogle(
+  _: ActionState,
+  form: FormData,
+): Promise<ActionState> {
+  if (!isGoogleAuthEnabled())
+    return { error: "La connexion Google n’est pas encore disponible." };
+
+  let destination: string;
+  try {
+    const callback = new URL("/auth/callback", siteUrl());
+    callback.searchParams.set("flow", "google");
+    callback.searchParams.set("next", safeNext(form.get("next")));
+    const supabase = await createClient();
+    // The SSR client stores the PKCE verifier in the browser's cookies.
+    const { data, error } = await supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: {
+        redirectTo: callback.toString(),
+        scopes: "openid email profile",
+        queryParams: { prompt: "select_account" },
+      },
+    });
+    if (error || !data.url)
+      return {
+        error: "Connexion Google indisponible. Réessayez dans un instant.",
+      };
+    destination = data.url;
+  } catch {
+    return {
+      error: "Connexion Google indisponible. Réessayez dans un instant.",
+    };
+  }
+  // Next.js redirects throw; keep this outside the error handler.
+  redirect(destination);
+}
 
 export async function authenticate(
   mode: "login" | "signup" | "forgot" | "reset",

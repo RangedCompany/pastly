@@ -82,6 +82,12 @@ Les profils sont créés à l’insertion de `auth.users`, sans attendre de sess
 
 ## Utilisation locale
 
+### Connexion et inscription Google
+
+Le parcours Google est prêt via Supabase Auth : bouton **Continuer avec Google** sur `/login` et `/signup`, création du compte au premier passage, session SSR par cookies et retour vers la page demandée. Il est désactivé par défaut jusqu’à la configuration du fournisseur.
+
+Suivre le [guide Google Cloud et Supabase](docs/auth-google.md), puis définir `NEXT_PUBLIC_GOOGLE_AUTH_ENABLED=true` dans `.env.local` et dans Vercel, et reconstruire/redéployer. Le Client ID et le Client Secret du client OAuth **Application Web** se renseignent uniquement dans le fournisseur Google de Supabase ; aucun secret Google dans les variables publiques de Pastly. Aucune migration supplémentaire nécessaire.
+
 ```sh
 npm run dev
 ```
@@ -91,18 +97,21 @@ Ouvrez [localhost:3000](http://localhost:3000).
 | Route                                 | Fonction                                                                      |
 | ------------------------------------- | ----------------------------------------------------------------------------- |
 | `/`                                   | Présentation et exemples illustratifs                                         |
+| `/terms`, `/privacy`                   | CGU et politique de confidentialité publiques                                |
 | `/explore`                            | Mur public, recherche titre/contenu, pagination de 12, tri récent             |
 | `/dashboard`                          | Toutes ses notes, recherche, filtre public/privé, gestion                     |
 | `/notes/new`                          | Éditeur, six couleurs et visibilité publique par défaut                       |
 | `/notes/[id]`                         | Lecture selon les droits RLS ; même page introuvable pour absent/inaccessible |
 | `/notes/[id]/edit`                    | Édition par le propriétaire                                                   |
-| `/login`, `/signup`                   | Connexion et inscription email/mot de passe                                   |
+| `/login`, `/signup`                   | Connexion et inscription email/mot de passe ou Google si activé                |
 | `/forgot-password`, `/reset-password` | Demande et changement de mot de passe                                         |
 | `/auth/callback`, `/auth/confirm`     | Échange PKCE et vérification du token d’email                                 |
 | `/profile`                            | Modification du nom affiché et du nom unique                                  |
 | `/u/[username]`                       | Profil public, date d’inscription et seules notes publiques                   |
 
 ## Sécurité et confidentialité
+
+Les [CGU](https://pastly.fr/terms) et la [politique de confidentialité](https://pastly.fr/privacy) sont servies sans compte et liées dans le pied de page et sur l’inscription. Les coordonnées de RangedCompany sont centralisées dans `src/lib/legal.ts`. Voir le [guide de gestion des données](docs/donnees-personnelles.md) pour les paramètres des prestataires à vérifier et le traitement manuel des demandes de droits. Les URL à saisir dans Google figurent dans le [guide Google](docs/auth-google.md).
 
 - **RLS sur les deux tables**. La lecture d’une note exige `is_public` ou le propriétaire authentifié. Les écritures exigent le propriétaire, même par appel direct à l’API Supabase.
 - L’identité du propriétaire provient de `auth.getUser()` côté serveur, jamais d’un champ caché, d’un email ou de métadonnées client. Les clauses `owner_id` des actions s’ajoutent à RLS.
@@ -112,7 +121,7 @@ Ouvrez [localhost:3000](http://localhost:3000).
 - Les requêtes Supabase serveur et les réponses des pages sont sans cache partagé (`no-store`, rendu dynamique). Les liens de notes ne sont pas préchargés. Les métadonnées individuelles sont génériques et ne reprennent aucun texte de note, même publique.
 - Le passage en privé prend effet dès le commit en base pour les futures lectures publiques, y compris l’ancien lien et l’API directe. Il ne peut pas effacer une copie ou une page déjà ouverte chez un lecteur ; rechargez la page pour vérifier les nouveaux droits.
 - Texte brut rendu par React : aucun HTML utilisateur injecté. Validation Zod et contraintes SQL bornent titre, contenu, couleur et pseudonyme. La recherche échappe les délimiteurs PostgREST et les jokers LIKE.
-- Les Server Actions Next.js utilisent POST et les contrôles d’origine du framework. Redirections internes validées et en-têtes de protection de base. Aucun OAuth Google factice.
+- Les Server Actions Next.js utilisent POST et les contrôles d’origine du framework. Redirections internes validées et en-têtes de protection de base. Google utilise le flux OAuth PKCE de Supabase et les cookies SSR existants.
 - Le dialogue natif de suppression gère focus et clavier. Statuts accessibles, libellés de champs, liens d’évitement et réduction des animations selon les préférences du système.
 
 ## Vérifications
@@ -123,6 +132,7 @@ npm run typecheck
 npm test
 npm run build
 npm run test:e2e
+npm run test:e2e:google
 ```
 
 `npm run test:e2e` construit puis lance automatiquement le serveur **de production** sur `127.0.0.1:3100`, sans identifiants Supabase, même si `.env.local` est configuré. Les variables publiques étant intégrées au build par Next.js, cette reconstruction assure l’isolation des tests hors ligne. Les tests utilisent Chrome installé ; sinon exécutez `npx playwright install chrome`. Ils vérifient l’accueil et Explorer en desktop/mobile, les redirections des routes protégées, les formulaires, les états sans configuration, la recherche, les réponses sans cache et les pages introuvables. Captures et traces sont conservées dans `test-results/offline/` selon les résultats.
@@ -155,7 +165,9 @@ npm run test:e2e:live
 
 Cette commande reconstruit l’application avec la configuration locale, puis lance les parcours réels en desktop et mobile sur `127.0.0.1:3101` : connexion, persistance de session, modification du profil, création et édition de note, recherche avec caractères spéciaux, partage, profil public, passage en privé, ancien lien inaccessible, refus pour le second compte, retour en public et suppression avec confirmation. Les notes temporaires sont supprimées et le profil initial est restauré, même après échec. Les traces/vidéos sont désactivées pour ne pas enregistrer les mots de passe saisis ; une capture du tableau de bord est enregistrée dans `test-results/live/`.
 
-Les deux suites navigateur reconstruisent `.next` : exécutez-les **successivement**. Après la suite hors ligne, lancez `npm run build` ou la suite réelle pour restaurer un build connecté à votre configuration. Les tests réels ne sont pas lancés par la CI sans identifiants.
+`npm run test:e2e:google` reconstruit avec Google activé et une URL Supabase factice, puis intercepte le départ OAuth dans le navigateur. En desktop et mobile, il vérifie les deux boutons, le départ sans remplir les champs email, la destination, le challenge/cookie PKCE et le retour après annulation. Aucun compte Google ni service distant n’est utilisé ; ce contrôle ne remplace pas le consentement et une session Google réels.
+
+Toutes les suites navigateur reconstruisent `.next` : exécutez-les **successivement**. Après une suite hors ligne ou Google simulée, lancez `npm run build` ou la suite réelle pour restaurer un build connecté à votre configuration. Les tests réels ne sont pas lancés par la CI sans identifiants.
 
 Le nom historique `202610290001_postly.sql` et ses identifiants SQL sont conservés : cette migration a déjà été appliquée et ne doit pas être réécrite après le renommage en Pastly. L’application et ses nouvelles variables de tests utilisent le nom Pastly.
 
@@ -218,7 +230,7 @@ scripts/                 Intégration Supabase réelle à déclencher manuelleme
 
 ## Limites V1
 
-Texte brut uniquement, 120 caractères de titre et 5 000 de contenu, six couleurs, 12 notes par page et tri récent. Recherche partielle avec index trigrammes, sans classement sémantique. Le nom d’utilisateur modifie l’URL du profil sans redirection de l’ancien nom. Le bouton de partage nécessite un contexte sécurisé HTTPS ou localhost et l’autorisation du presse-papiers. Pas de commentaires, likes, abonnements, paiements, chat, ni authentification Google. L’administration couvre la supervision des comptes et des notes ainsi que les rôles admin ; elle ne supprime ni comptes ni notes. Les quotas et limites Auth/email/base dépendent de votre offre Supabase. Aucune garantie d’effacement des copies déjà téléchargées d’une note précédemment publique.
+Texte brut uniquement, 120 caractères de titre et 5 000 de contenu, six couleurs, 12 notes par page et tri récent. Recherche partielle avec index trigrammes, sans classement sémantique. Le nom d’utilisateur modifie l’URL du profil sans redirection de l’ancien nom. Le bouton de partage nécessite un contexte sécurisé HTTPS ou localhost et l’autorisation du presse-papiers. Pas de commentaires, likes, abonnements, paiements ni chat. L’authentification Google nécessite la configuration du fournisseur dans Supabase et du client OAuth dans Google Cloud. L’administration couvre la supervision des comptes et des notes ainsi que les rôles admin ; elle ne supprime ni comptes ni notes. Les quotas et limites Auth/email/base dépendent de votre offre Supabase. Aucune garantie d’effacement des copies déjà téléchargées d’une note précédemment publique.
 
 ## Résultats de livraison locale — 29 octobre 2026
 

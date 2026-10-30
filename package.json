@@ -15,6 +15,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:e2e": "playwright test",
+    "test:e2e:google": "playwright test --config=playwright.google.config.ts",
     "test:e2e:live": "playwright test --config=playwright.live.config.ts",
     "test:integration": "node --env-file-if-exists=.env.local --experimental-strip-types scripts/supabase-integration.ts"
   },

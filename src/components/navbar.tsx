@@ -109,10 +109,14 @@ export function Footer() {
         pastly<span className="brand-dot">.</span>
       </Link>
       <p>Les petites idées méritent une place.</p>
-      <Link href="/explore">
+      <Link href="/explore" className="footer-explore">
         Un peu d’inspiration
         <ArrowUpRight size={15} />
       </Link>
+      <nav className="footer-legal" aria-label="Informations légales">
+        <Link href="/terms">Conditions d’utilisation</Link>
+        <Link href="/privacy">Confidentialité</Link>
+      </nav>
     </footer>
   );
 }
