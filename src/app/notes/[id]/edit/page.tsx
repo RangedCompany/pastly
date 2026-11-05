@@ -4,8 +4,9 @@ import { requireUser } from "@/lib/auth";
 import { getNote } from "@/lib/data";
 import { idSchema } from "@/lib/validation";
 import { NoteEditor } from "@/components/note-editor";
+import { ViewerWorkspace } from "@/components/viewer/viewer-workspace";
 export const metadata: Metadata = {
-  title: "Modifier un post-it",
+  title: "Modifier un contenu",
   robots: { index: false },
 };
 export default async function EditNote({
@@ -19,8 +20,21 @@ export default async function EditNote({
   const note = await getNote(id);
   if (!note || note.owner_id !== user.id) notFound();
   return (
-    <div className="container narrow">
-      <NoteEditor note={note} />
+    <div
+      className={
+        note.format === "note"
+          ? "container narrow"
+          : "container document-editor"
+      }
+    >
+      {note.format === "note" ? (
+        <NoteEditor note={note} />
+      ) : (
+        <>
+          <h1 className="document-editor-title">Modifier le contenu</h1>
+          <ViewerWorkspace note={note} authenticated configured />
+        </>
+      )}
     </div>
   );
 }

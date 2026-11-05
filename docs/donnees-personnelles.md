@@ -6,10 +6,10 @@ Les textes publics sont les [CGU](https://pastly.fr/terms) et la [politique de c
 
 ## Fonctionnement décrit par les pages
 
-- Notes publiques par défaut ; profil public sans email ; changement de visibilité et suppression depuis l’espace utilisateur.
+- Nouveaux contenus privés par défaut ; visibilité historique conservée ; profil public sans email ; changement de visibilité et suppression depuis l’espace utilisateur.
 - Authentification email ou Google via Supabase. Les informations Google de base peuvent être conservées dans Auth, même si Pastly n’en fait pas un nom public ou un avatar automatique.
 - L’administration applicative voit les comptes et les volumes de notes privées, sans leur contenu. L’administration technique de l’infrastructure reste distincte.
-- Vercel héberge le site ; Web Analytics et Speed Insights sont intégrés. Les événements admin sont exclus ; aucun gestionnaire de consentement ni bouton d’opposition spécifique aux mesures n’est actuellement implémenté. Ne pas présenter l’absence de cookies tiers comme une preuve d’exemption de consentement : l’appréciation dépend du fonctionnement et des paramètres effectifs des outils. Si un consentement est requis pour la configuration retenue, adapter le chargement des outils avant de les activer.
+- Vercel héberge le site ; Web Analytics et Speed Insights sont intégrés. Les événements admin, bibliothèque, documents et pages sensibles sont exclus ; les paramètres de recherche et fragments sont retirés des autres événements ; aucun gestionnaire de consentement ni bouton d’opposition spécifique aux mesures n’est actuellement implémenté. Ne pas présenter l’absence de cookies tiers comme une preuve d’exemption de consentement : l’appréciation dépend du fonctionnement et des paramètres effectifs des outils. Si un consentement est requis pour la configuration retenue, adapter le chargement des outils avant de les activer.
 - Pas de suppression automatique des comptes inactifs, pas d’export ni de fermeture du compte en libre-service. Les demandes sont traitées manuellement par l’éditeur.
 - Les cookies du SDK SSR ont actuellement un `maxAge` de 400 jours, renouvelé à leur réécriture ; la durée de validité de session côté Auth peut différer. Revoir le texte si ces options changent.
 
@@ -45,3 +45,7 @@ Révoquer uniquement l’accès Google ne supprime pas le compte Pastly. Le flux
 - Après déploiement, tester les URL HTTPS réelles avant de les saisir dans [Google Auth Platform](auth-google.md).
 
 Références : [information des personnes, CNIL](https://www.cnil.fr/fr/conformite-rgpd-information-des-personnes-et-transparence), [demandes d’accès, CNIL](https://www.cnil.fr/fr/repondre-une-demande-de-droit-dacces), [mesure d’audience, CNIL](https://www.cnil.fr/fr/node/677), [Web Analytics](https://vercel.com/docs/analytics/privacy-policy), [Speed Insights](https://vercel.com/docs/speed-insights/privacy-policy), [accord de traitement Supabase](https://supabase.com/legal/customer-resources/data-processing-addendum).
+
+## Changements V2 à relire avant publication
+
+Le visualiseur traite les collages et fichiers localement. Aucun binaire n’est téléversé ni conservé dans Supabase. Les textes et noms de fichiers ne sont transmis pour sauvegarde qu’après une action explicite. Un brouillon peut être placé explicitement dans le stockage de session de l’onglet pour traverser la connexion ; il est retiré après restauration. Les images distantes Markdown ne sont demandées qu’après clic. Les pages publiques décrivent désormais ces comportements et le défaut privé. L’éditeur doit relire ces informations et les réglages réels des prestataires avant le déploiement. Une future sauvegarde Storage nécessitera une nouvelle revue des textes, des destinataires, de la conservation et du cycle de suppression.

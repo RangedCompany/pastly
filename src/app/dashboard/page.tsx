@@ -7,7 +7,7 @@ import { parsePage, searchTerm } from "@/lib/validation";
 import { NoteGrid } from "@/components/note-card";
 import { EmptyState, Pagination, SearchBar } from "@/components/ui";
 export const metadata: Metadata = {
-  title: "Mes post-it",
+  title: "Ma bibliothèque",
   robots: { index: false, follow: false },
 };
 export default async function Dashboard({
@@ -19,6 +19,7 @@ export default async function Dashboard({
     visibility?: string;
     success?: string;
     error?: string;
+    format?: string;
   }>;
 }) {
   const user = await requireUser();
@@ -33,31 +34,32 @@ export default async function Dashboard({
     page,
     owner: user.id,
     visibility,
+    format: params.format,
   });
   return (
     <div className="container">
       <div className="heading-row">
         <div className="page-heading">
           <span className="eyebrow">VOTRE ESPACE PERSONNEL</span>
-          <h1>Mes petites idées.</h1>
+          <h1>Ma bibliothèque.</h1>
           <p>
             Un coin à vous pour retrouver, organiser et faire grandir vos
             pensées.
           </p>
         </div>
-        <Link href="/notes/new" className="button button-primary">
+        <Link href="/" className="button button-primary">
           <Plus size={17} />
-          Créer un post-it
+          Nouveau contenu
         </Link>
       </div>
       {params.success === "saved" && (
         <p className="message message-success" role="status">
-          Votre post-it a bien été enregistré.
+          Votre contenu a bien été enregistré.
         </p>
       )}
       {params.success === "deleted" && (
         <p className="message message-success" role="status">
-          Votre post-it a été supprimé.
+          Votre contenu a été supprimé.
         </p>
       )}
       {params.error === "signout" && (
@@ -69,12 +71,13 @@ export default async function Dashboard({
         <SearchBar
           query={query}
           visibility={visibility}
-          placeholder="Retrouver un de mes post-it…"
+          format={params.format}
+          placeholder="Retrouver un contenu…"
         />
       </div>
       <div className="wall-caption">
         <span>
-          {count} post-it{count > 1 ? "s" : ""}
+          {count} contenu{count > 1 ? "s" : ""}
         </span>
         <span>
           <ShieldCheck size={14} />
@@ -86,8 +89,10 @@ export default async function Dashboard({
       ) : (
         <EmptyState
           description={
-            query || visibility !== "all"
-              ? "Aucun post-it ne correspond à ces filtres."
+            query ||
+            visibility !== "all" ||
+            (params.format && params.format !== "all")
+              ? "Aucun contenu ne correspond à ces filtres."
               : "Votre première idée n’attend qu’un peu de place."
           }
           href="/notes/new"
@@ -99,6 +104,7 @@ export default async function Dashboard({
         base="/dashboard"
         query={query}
         visibility={visibility}
+        format={params.format}
       />
     </div>
   );

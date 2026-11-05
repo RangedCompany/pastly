@@ -21,6 +21,8 @@ export async function saveNote(
     content: form.get("content"),
     color: form.get("color"),
     is_public: form.get("is_public") === "true",
+    format: form.get("format") ?? "note",
+    original_filename: form.get("original_filename") || null,
   });
   if (!parsed.success) return { error: parsed.error.issues[0].message };
   if (id && !idSchema.safeParse(id).success)
@@ -96,7 +98,7 @@ export async function setNoteVisibility(
   invalidate(id);
   return {
     success: isPublic
-      ? "Ce post-it est maintenant public."
-      : "Ce post-it est maintenant privé.",
+      ? "Ce contenu est maintenant public."
+      : "Ce contenu est maintenant privé.",
   };
 }

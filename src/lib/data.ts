@@ -3,17 +3,20 @@ import { createClient } from "./supabase/server";
 import { NOTE_FIELDS, PAGE_SIZE, PROFILE_FIELDS } from "./constants";
 import { searchFilter } from "./validation";
 import type { NoteWithAuthor } from "./database.types";
+import { FORMATS, type ContentFormat } from "./viewer/types";
 
 export async function listNotes({
   page = 1,
   query = "",
   owner,
   visibility = "public",
+  format = "all",
 }: {
   page?: number;
   query?: string;
   owner?: string;
   visibility?: string;
+  format?: string;
 }) {
   const supabase = await createClient();
   let request = supabase.from("notes").select(NOTE_FIELDS, { count: "exact" });
@@ -21,8 +24,12 @@ export async function listNotes({
   if (visibility === "public") request = request.eq("is_public", true);
   if (visibility === "private") request = request.eq("is_public", false);
   if (query) request = request.or(searchFilter(query));
+  if (FORMATS.includes(format as ContentFormat))
+    request = request.eq("format", format as ContentFormat);
   const { data, error, count } = await request
-    .order("created_at", { ascending: false })
+    .order(owner && visibility === "all" ? "updated_at" : "created_at", {
+      ascending: false,
+    })
     .order("id", { ascending: false })
     .range((page - 1) * PAGE_SIZE, page * PAGE_SIZE - 1);
   if (error)

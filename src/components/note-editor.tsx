@@ -49,7 +49,7 @@ export function VisibilityToggle({
 }) {
   return (
     <fieldset className="visibility-picker">
-      <legend>Qui peut voir ce post-it ?</legend>
+      <legend>Qui peut voir ce contenu ?</legend>
       <div className="visibility-options">
         <label className={isPublic ? "selected" : ""}>
           <input
@@ -90,7 +90,7 @@ export function VisibilityToggle({
 }
 export function NoteEditor({ note }: { note?: Note }) {
   const [color, setColor] = useState<NoteColor>(note?.color ?? "yellow");
-  const [isPublic, setIsPublic] = useState(note?.is_public ?? true);
+  const [isPublic, setIsPublic] = useState(note?.is_public ?? false);
   const [length, setLength] = useState(note?.content.length ?? 0);
   const [state, action, pending] = useActionState(
     saveNote.bind(null, note?.id ?? null),
@@ -112,6 +112,8 @@ export function NoteEditor({ note }: { note?: Note }) {
         <p>Posez vos mots, choisissez une couleur et laissez-leur une place.</p>
       </div>
       <form action={action} className="editor-layout">
+        <input type="hidden" name="format" value="note" />
+        <input type="hidden" name="original_filename" value={note?.original_filename ?? ""} />
         <div className={`editor-paper paper-${color}`}>
           <label htmlFor="title">Titre du post-it</label>
           <input

@@ -32,6 +32,17 @@ export default function Privacy() {
       </section>
       <section>
         <h2>2. Les données utilisées</h2>
+        <p>
+          Le texte collé et les fichiers ouverts dans le visualiseur sont
+          traités localement dans votre navigateur. Les fichiers binaires ne
+          sont pas téléversés ni sauvegardés par cette version. Seul un
+          enregistrement explicite d’un contenu textuel l’envoie à votre
+          bibliothèque Supabase. Si vous choisissez de conserver un brouillon
+          avant connexion, il est temporairement placé dans le stockage de
+          session de cet onglet, puis retiré après restauration. Les images
+          externes d’un document Markdown ne sont contactées qu’après votre clic
+          sur leur bouton de chargement.
+        </p>
         <ul>
           <li>
             <strong>Compte :</strong> adresse email, identifiant de compte,
@@ -47,8 +58,9 @@ export default function Privacy() {
             n’est pas nécessaire pour publier des notes.
           </li>
           <li>
-            <strong>Notes :</strong> titre, contenu, couleur, visibilité
-            publique ou privée, propriétaire, dates de création et de
+            <strong>Contenus enregistrés :</strong> titre, contenu source,
+            format, nom du fichier d’origine lorsqu’il est fourni, couleur,
+            visibilité publique ou privée, propriétaire, dates de création et de
             modification.
           </li>
           <li>
@@ -157,14 +169,14 @@ export default function Privacy() {
       <section>
         <h2>5. Ce qui est public et ce qui reste privé</h2>
         <p>
-          <strong>Une note est publique par défaut.</strong> Son contenu, votre
-          pseudonyme, votre nom affiché et les informations publiques de votre
-          profil sont alors accessibles aux visiteurs sans compte. Ils peuvent
-          être copiés ou partagés par des tiers. Votre adresse email n’est pas
-          affichée sur le profil public.
+          <strong>Un nouveau contenu est privé par défaut.</strong> Si vous le
+          rendez public, son contenu, votre pseudonyme, votre nom affiché et les
+          informations publiques de votre profil sont alors accessibles aux
+          visiteurs sans compte. Ils peuvent être copiés ou partagés par des
+          tiers. Votre adresse email n’est pas affichée sur le profil public.
         </p>
         <p>
-          Vous pouvez choisir le mode privé avant l’enregistrement ou le
+          Vous pouvez choisir la visibilité avant l’enregistrement ou la
           modifier ensuite. Les autres utilisateurs ne peuvent pas consulter vos
           notes privées dans Pastly, même s’ils disposent du lien. Les personnes
           habilitées à exploiter l’infrastructure peuvent toutefois devoir
@@ -245,10 +257,12 @@ export default function Privacy() {
         <p>
           Lorsque Web Analytics et Speed Insights sont actifs, Vercel reçoit des
           mesures de navigation et de performance, incluant les adresses des
-          pages et certaines informations techniques. Des paramètres d’URL
-          peuvent contenir des termes de recherche ; évitez d’y saisir des
-          informations confidentielles. Les événements des pages
-          d’administration sont exclus de ces mesures par Pastly.
+          pages et certaines informations techniques. Pastly retire les
+          paramètres de recherche et les fragments des événements envoyés par
+          ces composants, et exclut les événements des pages d’administration,
+          de bibliothèque, de document et des pages sensibles
+          d’authentification. Cela ne modifie pas les journaux techniques des
+          prestataires décrits dans cette politique.
         </p>
         <p>
           Vercel présente ces outils comme des mesures agrégées et indique que

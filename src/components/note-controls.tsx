@@ -35,7 +35,7 @@ export function ConfirmDeleteDialog({
           <span className="dialog-icon">
             <Trash2 size={24} />
           </span>
-          <h2 id={`delete-${id}`}>Supprimer ce post-it ?</h2>
+          <h2 id={`delete-${id}`}>Supprimer ce contenu ?</h2>
           <p>
             « {title} » sera définitivement supprimé. Cette action est
             irréversible.
@@ -82,7 +82,7 @@ export function QuickVisibility({
           disabled={pending}
           title={isPublic ? "Rendre privé" : "Rendre public"}
           aria-label={
-            isPublic ? "Rendre ce post-it privé" : "Rendre ce post-it public"
+            isPublic ? "Rendre ce contenu privé" : "Rendre ce contenu public"
           }
         >
           {isPublic ? <Globe2 size={12} /> : <LockKeyhole size={12} />}

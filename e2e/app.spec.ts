@@ -58,14 +58,14 @@ test("accueil français, navigation et affichage responsive", async ({
   await page.goto("/");
   await expect(page.locator("html")).toHaveAttribute("lang", "fr");
   await expect(page.getByRole("heading", { level: 1 })).toContainText(
-    "Une idée.",
+    "Collez quelque chose.",
   );
   await expect(
-    page.getByRole("link", { name: "Explorer les post-it", exact: true }),
+    page.getByRole("link", { name: "Explorer les contenus publics →", exact: true }),
   ).toBeVisible();
   expect(
     await page
-      .locator(".hero-actions .button")
+      .locator(".workspace-actions .button")
       .first()
       .evaluate((el) => parseFloat(getComputedStyle(el).fontSize)),
   ).toBeGreaterThanOrEqual(14);
@@ -87,7 +87,7 @@ test("accueil français, navigation et affichage responsive", async ({
     fullPage: true,
   });
   await page
-    .getByRole("link", { name: "Explorer les post-it", exact: true })
+    .getByRole("link", { name: "Explorer les contenus publics →", exact: true })
     .click();
   await expect(page).toHaveURL(/\/explore$/);
   await expect(page.getByRole("heading", { level: 1 })).toContainText(

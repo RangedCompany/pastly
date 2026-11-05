@@ -9,7 +9,7 @@ import {
 } from "../src/lib/validation";
 
 describe("validation des entrées serveur", () => {
-  it("valide et nettoie une note", () => {
+  it("normalise le titre et conserve la source exacte", () => {
     expect(
       noteSchema.parse({
         title: "  Idée  ",
@@ -19,9 +19,13 @@ describe("validation des entrées serveur", () => {
       }),
     ).toEqual({
       title: "Idée",
-      content: "Une pensée",
+      content: " Une pensée ",
       color: "yellow",
       is_public: true,
+      format: "note",
+      content_kind: "note",
+      original_filename: null,
+      metadata: {},
     });
   });
   it.each([

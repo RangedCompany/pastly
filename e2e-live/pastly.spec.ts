@@ -65,7 +65,7 @@ test("parcours réel : profil, publication, partage, confidentialité, édition 
     await login(a, "A");
     await a.reload();
     await expect(a.getByRole("heading", { level: 1 })).toHaveText(
-      "Mes petites idées.",
+      "Ma bibliothèque.",
     );
     await a.goto("/profile");
     await a.getByLabel("Nom affiché", { exact: true }).fill(displayName);
@@ -75,7 +75,8 @@ test("parcours réel : profil, publication, partage, confidentialité, édition 
       a.getByText("Votre profil a bien été enregistré."),
     ).toBeVisible();
     await a.goto("/notes/new");
-    await expect(a.getByRole("radio", { name: /Public/ })).toBeChecked();
+    await expect(a.getByRole("radio", { name: /Privé/ })).toBeChecked();
+    await a.getByRole("radio", { name: /Public/ }).check();
     await a.getByLabel("Titre du post-it").fill(title);
     await a
       .getByLabel("Contenu du post-it")
@@ -93,7 +94,7 @@ test("parcours réel : profil, publication, partage, confidentialité, édition 
     await card.locator(".note-card-link").click();
     await expect(a).toHaveURL(/\/notes\/[0-9a-f-]{36}$/);
     const notePath = new URL(a.url()).pathname;
-    await a.getByRole("button", { name: "Copier le lien du post-it" }).click();
+    await a.getByRole("button", { name: "Copier le lien du contenu" }).click();
     await expect(a.getByText("Lien copié !", { exact: true })).toBeVisible();
     expect(await a.evaluate(() => navigator.clipboard.readText())).toBe(
       a.url(),
@@ -127,13 +128,13 @@ test("parcours réel : profil, publication, partage, confidentialité, édition 
       b.getByRole("heading", { name: "Ce petit coin est vide." }),
     ).toBeVisible();
     await a
-      .getByRole("button", { name: "Rendre ce post-it privé", exact: true })
+      .getByRole("button", { name: "Rendre ce contenu privé", exact: true })
       .click();
     await expect(
       a.getByText("Privé · visible par vous uniquement", { exact: true }),
     ).toBeVisible();
     await expect(
-      a.getByRole("button", { name: "Copier le lien du post-it" }),
+      a.getByRole("button", { name: "Copier le lien du contenu" }),
     ).toHaveCount(0);
     for (const page of [visitor, b]) {
       await page.goto(notePath);
@@ -172,11 +173,11 @@ test("parcours réel : profil, publication, partage, confidentialité, édition 
     });
     await expect(card).toHaveClass(/paper-green/);
     await card
-      .getByRole("button", { name: "Rendre ce post-it public", exact: true })
+      .getByRole("button", { name: "Rendre ce contenu public", exact: true })
       .click();
     await expect(
       card.getByRole("button", {
-        name: "Rendre ce post-it privé",
+        name: "Rendre ce contenu privé",
         exact: true,
       }),
     ).toBeVisible();

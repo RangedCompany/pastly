@@ -14,19 +14,19 @@ import { parsePage, searchTerm } from "@/lib/validation";
 export const metadata: Metadata = {
   title: "Explorer",
   description:
-    "Un mur de post-it publics pour découvrir des idées, des pensées et des inspirations.",
+    "Découvrez les documents, diagrammes, données et post-it publics de la communauté Pastly.",
 };
 export default async function Explore({
   searchParams,
 }: {
-  searchParams: Promise<{ q?: string; page?: string }>;
+  searchParams: Promise<{ q?: string; page?: string; format?: string }>;
 }) {
   const params = await searchParams;
   const query = searchTerm(params.q),
     page = parsePage(params.page);
   const configured = isSupabaseConfigured();
   const { notes, count } = configured
-    ? await listNotes({ page, query })
+    ? await listNotes({ page, query, format: params.format })
     : { notes: [], count: 0 };
   return (
     <div className="container">
@@ -40,21 +40,21 @@ export default async function Explore({
           </h1>
           <p>
             Des pensées en passant, des découvertes à partager. Promenez-vous
-            parmi les post-it publics de la communauté.
+            parmi les documents, diagrammes et post-it publics de la communauté.
           </p>
         </div>
-        <Link href="/notes/new" className="button button-primary">
+        <Link href="/" className="button button-primary">
           <Plus size={17} />
           Ajouter mon idée
         </Link>
       </div>
       {!configured && <SetupNotice />}
       <div className="toolbar">
-        <SearchBar query={query} />
+        <SearchBar query={query} format={params.format} />
       </div>
       <div className="wall-caption">
         <span>
-          {count} post-it public{count > 1 ? "s" : ""}
+          {count} contenu{count > 1 ? "s" : ""} public{count > 1 ? "s" : ""}
           {query && ` pour « ${query} »`}
         </span>
         <span>
@@ -74,13 +74,19 @@ export default async function Explore({
           description={
             query
               ? "Essayez d’autres mots ou effacez votre recherche."
-              : "Les post-it publics apparaîtront ici. Et si vous commenciez ?"
+              : "Les contenus publics apparaîtront ici. Et si vous commenciez ?"
           }
           href={query ? "/explore" : "/notes/new"}
           label={query ? "Voir tous les post-it" : "Créer le premier post-it"}
         />
       )}
-      <Pagination page={page} count={count} base="/explore" query={query} />
+      <Pagination
+        page={page}
+        count={count}
+        base="/explore"
+        query={query}
+        format={params.format}
+      />
     </div>
   );
 }

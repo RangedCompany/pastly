@@ -1,23 +1,19 @@
-# Pastly
+# Pastly V2
 
-Une petite place pour les grandes et petites idées. Pastly permet de créer des post-it colorés, publics par défaut, de les partager par lien ou de les garder privés. Interface entièrement en français, responsive et accessible au clavier.
+**Collez. Visualisez. Conservez. Partagez.**
 
-Dépôt : [RangedCompany/pastly](https://github.com/RangedCompany/pastly). Domaine prévu : **https://pastly.fr**. Le [guide Cloudflare, Vercel et Supabase](docs/deploiement-pastly.fr.md) donne les étapes et les enregistrements à préparer pour ce domaine.
-
-## Stack et prérequis
-
-Next.js 16 (App Router), React 19, TypeScript strict, Tailwind CSS 4, Lucide, Supabase PostgreSQL/Auth et `@supabase/ssr`. Node.js **24 LTS** et npm. TypeScript 6 et ESLint 9 sont utilisés pour rester compatibles avec le parseur et les plugins du preset Next.js actuel ; les versions exactes sont verrouillées dans `package-lock.json`. ESLint 9 signale sa fin de support : sa montée de version attend la compatibilité des plugins React, import et accessibilité du preset.
+Pastly transforme un texte collé en document lisible, diagramme, arbre de données, code coloré ou tableau. Le visualiseur de l’accueil fonctionne **sans compte et sans configuration Supabase**, dans le navigateur. Les comptes permettent de conserver les contenus dans une bibliothèque et de partager ceux rendus publics. Les post-it classiques, leurs couleurs et leurs anciennes URL restent disponibles.
 
 ## Démarrer
 
-```powershell
+Node.js **24 LTS**, npm et les dépendances du dépôt sont nécessaires. La stack reste Next.js 16.4.3, React 19.3.1, TypeScript 6 strict, Tailwind 4, Lucide, Supabase PostgreSQL/Auth, `@supabase/ssr` et Zod 4.
+
+```sh
 npm ci
-Copy-Item .env.example .env.local
+npm run dev
 ```
 
-Sous macOS/Linux : `cp .env.example .env.local`.
-
-Renseignez les variables dans `.env.local` :
+Ouvrir http://localhost:3000. Supabase est facultatif pour le rendu local. Pour les comptes, copier `.env.example` vers `.env.local` et renseigner :
 
 ```dotenv
 NEXT_PUBLIC_SUPABASE_URL=https://votre-reference.supabase.co
@@ -25,104 +21,115 @@ NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=sb_publishable_...
 NEXT_PUBLIC_SITE_URL=http://localhost:3000
 ```
 
-Dans Supabase, ouvrez **Connect** ou **Settings → API Keys** pour obtenir l’URL du projet et la clé **publishable**. Une ancienne clé publique `anon` JWT reste acceptée dans cette même variable. N’utilisez jamais de clé `service_role` ni `sb_secret_...`. Aucune clé administrateur n’est nécessaire à l’application.
+Utiliser uniquement une clé publique publishable ou anon, jamais de clé service_role. Les fichiers `.env*` hors exemple sont ignorés par Git. Les migrations ne sont jamais exécutées automatiquement par le build.
 
-`.env.local`, tous les autres fichiers `.env*` (hors exemple) et les fichiers Vercel locaux sont ignorés par Git. Les variables `NEXT_PUBLIC_*` sont publiques : ne jamais y mettre de secret.
+## Formats
 
-Sans configuration, les pages de présentation fonctionnent et Explorer explique la configuration manquante. Aucune donnée fictive n’est présentée comme issue de la base. Les post-it de l’accueil sont explicitement illustratifs.
+| Format                   | Rendu et fonctions                                                                                                                             |
+| ------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------- |
+| Texte brut / Post-it     | Retours à la ligne, espaces, copie, téléchargement, papier pastel pour le mode classique                                                       |
+| Markdown                 | Titres, listes, tableaux GFM, citations, liens, cases à cocher, blocs Shiki, Mermaid intégré, formules KaTeX                                   |
+| Mermaid                  | Diagramme SVG réel, zoom, adaptation à la largeur, exports SVG et PNG                                                                          |
+| JSON / YAML / TOML / XML | Arbre repliable, types colorés, copie de valeurs, ouverture progressive des grandes branches, diagnostics                                      |
+| Code                     | Shiki : TypeScript, JavaScript, Python, Rust, Go, Java, C/C++, HTML, CSS, SQL et Bash ; numéros de ligne, aucun code exécuté                   |
+| CSV / TSV                | Champs cités, guillemets et retours dans les cellules, recherche, tri, pagination locale et défilement ; première ligne utilisée comme en-tête |
+| PNG / JPG / WebP / GIF   | Image locale, téléchargement de l’original                                                                                                     |
+| SVG                      | Assainissement DOMPurify, retrait du contenu actif et des ressources externes, affichage en image isolée                                       |
+| PDF                      | PDF.js, pages et zoom, rendu canvas ; aucun script, formulaire actif, lien ou pièce jointe activé                                              |
+| DOCX                     | Extraction du texte avec Mammoth ; pas de reproduction de la mise en page ni des images Word                                                   |
+| XLSX                     | Feuilles sélectionnables, valeurs enregistrées dans les cellules, tableau avec recherche et tri ; aucune formule ni macro exécutée             |
 
-## Créer et configurer Supabase
+Les binaires restent locaux : **pas de téléversement automatique, pas de sauvegarde binaire, pas de bucket Storage créé**, pas de base64 dans PostgreSQL. Un fichier non pris en charge affiche une explication ; l’original ouvert reste téléchargeable. Le téléchargement d’un CSV conserve sa source initiale : le tri et les filtres ne modifient pas le fichier.
 
-1. Créez un projet dans [Supabase](https://supabase.com/dashboard). Conservez le mot de passe PostgreSQL en lieu sûr, hors du dépôt.
-2. Dans **SQL Editor → New query**, exécutez entièrement le fichier `supabase/migrations/202610290001_postly.sql`, **une seule fois**. Il crée les tables, contraintes, index, triggers, droits et policies RLS en transaction.
-3. Alternative CLI, avec une CLI Supabase installée :
+Les images Markdown externes sont chargées uniquement après un clic explicite. Le HTML brut est ignoré en Markdown ; le format HTML est une vue de code, jamais une page exécutée. La détection et les renderers ne transmettent pas le texte à un service externe ou à une IA.
 
-   ```sh
-   supabase login
-   supabase link --project-ref VOTRE_REFERENCE
-   supabase db push
-   ```
+## Utilisation
 
-   Ces commandes modifient le projet lié : vérifiez sa référence avant de les lancer. Aucune migration distante n’est lancée automatiquement par le build ou la CI.
+- `/` : collage, presse-papiers si autorisé, glisser-déposer, format automatique ou manuel, modes Source/Aperçu/Split, plein écran, copie, téléchargement et sauvegarde.
+- `/dashboard` : **Ma bibliothèque**, recherche, visibilité, filtre par format, pagination, modification, suppression et partage.
+- `/explore` : galerie publique multiformat avec recherche et filtres.
+- `/notes/new` : éditeur historique de post-it, six couleurs, privé par défaut.
+- `/notes/[id]` : renderer correspondant au format sauvegardé ; URL historique conservée.
+- `/notes/[id]/edit` : éditeur classique pour les post-it, atelier source/aperçu pour les autres formats.
+- `/profile`, `/u/[username]` : profil et publications publiques ; authentification et administration existantes conservées.
+- `/terms`, `/privacy` : pages légales publiques.
 
-4. La migration est additive et ne supprime aucune table. Si vous possédez déjà des tables `profiles` ou `notes`, comparez leur schéma, leurs policies et leurs privilèges avant application. Un schéma incompatible doit être adapté par une nouvelle migration ; ne supprimez pas les tables pour contourner une erreur. Les policies PostgreSQL permissives se combinent par OR : aucune ancienne policy plus large ne doit rester active.
-5. Dans **Authentication → Sign In / Providers → Email**, activez email/mot de passe et **Confirm email**. Réglez la longueur minimale du mot de passe à **12** caractères pour aligner Auth et l’interface. Les actions d’inscription et de réinitialisation valident également cette longueur côté serveur.
-6. Dans **Authentication → URL Configuration**, définissez **Site URL** à `http://localhost:3000` pour le développement. Ajoutez aux **Redirect URLs** :
+Les boutons de formats rapides insèrent un exemple uniquement lorsque la source est vide. Un changement de format ou de mode ne réinitialise jamais la source. L’aperçu est actualisé après 300 ms. Le téléchargement et la sauvegarde utilisent toujours la source courante.
 
-   ```text
-   http://localhost:3000/auth/callback
-   http://localhost:3000/auth/callback?next=/reset-password
-   http://localhost:3000/auth/confirm
-   ```
+Avant connexion, le bouton de sauvegarde propose de conserver explicitement le brouillon dans `sessionStorage` pour traverser la connexion dans **le même onglet**. Il est restauré sur `/?draft=1` puis retiré du stockage de session. Il n’existe aucune sauvegarde automatique persistante des collages. Télécharger un original avant de fermer l’onglet ; le parcours Google doit revenir dans cet onglet pour retrouver ce brouillon.
 
-7. Dans **Authentication → Email Templates**, modifiez les liens comme ci-dessous pour permettre l’ouverture sur un autre appareil, sans dépendre du navigateur ayant initié le PKCE :
+## Migration Supabase
 
-   **Confirm signup** :
+Pour une installation neuve, appliquer les migrations dans cet ordre :
 
-   ```html
-   <a href="{{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}&type=email"
-     >Confirmer mon inscription à Pastly</a
-   >
-   ```
+1. `supabase/migrations/202610290001_postly.sql`
+2. `supabase/migrations/202610290002_admin.sql`
+3. `supabase/migrations/202611050001_universal_viewer.sql`
 
-   **Reset password** :
+Pour une installation existante avec les deux premières migrations déjà appliquées, appliquer **uniquement la troisième**. Ne pas réexécuter ni modifier les migrations historiques. La migration V2 ajoute :
 
-   ```html
-   <a
-     href="{{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}&type=recovery"
-     >Choisir un nouveau mot de passe</a
-   >
-   ```
+| Colonne             | Rôle                                                                                                                   |
+| ------------------- | ---------------------------------------------------------------------------------------------------------------------- |
+| `content_kind`      | `note`, `text`, `markdown`, `code`, `diagram` ou `data`                                                                |
+| `format`            | Format précis ; `note` par défaut pour interpréter les anciennes lignes                                                |
+| `original_filename` | Nom d’origine facultatif, sans chemin, 255 caractères au maximum                                                       |
+| `metadata`          | Objet JSON fermé, actuellement `{}` uniquement ; une future extension exige une migration et une validation explicites |
 
-   Pour ces modèles, `.SiteURL` doit correspondre à l’environnement utilisé. Utilisez de préférence un projet Supabase distinct pour le développement et la production. Le callback `/auth/callback` reste fourni pour les liens PKCE Supabase standard (même navigateur).
+Elle élargit la contrainte de longueur, ajoute les contraintes de cohérence format/type et les privilèges de colonne, puis des index de filtrage. Les policies RLS, triggers d’immuabilité, propriétaires, UUID, dates, couleurs et visibilités existantes sont conservés. Les anciennes lignes ne sont pas mises à jour : leur `updated_at` reste inchangé. Seul le **défaut des nouvelles insertions** devient privé.
 
-8. Configurez un **SMTP personnalisé** avant d’ouvrir les inscriptions au public (**Project Settings / Authentication → SMTP Settings**, selon l’interface Supabase). Le service email intégré Supabase impose des limites et n’assure pas un envoi général à tous les destinataires. Les quotas gratuits et les protections Auth s’appliquent. Réglez les limites de débit Auth et, si nécessaire, les protections anti-abus dans Supabase.
-
-Les profils sont créés à l’insertion de `auth.users`, sans attendre de session ni dépendre de l’email. Un nom unique `membre_<uuid>` est attribué puis personnalisable dans `/profile`. Si le trigger de profil échoue, l’inscription n’est pas annulée : la fonction `ensure_my_profile`, réservée aux utilisateurs authentifiés et sans argument propriétaire, retente la création lors de l’accès au profil ou de la première note.
-
-## Utilisation locale
-
-### Connexion et inscription Google
-
-Le parcours Google est prêt via Supabase Auth : bouton **Continuer avec Google** sur `/login` et `/signup`, création du compte au premier passage, session SSR par cookies et retour vers la page demandée. Il est désactivé par défaut jusqu’à la configuration du fournisseur.
-
-Suivre le [guide Google Cloud et Supabase](docs/auth-google.md), puis définir `NEXT_PUBLIC_GOOGLE_AUTH_ENABLED=true` dans `.env.local` et dans Vercel, et reconstruire/redéployer. Le Client ID et le Client Secret du client OAuth **Application Web** se renseignent uniquement dans le fournisseur Google de Supabase ; aucun secret Google dans les variables publiques de Pastly. Aucune migration supplémentaire nécessaire.
+Exécuter le fichier SQL complet dans le SQL Editor du projet choisi, ou utiliser la CLI après vérification du projet :
 
 ```sh
-npm run dev
+supabase login
+supabase link --project-ref VOTRE_REFERENCE
+supabase db push
 ```
 
-Ouvrez [localhost:3000](http://localhost:3000).
+Tester d’abord sur un projet dédié et déployer l’application V2 **après** la migration. Le nouveau code sélectionne explicitement les colonnes V2 et nécessite donc leur présence. Aucun stockage binaire n’est activé. Les fonctionnalités Auth, Google et admin n’ont pas besoin d’être réécrites : voir [Google](docs/auth-google.md), [déploiement](docs/deploiement-pastly.fr.md), [données personnelles](docs/donnees-personnelles.md) et `supabase/bootstrap-admin.sql`.
 
-| Route                                 | Fonction                                                                      |
-| ------------------------------------- | ----------------------------------------------------------------------------- |
-| `/`                                   | Présentation et exemples illustratifs                                         |
-| `/terms`, `/privacy`                   | CGU et politique de confidentialité publiques                                |
-| `/explore`                            | Mur public, recherche titre/contenu, pagination de 12, tri récent             |
-| `/dashboard`                          | Toutes ses notes, recherche, filtre public/privé, gestion                     |
-| `/notes/new`                          | Éditeur, six couleurs et visibilité publique par défaut                       |
-| `/notes/[id]`                         | Lecture selon les droits RLS ; même page introuvable pour absent/inaccessible |
-| `/notes/[id]/edit`                    | Édition par le propriétaire                                                   |
-| `/login`, `/signup`                   | Connexion et inscription email/mot de passe ou Google si activé                |
-| `/forgot-password`, `/reset-password` | Demande et changement de mot de passe                                         |
-| `/auth/callback`, `/auth/confirm`     | Échange PKCE et vérification du token d’email                                 |
-| `/profile`                            | Modification du nom affiché et du nom unique                                  |
-| `/u/[username]`                       | Profil public, date d’inscription et seules notes publiques                   |
+Le [guide détaillé Supabase/Auth](docs/supabase-auth.md) conserve les modèles d’email et les paramètres historiques. Configurer Supabase Auth avec confirmation email, mot de passe minimal de 12 caractères et SMTP avant ouverture publique. Renseigner Site URL et les destinations `/auth/callback`, `/auth/confirm` et `/auth/callback?next=/reset-password` pour chaque environnement. Les modèles utilisant `token_hash` permettent la confirmation sur un autre appareil ; les détails du guide Auth restent applicables. Google reste facultatif via `NEXT_PUBLIC_GOOGLE_AUTH_ENABLED=true` et sa configuration côté Supabase.
 
-## Sécurité et confidentialité
+## Architecture et extension
 
-Les [CGU](https://pastly.fr/terms) et la [politique de confidentialité](https://pastly.fr/privacy) sont servies sans compte et liées dans le pied de page et sur l’inscription. Les coordonnées de RangedCompany sont centralisées dans `src/lib/legal.ts`. Voir le [guide de gestion des données](docs/donnees-personnelles.md) pour les paramètres des prestataires à vérifier et le traitement manuel des demandes de droits. Les URL à saisir dans Google figurent dans le [guide Google](docs/auth-google.md).
+Le détail des contrats et des garde-fous est décrit dans [l’architecture V2](docs/viewer-v2.md).
 
-- **RLS sur les deux tables**. La lecture d’une note exige `is_public` ou le propriétaire authentifié. Les écritures exigent le propriétaire, même par appel direct à l’API Supabase.
-- L’identité du propriétaire provient de `auth.getUser()` côté serveur, jamais d’un champ caché, d’un email ou de métadonnées client. Les clauses `owner_id` des actions s’ajoutent à RLS.
-- Un trigger protège l’identité, le propriétaire et la date de création des notes. Les privilèges de colonne empêchent aussi leur mise à jour ; `updated_at` est géré par PostgreSQL.
-- La table `profiles` ne contient **aucun email**. Seuls le nom affiché, le pseudonyme, l’identifiant et la date d’inscription sont publics. L’adresse email reste dans Supabase Auth.
-- Sessions par cookies `@supabase/ssr`, rafraîchissement dans `src/proxy.ts` avec `getClaims`, contrôle courant de l’utilisateur avec `getUser`. Aucune autorisation fondée sur `getSession` non vérifié.
-- Les requêtes Supabase serveur et les réponses des pages sont sans cache partagé (`no-store`, rendu dynamique). Les liens de notes ne sont pas préchargés. Les métadonnées individuelles sont génériques et ne reprennent aucun texte de note, même publique.
-- Le passage en privé prend effet dès le commit en base pour les futures lectures publiques, y compris l’ancien lien et l’API directe. Il ne peut pas effacer une copie ou une page déjà ouverte chez un lecteur ; rechargez la page pour vérifier les nouveaux droits.
-- Texte brut rendu par React : aucun HTML utilisateur injecté. Validation Zod et contraintes SQL bornent titre, contenu, couleur et pseudonyme. La recherche échappe les délimiteurs PostgREST et les jokers LIKE.
-- Les Server Actions Next.js utilisent POST et les contrôles d’origine du framework. Redirections internes validées et en-têtes de protection de base. Google utilise le flux OAuth PKCE de Supabase et les cookies SSR existants.
-- Le dialogue natif de suppression gère focus et clavier. Statuts accessibles, libellés de champs, liens d’évitement et réduction des animations selon les préférences du système.
+- `src/lib/viewer/types.ts` : formats, catégories, capacités, diagnostics et interface `RendererPlugin`.
+- `detect.ts` : `detectContent()`, détection déterministe locale.
+- `registry.ts` : `getRenderer()`, `getSupportedFormats()`, `renderContent()` ; chargement des parseurs à la demande.
+- `parse.ts` et `parse.worker.ts` : parsing des données hors du fil UI, limite de durée et complexité.
+- `files.ts`, `office.worker.ts`, `sanitize.ts` : validation des archives Office et assainissement SVG.
+- `src/components/viewer/` : acquisition et édition, prévisualisation, composants de rendu et actions.
+- `src/app/actions/notes.ts` : sauvegarde authentifiée existante, validation Zod et contrôle du propriétaire.
+
+Pour ajouter un renderer : ajouter le format et son libellé, déclarer son plugin et ses capacités dans le registre, ajouter un parseur borné, enregistrer le composant chargé via `next/dynamic` dans `ContentPreview`, puis ajouter la détection, l’extension de fichier et les tests. Pour un format sauvegardable, une **nouvelle migration** doit étendre la contrainte format/type en même temps que les validations TypeScript. Ne pas ajouter un format seulement à l’interface sans implémenter son rendu.
+
+La détection considère l’extension, puis un MIME reconnu, puis le contenu. Le JSON valide est reconnu ; les déclarations Mermaid en tête de source sont proposées et vérifiées au rendu. Les marqueurs Markdown et les heuristiques de code sont conservateurs. YAML, TOML, CSV ou texte ambigu sans extension restent en texte brut : le sélecteur manuel permet de les forcer. La source n’est jamais reformatée silencieusement.
+
+## Limites et sécurité
+
+| Limite                | Valeur                                                                                                                                              |
+| --------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Titre                 | 120 caractères                                                                                                                                      |
+| Post-it classique     | 5 000 caractères                                                                                                                                    |
+| Autre contenu textuel | 100 000 caractères (limite UI/Zod en unités UTF-16 ; SQL en caractères Unicode, donc la limite cliente est légèrement plus stricte pour les emojis) |
+| Fichier local         | 10 Mio                                                                                                                                              |
+| SVG importé           | 100 000 octets                                                                                                                                      |
+| Mermaid               | 20 000 caractères, 200 arêtes, 500 lignes/instructions, 10 diagrammes intégrés par Markdown ; directives `init` et frontmatter désactivés           |
+| Coloration Shiki      | 30 000 caractères ; source lisible au-delà                                                                                                          |
+| Données structurées   | 20 000 valeurs, 80 niveaux ; 50 enfants chargés progressivement par branche                                                                         |
+| CSV / TSV             | 10 000 lignes de données, 200 colonnes ; 100 lignes affichées par page                                                                              |
+| Parsing des données   | Interrompu après 5 secondes dans un worker                                                                                                          |
+| Archive Office        | 20 Mio déclarés décompressés, 5 Mio par entrée, 1 000 entrées ; médias exclus avant lecture                                                         |
+| XLSX                  | 20 feuilles, 10 000 lignes et 200 colonnes par feuille, 50 000 cellules par feuille, 100 000 au total                                               |
+| Parsing Office        | Worker interrompu après 15 secondes                                                                                                                 |
+| PDF                   | 500 pages, rendu à la demande, 15 secondes par chargement/page, canvas borné à 4 096 pixels par côté                                                |
+| Image raster          | 25 millions de pixels et 16 384 pixels par côté                                                                                                     |
+
+Tout contenu est non fiable. Markdown passe par react-markdown, remark-gfm et rehype-sanitize, sans HTML brut. KaTeX est configuré avec `trust: false` et une expansion bornée ; un override maintient toutes ses dépendances sur la version corrigée. Shiki produit des tokens affichés avec React, sans injection HTML. Mermaid fonctionne en mode `strict`, sans configuration utilisateur, avec SVG nettoyé par DOMPurify puis affiché en image Blob, sans contexte de document actif. Les liens dangereux, entités XML, références YAML cycliques et structures excessives sont refusés. Les parseurs de fichiers lourds sont isolés dans des workers lorsqu’applicable et les Blob URL sont révoquées à la fermeture des vues.
+
+Les originaux téléchargés restent les fichiers de l’utilisateur et ne deviennent pas « sûrs » par leur prévisualisation. Les protections limitent les risques mais ne constituent pas un antivirus. Les très grands documents ou syntaxes non compatibles affichent un diagnostic et gardent une source ou un original accessible. Le PNG Mermaid dépend du décodage SVG/canvas du navigateur ; l’export SVG reste disponible. Certains PDF utilisant des ressources CMap ou codecs spécifiques non embarqués peuvent ne pas se rendre : utiliser l’original. Le mode sombre, les miniatures de diagrammes en galerie, la mise en page DOCX fidèle et la sauvegarde binaire ne sont pas inclus.
+
+Les notes privées restent protégées par RLS y compris en appel direct à Supabase. Les Server Actions prennent l’identité de la session vérifiée, jamais du formulaire. Les pages restent dynamiques et sans cache partagé ; les métadonnées individuelles ne contiennent jamais le texte d’un document. L’administration voit les volumes privés, pas leur contenu. La télémétrie exclut l’administration, la bibliothèque, les documents et les pages sensibles ; les paramètres de recherche et fragments sont retirés des autres événements. Les pages légales reflètent le défaut privé et doivent être revues par l’éditeur avant publication ; aucune garantie supplémentaire de région, de rétention ou de conformité n’est inventée.
 
 ## Vérifications
 
@@ -135,121 +142,32 @@ npm run test:e2e
 npm run test:e2e:google
 ```
 
-`npm run test:e2e` construit puis lance automatiquement le serveur **de production** sur `127.0.0.1:3100`, sans identifiants Supabase, même si `.env.local` est configuré. Les variables publiques étant intégrées au build par Next.js, cette reconstruction assure l’isolation des tests hors ligne. Les tests utilisent Chrome installé ; sinon exécutez `npx playwright install chrome`. Ils vérifient l’accueil et Explorer en desktop/mobile, les redirections des routes protégées, les formulaires, les états sans configuration, la recherche, les réponses sans cache et les pages introuvables. Captures et traces sont conservées dans `test-results/offline/` selon les résultats.
+Vitest teste les détecteurs, parseurs, limites, validations et sauvegardes serveur. PGlite exécute les migrations SQL réelles et teste RLS, droits de colonnes, transition public/privé, compatibilité et préservation des anciennes lignes, profils et administration.
 
-`npm test` exécute les validations et **la migration réelle sur PostgreSQL embarqué PGlite** avec rôles `anon`/`authenticated`. Les cas couvrent lecture publique, création anonyme interdite, usurpation, passage public → privé, ancien lien par identifiant, accès d’un autre utilisateur, modification/suppression par propriétaire, immuabilité, contraintes, timestamps, profils et réparation après échec. PGlite n’est pas un projet Supabase : il ne vérifie ni PostgREST, ni les emails, ni les sessions Auth réelles.
+Playwright reconstruit un serveur de production sur `127.0.0.1:3100` **sans Supabase**, même si `.env.local` existe. Il teste les parcours anonymes desktop/mobile, les renderers réels, GFM/Mermaid/KaTeX/Shiki, erreurs, choix manuel, copie/téléchargements, fichiers Office/PDF, XSS et responsive. Chrome est nécessaire : `npx playwright install chrome` si absent. Captures et traces d’échec sont dans `test-results/offline/`. Les suites navigateur reconstruisent `.next` : les lancer successivement.
 
-### Intégration Supabase réelle (à exécuter manuellement)
-
-Sur un **projet de test dédié** avec la migration appliquée, préparez deux comptes confirmés distincts. Ajoutez dans `.env.local` (jamais dans Git) :
+Les tests distants sont **manuels, uniquement sur un projet Supabase de test dédié**, jamais sur la production :
 
 ```dotenv
 PASTLY_INTEGRATION_CONFIRM=dedicated-test-project
-PASTLY_TEST_USER_A_EMAIL=compte-a@votre-domaine.fr
+PASTLY_TEST_USER_A_EMAIL=alice@votre-domaine.fr
 PASTLY_TEST_USER_A_PASSWORD=une-phrase-de-test-A
-PASTLY_TEST_USER_B_EMAIL=compte-b@votre-domaine.fr
+PASTLY_TEST_USER_B_EMAIL=bob@votre-domaine.fr
 PASTLY_TEST_USER_B_PASSWORD=une-phrase-de-test-B
 ```
 
 ```sh
 npm run test:integration
-```
-
-Ce script utilise uniquement la clé publique et les sessions des deux utilisateurs. Il crée un post-it temporaire, vérifie les autorisations **via l’API Supabase réelle**, passe la note en privé, vérifie sa disparition et son inaccessibilité puis la supprime, y compris en nettoyage après échec. Il ne crée ni ne supprime de compte. Sans configuration et confirmation explicite du projet de test, il s’arrête avec le code 2 : **ce n’est pas un test réussi**.
-
-Pour vérifier aussi l’application complète avec ces mêmes comptes :
-
-```sh
 npm run test:e2e:live
 ```
 
-Cette commande reconstruit l’application avec la configuration locale, puis lance les parcours réels en desktop et mobile sur `127.0.0.1:3101` : connexion, persistance de session, modification du profil, création et édition de note, recherche avec caractères spéciaux, partage, profil public, passage en privé, ancien lien inaccessible, refus pour le second compte, retour en public et suppression avec confirmation. Les notes temporaires sont supprimées et le profil initial est restauré, même après échec. Les traces/vidéos sont désactivées pour ne pas enregistrer les mots de passe saisis ; une capture du tableau de bord est enregistrée dans `test-results/live/`.
+Deux comptes confirmés et les trois migrations sont requis. Les scripts utilisent uniquement des sessions utilisateur et la clé publique ; ils nettoient leurs contenus temporaires. Sans cette configuration ils refusent de démarrer, ce qui n’est pas un test réussi. PGlite et les actions simulées ne remplacent pas une session Auth/PostgREST réelle ; la recette connectée doit être réalisée avant déploiement.
 
-`npm run test:e2e:google` reconstruit avec Google activé et une URL Supabase factice, puis intercepte le départ OAuth dans le navigateur. En desktop et mobile, il vérifie les deux boutons, le départ sans remplir les champs email, la destination, le challenge/cookie PKCE et le retour après annulation. Aucun compte Google ni service distant n’est utilisé ; ce contrôle ne remplace pas le consentement et une session Google réels.
+## Déploiement
 
-Toutes les suites navigateur reconstruisent `.next` : exécutez-les **successivement**. Après une suite hors ligne ou Google simulée, lancez `npm run build` ou la suite réelle pour restaurer un build connecté à votre configuration. Les tests réels ne sont pas lancés par la CI sans identifiants.
+1. Appliquer et vérifier la migration V2 sur le projet cible après une recette sur un projet dédié.
+2. Configurer les variables publiques et Auth sur Vercel/Supabase, puis reconstruire avec Node.js 24.
+3. Vérifier collage anonyme, sauvegarde privée, réouverture, édition, galerie publique, changement de visibilité et anciennes URL avec deux utilisateurs.
+4. Vérifier les pages légales et réglages des prestataires ; voir les guides dans `docs/`.
 
-Le nom historique `202610290001_postly.sql` et ses identifiants SQL sont conservés : cette migration a déjà été appliquée et ne doit pas être réécrite après le renommage en Pastly. L’application et ses nouvelles variables de tests utilisent le nom Pastly.
-
-### Recette manuelle avec Supabase configuré
-
-1. Sans compte, ouvrir Explorer et une note publique ; tenter `/notes/new` : redirection vers connexion.
-2. S’inscrire avec une vraie boîte email, ouvrir le lien de confirmation, personnaliser le profil et se reconnecter après déconnexion.
-3. Créer une note publique. Vérifier sa présence dans Explorer et le profil public, chercher un mot du titre puis du contenu.
-4. Copier son lien et l’ouvrir dans une fenêtre privée. Le contenu doit être visible.
-5. Depuis le compte propriétaire, passer cette note en privé. Recharger Explorer, le profil public et l’ancien lien dans la fenêtre privée : note absente et contenu inaccessible.
-6. Connecter un second utilisateur. Vérifier l’ancien lien, puis les appels directs de lecture/modification/suppression (le script d’intégration automatise ces contrôles).
-7. Depuis le propriétaire, vérifier lecture, édition, six couleurs, retour en public puis suppression avec annulation/confirmation.
-8. Demander une réinitialisation, ouvrir l’email, changer le mot de passe, puis se connecter avec le nouveau mot de passe. Tester aussi un lien expiré/réutilisé.
-9. Vérifier persistance de session après rechargement, déconnexion, recherche et pagination avec plus de 12 notes, filtre privé/public, nom d’utilisateur déjà pris et affichage mobile.
-
-La CI GitHub exécute lint, types, tests SQL/validation, build et tests navigateur sans accès à un projet Supabase distant.
-
-## Déploiement Vercel
-
-1. Publiez le dépôt GitHub quand vous le souhaitez, puis **Vercel → Add New → Project → Import Git Repository**. Choisissez le preset **Next.js**, racine du dépôt, Node.js **24.x** ; commandes standard `npm ci` / `npm run build`, sortie gérée par Next.js.
-2. Ajoutez **NEXT_PUBLIC_SUPABASE_URL**, **NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY** et **NEXT_PUBLIC_SITE_URL** dans **Settings → Environment Variables**. Pour ce projet, l’URL canonique est `https://pastly.fr`. Aucun secret administrateur requis. Les étapes DNS Cloudflare sont détaillées dans [le guide de déploiement](docs/deploiement-pastly.fr.md).
-3. Appliquez la migration au projet Supabase choisi et configurez Auth avant l’ouverture publique. Aucun build ne le fait à votre place.
-4. Remplacez la **Site URL** Supabase par le domaine HTTPS canonique et ajoutez les trois URL de callback/confirmation avec ce domaine. Conservez les URL locales uniquement si ce projet sert aussi au développement. Pour les previews, préférez un projet Supabase séparé avec son propre domaine autorisé ; les modèles `.SiteURL` sont canoniques.
-5. Déployez depuis Vercel. Toute modification d’une variable `NEXT_PUBLIC_*` exige un **nouveau build**. Relancez la recette sur l’URL réellement déployée, notamment emails, passage en privé et ancien lien.
-
-Aucun déploiement, push Git ou changement de projet Supabase distant n’est nécessaire au développement local et n’est automatisé ici.
-
-### Vercel Web Analytics
-
-Le paquet `@vercel/analytics` et le composant Next.js `<Analytics />` sont intégrés au layout racine pour mesurer les visites et les changements de page.
-
-Dans le projet Vercel, ouvrez **Analytics** et activez **Web Analytics** si nécessaire. Déployez ensuite cette version et visitez le site pour alimenter le tableau de bord. Aucune variable d’environnement supplémentaire n’est nécessaire. Si les visites ne remontent pas, vérifiez les bloqueurs de contenu du navigateur.
-
-Référence : [guide Vercel Web Analytics](https://vercel.com/docs/analytics/quickstart).
-
-### Vercel Speed Insights
-
-Le paquet `@vercel/speed-insights` et le composant Next.js `<SpeedInsights />` sont intégrés au layout racine pour mesurer les performances des pages auprès des visiteurs.
-
-Dans le projet Vercel, ouvrez **Speed Insights** et activez le service si nécessaire. Déployez ensuite cette version et visitez plusieurs pages pour commencer la collecte. Aucune variable d’environnement supplémentaire n’est nécessaire. Si aucune mesure ne remonte, vérifiez les bloqueurs de contenu du navigateur.
-
-Référence : [guide Vercel Speed Insights](https://vercel.com/docs/speed-insights/quickstart).
-
-## Structure
-
-L’administration (`/admin`), sa migration et l’initialisation du premier administrateur sont détaillées dans [le guide d’administration](docs/administration.md).
-
-```text
-src/app/                 Pages App Router, callbacks et actions serveur
-src/components/          Navigation, cartes, éditeur, formulaires, états et dialogues
-src/lib/                 Auth, requêtes, validations, types et clients Supabase
-src/proxy.ts             Rafraîchissement SSR et en-têtes sans cache
-supabase/migrations/     Schéma SQL, triggers, privilèges et RLS
-tests/                   Tests de validation et autorisations PostgreSQL
-e2e/                     Tests navigateur desktop et mobile
-e2e-live/                Parcours navigateur sur le projet Supabase de test
-scripts/                 Intégration Supabase réelle à déclencher manuellement
-.github/workflows/       Vérifications CI
-```
-
-## Limites V1
-
-Texte brut uniquement, 120 caractères de titre et 5 000 de contenu, six couleurs, 12 notes par page et tri récent. Recherche partielle avec index trigrammes, sans classement sémantique. Le nom d’utilisateur modifie l’URL du profil sans redirection de l’ancien nom. Le bouton de partage nécessite un contexte sécurisé HTTPS ou localhost et l’autorisation du presse-papiers. Pas de commentaires, likes, abonnements, paiements ni chat. L’authentification Google nécessite la configuration du fournisseur dans Supabase et du client OAuth dans Google Cloud. L’administration couvre la supervision des comptes et des notes ainsi que les rôles admin ; elle ne supprime ni comptes ni notes. Les quotas et limites Auth/email/base dépendent de votre offre Supabase. Aucune garantie d’effacement des copies déjà téléchargées d’une note précédemment publique.
-
-## Résultats de livraison locale — 29 octobre 2026
-
-- Dépendances installées et verrouillées ; audit npm : aucune vulnérabilité signalée à l’installation.
-- Lint sans erreur ni avertissement, contrôle TypeScript strict et build de production réussis.
-- 53 tests de validation et de sécurité sur PostgreSQL embarqué réussis.
-- 10 tests navigateur réussis sur le serveur de production, avec Chrome desktop et émulation mobile ; captures de l’accueil examinées dans les deux formats.
-- Intégration sur le projet Supabase réel réussie : deux comptes, appels directs à l’API, RLS, passage en privé, droits de lecture/modification/suppression et absence d’email dans les profils publics.
-- Deux parcours navigateur réels réussis, en desktop et mobile : connexion/déconnexion, persistance de session, profil, création, couleurs, recherche, partage, confidentialité, retour en public, édition et suppression. Les notes temporaires ont été supprimées et le profil de test restauré.
-- **Inscription avec réception de l’email, confirmation par email et récupération de mot de passe non vérifiées de bout en bout** : les comptes fournis étaient déjà confirmés et aucun accès aux boîtes email n’a été fourni. Le réglage public Supabase confirme que l’email/mot de passe et la confirmation d’email sont activés.
-- Aucun déploiement Vercel, changement DNS Cloudflare ou modification du schéma Supabase distant effectué par l’agent. La migration a été appliquée manuellement par le propriétaire du projet. La CI GitHub doit être distinguée des contrôles locaux ci-dessus.
-
-La machine de développement ne proposait pas Node.js dans son PATH. Les contrôles ont utilisé une distribution portable Node 24.22.0 dans `%LOCALAPPDATA%\postly-tools\node-v24.22.0-win-x64`. Pour réutiliser ce runtime dans PowerShell :
-
-```powershell
-$env:Path = "$env:LOCALAPPDATA\postly-tools\node-v24.22.0-win-x64;$env:Path"
-npm run dev
-```
-
-Sur une autre machine, installez simplement Node.js 24 LTS.
-
-Références : [Supabase SSR et cookies](https://supabase.com/docs/guides/auth/server-side/creating-a-client), [Server Actions Next.js](https://nextjs.org/docs/app/getting-started/mutating-data).
+Aucune migration distante ni mise en production n’est lancée par les tests. Après une suite hors ligne, reconstruire avec la configuration cible avant de déployer.

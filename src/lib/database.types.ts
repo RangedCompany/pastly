@@ -1,5 +1,6 @@
 import type { NoteColor } from "./constants";
 import type { AdminOverview } from "./admin.types";
+import type { ContentFormat, ContentKind } from "./viewer/types";
 
 export type Profile = {
   id: string;
@@ -12,6 +13,10 @@ export type Note = {
   owner_id: string;
   title: string;
   content: string;
+  content_kind: ContentKind;
+  format: ContentFormat;
+  original_filename: string | null;
+  metadata: Record<string, never>;
   color: NoteColor;
   is_public: boolean;
   created_at: string;
@@ -38,6 +43,10 @@ export type Database = {
           owner_id: string;
           title: string;
           content: string;
+          content_kind?: ContentKind;
+          format?: ContentFormat;
+          original_filename?: string | null;
+          metadata?: Record<string, never>;
           color?: NoteColor;
           is_public?: boolean;
           id?: string;
@@ -47,6 +56,10 @@ export type Database = {
         Update: {
           title?: string;
           content?: string;
+          content_kind?: ContentKind;
+          format?: ContentFormat;
+          original_filename?: string | null;
+          metadata?: Record<string, never>;
           color?: NoteColor;
           is_public?: boolean;
         };

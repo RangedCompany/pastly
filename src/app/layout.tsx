@@ -10,11 +10,11 @@ export const dynamic = "force-dynamic";
 export const metadata: Metadata = {
   metadataBase: new URL(siteUrl()),
   title: {
-    default: "Pastly — Les petites idées méritent une place",
+    default: "Pastly — Collez. Visualisez. Conservez. Partagez.",
     template: "%s · Pastly",
   },
   description:
-    "Un coin chaleureux pour poser vos idées, créer des post-it colorés et partager un peu d’inspiration. Ou garder vos mots rien que pour vous.",
+    "Collez du Markdown, JSON, Mermaid, du code ou du texte. Visualisez sans compte, conservez vos contenus dans votre bibliothèque et partagez-les avec Pastly.",
   applicationName: "Pastly",
   icons: { icon: "/icon.svg" },
 };
