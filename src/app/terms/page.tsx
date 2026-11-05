@@ -20,9 +20,11 @@ export default function Terms() {
         <h2>1. Le service et son éditeur</h2>
         <p>
           Pastly, accessible sur pastly.fr, est un service gratuit permettant de
-          créer, modifier et partager des notes sous forme de post-it. Vous
-          pouvez consulter les publications publiques sans compte. Un compte est
-          nécessaire pour créer des notes et gérer votre profil.
+          coller et visualiser des textes, documents, données et diagrammes,
+          ainsi que créer des post-it. La visualisation locale et la
+          consultation des publications publiques sont accessibles sans compte.
+          Un compte est nécessaire pour enregistrer des contenus et gérer votre
+          profil.
         </p>
         <p>
           Le service est édité par {legal.publisher}. Pour une question, une
@@ -56,11 +58,17 @@ export default function Terms() {
       <section>
         <h2>3. Notes publiques, notes privées et profil</h2>
         <p>
-          <strong>Les nouvelles notes sont publiques par défaut.</strong>{" "}
+          <strong>Les nouveaux contenus sont privés par défaut.</strong>{" "}
           Vérifiez leur visibilité avant de les enregistrer. Une note publique
           est accessible à toute personne, sans connexion, dans les espaces
           publics du site ou par son lien. Elle peut être copiée, partagée ou
           consultée par des moteurs de recherche.
+        </p>
+        <p>
+          Les fichiers importés pour une prévisualisation restent dans votre
+          navigateur. Les fichiers binaires ne sont pas sauvegardés par cette
+          version du service. Les formats et limites de prévisualisation sont
+          indiqués dans l’interface.
         </p>
         <p>
           Une note privée est réservée à votre compte dans l’interface et ne

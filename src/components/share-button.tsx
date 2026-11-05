@@ -16,7 +16,7 @@ export function ShareButton({
       );
       setStatus("Lien copié !");
     } catch {
-      setStatus("Copie impossible. Copiez l’adresse de la page du post-it.");
+      setStatus("Copie impossible. Copiez l’adresse de la page du contenu.");
     }
   }
   return (
@@ -25,7 +25,7 @@ export function ShareButton({
         type="button"
         onClick={share}
         className={label ? "button button-secondary" : "icon-button"}
-        aria-label="Copier le lien du post-it"
+        aria-label="Copier le lien du contenu"
         title="Copier le lien"
       >
         {status === "Lien copié !" ? <Check size={16} /> : <Link2 size={16} />}

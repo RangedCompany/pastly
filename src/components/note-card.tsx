@@ -4,6 +4,7 @@ import type { NoteWithAuthor } from "@/lib/database.types";
 import { UserAvatar, formatDate } from "./ui";
 import { ShareButton } from "./share-button";
 import { ConfirmDeleteDialog, QuickVisibility } from "./note-controls";
+import { FORMAT_LABELS } from "@/lib/viewer/types";
 
 export function NoteCard({
   note,
@@ -14,9 +15,13 @@ export function NoteCard({
 }) {
   const author = note.author;
   return (
-    <article className={`note-card paper-${note.color}`}>
+    <article
+      className={`note-card ${note.format === "note" ? `paper-${note.color}` : `document-card document-${note.content_kind}`}`}
+    >
       <div className="note-card-top">
-        <time dateTime={note.created_at}>{formatDate(note.created_at)}</time>
+        <time dateTime={note.updated_at} title="Dernière modification">
+          {formatDate(note.updated_at)}
+        </time>
         {owned ? (
           <QuickVisibility id={note.id} isPublic={note.is_public} />
         ) : (
@@ -29,7 +34,10 @@ export function NoteCard({
         prefetch={false}
       >
         <h2>{note.title}</h2>
-        <p>{note.content}</p>
+        {note.format !== "note" && (
+          <span className="format-badge">{FORMAT_LABELS[note.format]}</span>
+        )}
+        <p>{note.content.slice(0, 500)}</p>
       </Link>
       <div className="note-card-footer">
         {author ? (

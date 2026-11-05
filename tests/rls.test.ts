@@ -2,6 +2,7 @@ import { PGlite } from "@electric-sql/pglite";
 import { pg_trgm } from "@electric-sql/pglite/contrib/pg_trgm";
 import { readFileSync } from "node:fs";
 import { afterAll, beforeAll, describe, expect, it } from "vitest";
+import { FORMATS, contentKind } from "../src/lib/viewer/types";
 
 // Vrai moteur PostgreSQL embarqué. Auth / PostgREST / cookies ne sont pas simulés comme étant testés ici.
 const A = "aaaaaaaa-aaaa-4aaa-aaaa-aaaaaaaaaaaa";
@@ -53,6 +54,19 @@ beforeAll(async () => {
     "insert into auth.users (id,email) values ($1,'alice@example.test'),($2,'bob@example.test'),($3,'charlie@example.test')",
     [A, B, C],
   );
+  await db.query(
+    "insert into public.notes (id,owner_id,title,content,color,is_public,created_at,updated_at) values ('11111111-1111-4111-a111-111111111111',$1,'Historique','  Idée historique  ','pink',true,'2000-01-01','2001-01-01')",
+    [A],
+  );
+  await db.exec(
+    readFileSync(
+      new URL(
+        "../supabase/migrations/202611050001_universal_viewer.sql",
+        import.meta.url,
+      ),
+      "utf8",
+    ),
+  );
 });
 afterAll(async () => {
   await db?.close();
@@ -73,12 +87,39 @@ describe("RLS notes, privilèges et confidentialité", () => {
       ]);
     });
   });
-  it("met les nouvelles notes en public par défaut", async () => {
+  it("conserve tous les champs historiques sans déclencher updated_at", async () => {
+    const { rows } = await db.query<{
+      id: string;
+      owner_id: string;
+      content: string;
+      color: string;
+      is_public: boolean;
+      format: string;
+      created_at: Date;
+      updated_at: Date;
+    }>(
+      "select * from public.notes where id='11111111-1111-4111-a111-111111111111'",
+    );
+    expect(rows[0]).toMatchObject({
+      id: "11111111-1111-4111-a111-111111111111",
+      owner_id: A,
+      content: "  Idée historique  ",
+      color: "pink",
+      is_public: true,
+      format: "note",
+    });
+    expect(rows[0].created_at.toISOString()).toBe("2000-01-01T00:00:00.000Z");
+    expect(rows[0].updated_at.toISOString()).toBe("2001-01-01T00:00:00.000Z");
+    await db.exec(
+      "delete from public.notes where id='11111111-1111-4111-a111-111111111111'",
+    );
+  });
+  it("met les nouveaux contenus en privé par défaut", async () => {
     await as("authenticated", A, async () => {
       const { rows } = await db.query<{ is_public: boolean }>(
         "insert into public.notes (title,content) values ('Titre','Texte') returning is_public",
       );
-      expect(rows[0].is_public).toBe(true);
+      expect(rows[0].is_public).toBe(false);
     });
   });
   it("autorise la lecture anonyme des notes publiques", async () => {
@@ -265,6 +306,135 @@ describe("RLS notes, privilèges et confidentialité", () => {
           db.query(`update public.notes set ${invalid} where id=$1`, [id]),
         ),
       ).rejects.toThrow(/check constraint/);
+    } finally {
+      await db.query("delete from public.notes where id=$1", [id]);
+    }
+  });
+});
+
+describe("formats V2, privilèges de colonnes et conservation de la source", () => {
+  it("autorise chaque format TypeScript avec sa catégorie SQL correspondante", async () => {
+    await as("authenticated", A, async () => {
+      for (const format of FORMATS) {
+        const { rows } = await db.query<{ format: string; is_public: boolean }>(
+          "insert into public.notes (title,content,format,content_kind) values ('Format','Source',$1,$2) returning format,is_public",
+          [format, contentKind(format)],
+        );
+        expect(rows[0]).toEqual({ format, is_public: false });
+      }
+    });
+  });
+  it("sauvegarde puis rouvre un contenu volumineux sans toucher à l’indentation", async () => {
+    const source = "  \tconst texte = `" + "a".repeat(6000) + "`;  \n";
+    await as("authenticated", A, async () => {
+      const { rows } = await db.query<{ id: string }>(
+        "insert into public.notes (title,content,content_kind,format,original_filename,metadata) values ('Code',$1,'code','typescript','exemple.ts','{}') returning id",
+        [source],
+      );
+      const saved = await db.query<{
+        content: string;
+        is_public: boolean;
+        format: string;
+      }>("select content,is_public,format from public.notes where id=$1", [
+        rows[0].id,
+      ]);
+      expect(saved.rows[0]).toEqual({
+        content: source,
+        is_public: false,
+        format: "typescript",
+      });
+      expect(
+        (
+          await db.query(
+            "update public.notes set format='javascript',original_filename='exemple.js' where id=$1 returning id",
+            [rows[0].id],
+          )
+        ).rows,
+      ).toHaveLength(1);
+    });
+  });
+  it.each([
+    "format='unknown'",
+    "format='json'",
+    "metadata='{\"script\":true}'",
+    "original_filename='../secret'",
+    "content_kind='file'",
+    "content=repeat('a',100001)",
+  ])("rejette les colonnes V2 invalides : %s", async (invalid) => {
+    const id = await createNote(false);
+    try {
+      await expect(
+        as("authenticated", A, () =>
+          db.query(`update public.notes set ${invalid} where id=$1`, [id]),
+        ),
+      ).rejects.toThrow(/check constraint/);
+    } finally {
+      await db.query("delete from public.notes where id=$1", [id]);
+    }
+  });
+  it("protège aussi les nouveaux formats en lecture directe, recherche et changement de format", async () => {
+    const { rows } = await db.query<{ id: string }>(
+      "insert into public.notes (owner_id,title,content,format,content_kind) values ($1,'SECRET-V2','{\"secret\":true}','json','data') returning id",
+      [A],
+    );
+    const id = rows[0].id;
+    try {
+      for (const [role, user] of [
+        ["anon", null],
+        ["authenticated", B],
+      ] as const)
+        await as(role, user, async () => {
+          expect(
+            (
+              await db.query(
+                "select * from public.notes where id=$1 or (format='json' and title ilike '%SECRET%')",
+                [id],
+              )
+            ).rows,
+          ).toHaveLength(0);
+        });
+      await as("authenticated", B, async () =>
+        expect(
+          (
+            await db.query(
+              "update public.notes set format='yaml' where id=$1 returning id",
+              [id],
+            )
+          ).rows,
+        ).toHaveLength(0),
+      );
+      await as(
+        "authenticated",
+        A,
+        async () => {
+          await db.query("update public.notes set is_public=true where id=$1", [
+            id,
+          ]);
+        },
+        true,
+      );
+      await as("anon", null, async () =>
+        expect(
+          (await db.query("select format from public.notes where id=$1", [id]))
+            .rows,
+        ).toEqual([{ format: "json" }]),
+      );
+      await as(
+        "authenticated",
+        A,
+        async () => {
+          await db.query(
+            "update public.notes set is_public=false where id=$1",
+            [id],
+          );
+        },
+        true,
+      );
+      await as("anon", null, async () =>
+        expect(
+          (await db.query("select * from public.notes where id=$1", [id])).rows,
+        ).toHaveLength(0),
+      );
     } finally {
       await db.query("delete from public.notes where id=$1", [id]);
     }

@@ -1,20 +1,46 @@
 import { z } from "zod";
 import { COLORS } from "./constants";
+import {
+  FORMATS,
+  MAX_NOTE_LENGTH,
+  MAX_TEXT_LENGTH,
+  contentKind,
+} from "./viewer/types";
 
-export const noteSchema = z.object({
-  title: z
-    .string()
-    .trim()
-    .min(1, "Ajoutez un titre.")
-    .max(120, "Le titre est limité à 120 caractères."),
-  content: z
-    .string()
-    .trim()
-    .min(1, "Votre post-it est encore vide.")
-    .max(5000, "Le contenu est limité à 5 000 caractères."),
-  color: z.enum(COLORS, { error: "Choisissez une couleur proposée." }),
-  is_public: z.boolean(),
-});
+export const noteSchema = z
+  .object({
+    title: z
+      .string()
+      .trim()
+      .min(1, "Ajoutez un titre.")
+      .max(120, "Le titre est limité à 120 caractères."),
+    content: z
+      .string()
+      .min(1, "Votre post-it est encore vide.")
+      .max(MAX_TEXT_LENGTH, "Le contenu est limité à 100 000 caractères.")
+      .refine((value) => /\S/.test(value), "Ajoutez du contenu."),
+    color: z.enum(COLORS, { error: "Choisissez une couleur proposée." }),
+    is_public: z.boolean().default(false),
+    format: z.enum(FORMATS).default("note"),
+    original_filename: z
+      .string()
+      .min(1)
+      .max(255)
+      .regex(/^[^/\\\u0000-\u001f\u007f]+$/, "Nom de fichier invalide.")
+      .nullable()
+      .default(null),
+    metadata: z.strictObject({}).default({}),
+  })
+  .superRefine((note, ctx) => {
+    if (note.format === "note" && note.content.length > MAX_NOTE_LENGTH)
+      ctx.addIssue({
+        code: "custom",
+        path: ["content"],
+        message:
+          "Un post-it est limité à 5 000 caractères. Choisissez Texte brut pour un texte plus long.",
+      });
+  })
+  .transform((note) => ({ ...note, content_kind: contentKind(note.format) }));
 export const profileSchema = z.object({
   username: z
     .string()

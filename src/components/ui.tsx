@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { ArrowRight, Search, StickyNote } from "lucide-react";
 import type { ActionState } from "@/lib/validation";
+import { FORMATS, FORMAT_LABELS } from "@/lib/viewer/types";
 
 export function UserAvatar({
   name,
@@ -88,17 +89,19 @@ export function SearchBar({
   query,
   placeholder = "Rechercher une idée, un mot…",
   visibility,
+  format = "all",
 }: {
   query: string;
   placeholder?: string;
   visibility?: string;
+  format?: string;
 }) {
   return (
     <form className="search-form" role="search">
       <div className="search-input">
         <Search size={18} aria-hidden="true" />
         <label className="sr-only" htmlFor="search">
-          Rechercher des post-it
+          Rechercher des contenus
         </label>
         <input
           id="search"
@@ -115,12 +118,23 @@ export function SearchBar({
             Visibilité
           </label>
           <select id="visibility" name="visibility" defaultValue={visibility}>
-            <option value="all">Tous mes post-it</option>
+            <option value="all">Toutes les visibilités</option>
             <option value="public">Publics</option>
             <option value="private">Privés</option>
           </select>
         </>
       )}
+      <label htmlFor="format-filter" className="sr-only">
+        Filtrer par format
+      </label>
+      <select id="format-filter" name="format" defaultValue={format}>
+        <option value="all">Tous les formats</option>
+        {FORMATS.map((value) => (
+          <option key={value} value={value}>
+            {FORMAT_LABELS[value]}
+          </option>
+        ))}
+      </select>
       <button className="button button-secondary" type="submit">
         Rechercher
       </button>
@@ -133,23 +147,26 @@ export function Pagination({
   base,
   query = "",
   visibility,
+  format,
 }: {
   page: number;
   count: number;
   base: string;
   query?: string;
   visibility?: string;
+  format?: string;
 }) {
   const pages = Math.max(1, Math.ceil(count / 12));
   function href(n: number) {
     const p = new URLSearchParams({ page: String(n) });
     if (query) p.set("q", query);
     if (visibility) p.set("visibility", visibility);
+    if (format && format !== "all") p.set("format", format);
     return `${base}?${p}`;
   }
   if (pages <= 1 && page === 1) return null;
   return (
-    <nav aria-label="Pagination des post-it" className="pagination">
+    <nav aria-label="Pagination des contenus" className="pagination">
       {page > 1 ? (
         <Link className="button button-secondary" href={href(page - 1)}>
           Précédent
@@ -158,7 +175,7 @@ export function Pagination({
         <span />
       )}
       <span>
-        Page {page} · {count} post-it
+        Page {page} · {count} contenu{count > 1 ? "s" : ""}
       </span>
       {page < pages ? (
         <Link className="button button-secondary" href={href(page + 1)}>

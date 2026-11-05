@@ -18,4 +18,4 @@ export const COLOR_LABELS: Record<NoteColor, string> = {
 export const PAGE_SIZE = 12;
 export const PROFILE_FIELDS = "id, username, display_name, created_at";
 export const NOTE_FIELDS =
-  "id, owner_id, title, content, color, is_public, created_at, updated_at, author:profiles!notes_owner_profile_fkey(id, username, display_name, created_at)";
+  "id, owner_id, title, content, color, is_public, content_kind, format, original_filename, metadata, created_at, updated_at, author:profiles!notes_owner_profile_fkey(id, username, display_name, created_at)";

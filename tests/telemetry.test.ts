@@ -13,4 +13,9 @@ describe("confidentialité de la télémétrie admin", () => {
     const event = { url: "https://pastly.fr/explore", type: "pageview" };
     expect(excludeAdminTelemetry(event)).toBe(event);
   });
+  it("ne transmet aucun terme de recherche privé ni événement de document", () => {
+    expect(excludeAdminTelemetry({ url: "https://pastly.fr/explore?q=secret#contenu" })).toEqual({ url: "https://pastly.fr/explore" });
+    expect(excludeAdminTelemetry({ url: "/dashboard?q=secret" })).toBeNull();
+    expect(excludeAdminTelemetry({ url: "/notes/uuid" })).toBeNull();
+  });
 });

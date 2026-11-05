@@ -53,6 +53,7 @@ beforeAll(async () => {
   for (const migration of [
     "202610290001_postly.sql",
     "202610290002_admin.sql",
+    "202611050001_universal_viewer.sql",
   ]) {
     await db.exec(
       readFileSync(

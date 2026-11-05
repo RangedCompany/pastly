@@ -36,7 +36,7 @@ export function Navbar({
           {user && (
             <Link href="/dashboard">
               <LayoutGrid size={17} />
-              Mes post-it
+              Ma bibliothèque
             </Link>
           )}
         </div>
@@ -77,11 +77,11 @@ export function Navbar({
           )}
           <Link
             className="button button-primary nav-create"
-            href="/notes/new"
-            aria-label="Créer une note"
+            href="/"
+            aria-label="Nouveau contenu"
           >
             <Plus size={17} />
-            <span>Créer une note</span>
+            <span>Nouveau contenu</span>
           </Link>
         </div>
       </nav>
@@ -92,7 +92,7 @@ export function Navbar({
         </Link>
         <Link href="/dashboard">
           <LayoutGrid size={17} />
-          Mes post-it
+          Ma bibliothèque
         </Link>
         <Link href={user ? "/profile" : "/signup"}>
           <UserRound size={17} />
@@ -108,7 +108,7 @@ export function Footer() {
       <Link className="brand footer-brand" href="/">
         pastly<span className="brand-dot">.</span>
       </Link>
-      <p>Les petites idées méritent une place.</p>
+      <p>Collez. Visualisez. Conservez. Partagez.</p>
       <Link href="/explore" className="footer-explore">
         Un peu d’inspiration
         <ArrowUpRight size={15} />
