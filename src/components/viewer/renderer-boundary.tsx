@@ -1,4 +1,5 @@
 "use client";
+import { TranslatedText } from "@/components/i18n";
 import { Component, type ReactNode } from "react";
 type Props = { content: string; format: string; children: ReactNode };
 export class RendererBoundary extends Component<
@@ -25,8 +26,11 @@ export class RendererBoundary extends Component<
     return this.state.failed ? (
       <div>
         <p className="message message-error" role="alert">
-          Ce contenu ne peut pas être affiché avec ce visualiseur. La source est
-          conservée ; vous pouvez choisir un autre format.
+          <TranslatedText
+            text={
+              "Ce contenu ne peut pas être affiché avec ce visualiseur. La source est conservée ; vous pouvez choisir un autre format."
+            }
+          />
         </p>
         <pre className="document-source">{this.props.content}</pre>
       </div>

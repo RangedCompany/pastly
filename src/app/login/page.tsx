@@ -1,3 +1,4 @@
+import { getTranslations } from "@/lib/i18n/server";
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { getIdentity } from "@/lib/auth";
@@ -6,44 +7,51 @@ import { AuthForm } from "@/components/auth-form";
 import { AuthShell } from "@/components/auth-shell";
 import { GoogleSignIn } from "@/components/google-sign-in";
 import { isGoogleAuthEnabled } from "@/lib/env";
-export const metadata: Metadata = {
-  title: "Connexion",
-  robots: { index: false },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations();
+  return {
+    title: t("Connexion"),
+    robots: { index: false },
+  };
+}
 export default async function Login({
   searchParams,
 }: {
   searchParams: Promise<{ next?: string; message?: string; error?: string }>;
 }) {
+  const t = await getTranslations();
   const params = await searchParams,
     next = safeNext(params.next);
   if (await getIdentity()) redirect(next);
   return (
     <AuthShell
-      title="Heureux de vous retrouver."
-      description="Vos idées vous attendent. Retrouvez votre espace."
+      title={t("Heureux de vous retrouver.")}
+      description={t("Vos idées vous attendent. Retrouvez votre espace.")}
     >
       {params.message === "password-updated" && (
         <p className="message message-success" role="status">
-          Mot de passe mis à jour. Vous pouvez vous reconnecter.
+          {t("Mot de passe mis à jour. Vous pouvez vous reconnecter.")}
         </p>
       )}
       {params.message === "confirmed" && (
         <p className="message message-success" role="status">
-          Votre email est confirmé. Connectez-vous pour commencer.
+          {t("Votre email est confirmé. Connectez-vous pour commencer.")}
         </p>
       )}
       {params.error === "callback" && (
         <p className="message message-error" role="alert">
-          Ce lien est invalide ou a expiré. Réessayez de vous inscrire ou
-          demandez un nouveau lien de réinitialisation.
+          {t(
+            "Ce lien est invalide ou a expiré. Réessayez de vous inscrire ou demandez un nouveau lien de réinitialisation.",
+          )}
         </p>
       )}
       {(params.error === "google" || params.error === "google-cancelled") && (
         <p className="message message-error" role="alert">
           {params.error === "google-cancelled"
-            ? "La connexion Google a été annulée. Vous pouvez réessayer."
-            : "La connexion Google n’a pas abouti ou le lien a expiré. Réessayez."}
+            ? t("La connexion Google a été annulée. Vous pouvez réessayer.")
+            : t(
+                "La connexion Google n’a pas abouti ou le lien a expiré. Réessayez.",
+              )}
         </p>
       )}
       {isGoogleAuthEnabled() && <GoogleSignIn next={next} />}

@@ -1,4 +1,6 @@
 "use client";
+import { useTranslations } from "@/components/i18n";
+import { TranslatedText } from "@/components/i18n";
 import { useEffect, useState } from "react";
 import dynamic from "next/dynamic";
 import { sanitizeSvg } from "@/lib/viewer/sanitize";
@@ -8,9 +10,14 @@ import { rasterDimensions } from "@/lib/viewer/image";
 import TableRenderer from "./table-renderer";
 const Pdf = dynamic(() => import("./pdf-renderer"), {
   ssr: false,
-  loading: () => <p role="status">Chargement de PDF.js…</p>,
+  loading: () => (
+    <p role="status">
+      <TranslatedText text={"Chargement de PDF.js…"} />
+    </p>
+  ),
 });
 function ImagePreview({ file }: { file: File }) {
+  const t = useTranslations();
   const [result, setResult] = useState<{
     file: File;
     url?: string;
@@ -52,11 +59,12 @@ function ImagePreview({ file }: { file: File }) {
       if (url) URL.revokeObjectURL(url);
     };
   }, [file]);
-  if (result?.file !== file) return <p role="status">Lecture de l’image…</p>;
+  if (result?.file !== file)
+    return <p role="status">{t("Lecture de l’image…")}</p>;
   if (result.error)
     return (
       <p role="alert" className="message message-error">
-        {result.error}
+        {t(result.error)}
       </p>
     );
   // SVG is sanitized, then displayed in an isolated image context.
@@ -64,6 +72,7 @@ function ImagePreview({ file }: { file: File }) {
   return <img className="local-image" src={result.url} alt={file.name} />;
 }
 function Office({ file, kind }: { file: File; kind: "docx" | "xlsx" }) {
+  const t = useTranslations();
   const [result, setResult] = useState<{
     file: File;
     value: OfficePreview;
@@ -118,19 +127,20 @@ function Office({ file, kind }: { file: File; kind: "docx" | "xlsx" }) {
     };
   }, [file, kind]);
   if (result?.file !== file)
-    return <p role="status">Lecture du document local…</p>;
+    return <p role="status">{t("Lecture du document local…")}</p>;
   if (result.value.error)
     return (
       <p className="message message-error" role="alert">
-        {result.value.error}
+        {t(result.value.error)}
       </p>
     );
   if (kind === "docx")
     return (
       <div>
         <p className="viewer-hint">
-          Aperçu du texte DOCX. La mise en page, les images et les styles Word
-          ne sont pas reproduits.
+          {t(
+            "Aperçu du texte DOCX. La mise en page, les images et les styles Word ne sont pas reproduits.",
+          )}
         </p>
         <div className="plain-view">{result.value.text}</div>
       </div>
@@ -140,7 +150,7 @@ function Office({ file, kind }: { file: File; kind: "docx" | "xlsx" }) {
   return (
     <div>
       <label>
-        Feuille{" "}
+        {t("Feuille")}{" "}
         <select
           value={selected}
           onChange={(e) => setSheet(Number(e.target.value))}
@@ -153,8 +163,9 @@ function Office({ file, kind }: { file: File; kind: "docx" | "xlsx" }) {
         </select>
       </label>
       <p className="viewer-hint">
-        Valeurs enregistrées dans le classeur ; aucune formule ni macro
-        exécutée. La première ligne sert d’en-tête.
+        {t(
+          "Valeurs enregistrées dans le classeur ; aucune formule ni macro exécutée. La première ligne sert d’en-tête.",
+        )}
       </p>
       {sheets[selected] && (
         <TableRenderer key={selected} rows={sheets[selected].rows} />
@@ -163,8 +174,9 @@ function Office({ file, kind }: { file: File; kind: "docx" | "xlsx" }) {
   );
 }
 export default function FilePreview({ file }: { file: File }) {
+  const t = useTranslations();
   if (file.size > MAX_FILE_BYTES)
-    return <p role="alert">Fichier limité à 10 Mio.</p>;
+    return <p role="alert">{t("Fichier limité à 10 Mio.")}</p>;
   const ext = file.name.split(".").pop()?.toLowerCase();
   if (["png", "jpg", "jpeg", "webp", "gif", "svg"].includes(ext ?? ""))
     return <ImagePreview file={file} />;
@@ -173,8 +185,9 @@ export default function FilePreview({ file }: { file: File }) {
     return <Office file={file} kind={ext} />;
   return (
     <p>
-      Ce format de fichier n’est pas pris en charge. Vous pouvez télécharger
-      l’original pour l’ouvrir avec une application adaptée.
+      {t(
+        "Ce format de fichier n’est pas pris en charge. Vous pouvez télécharger l’original pour l’ouvrir avec une application adaptée.",
+      )}
     </p>
   );
 }

@@ -2124,3 +2124,7 @@ body:has(.workspace-fullscreen) { overflow: hidden; }
   .split-handle svg { transform: rotate(90deg); }
   .mode-switch button { font-size: 12px; padding: 6px; gap: 4px; }
 }
+/* Native language names stay readable at every viewport width. */
+.language-picker { display: inline-flex; align-items: center; gap: .35rem; min-width: 0; }
+.language-picker select { font: inherit; color: inherit; background: transparent; border: 1px solid currentColor; border-radius: .5rem; padding: .3rem; max-width: 10rem; cursor: pointer; }
+.language-picker select:disabled { opacity: .6; cursor: wait; }

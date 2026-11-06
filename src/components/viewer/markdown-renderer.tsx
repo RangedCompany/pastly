@@ -1,4 +1,6 @@
 "use client";
+import { useTranslations } from "@/components/i18n";
+import { TranslatedText } from "@/components/i18n";
 import { useState } from "react";
 import Markdown from "react-markdown";
 import remarkGfm from "remark-gfm";
@@ -7,12 +9,21 @@ import rehypeSanitize from "rehype-sanitize";
 import rehypeKatex from "rehype-katex";
 import dynamic from "next/dynamic";
 const Code = dynamic(() => import("./code-renderer"), {
-  loading: () => <p role="status">Coloration…</p>,
+  loading: () => (
+    <p role="status">
+      <TranslatedText text={"Coloration…"} />
+    </p>
+  ),
 });
 const Mermaid = dynamic(() => import("./mermaid-renderer"), {
-  loading: () => <p role="status">Chargement du diagramme…</p>,
+  loading: () => (
+    <p role="status">
+      <TranslatedText text={"Chargement du diagramme…"} />
+    </p>
+  ),
 });
 function RemoteImage({ src, alt }: { src?: string; alt?: string }) {
+  const t = useTranslations();
   const [loaded, setLoaded] = useState(false);
   let hostname: string | null = null;
   try {
@@ -20,7 +31,12 @@ function RemoteImage({ src, alt }: { src?: string; alt?: string }) {
   } catch {
     /* Malformed user URLs stay inert. */
   }
-  if (!hostname) return <span>[Image : {alt || "adresse non autorisée"}]</span>;
+  if (!hostname)
+    return (
+      <span>
+        {t("[Image :")} {alt || t("adresse non autorisée")}]
+      </span>
+    );
   if (!loaded)
     return (
       <button
@@ -28,7 +44,7 @@ function RemoteImage({ src, alt }: { src?: string; alt?: string }) {
         type="button"
         onClick={() => setLoaded(true)}
       >
-        Charger l’image externe : {alt || hostname}
+        {t("Charger l’image externe :")} {alt || hostname}
       </button>
     );
   // Explicit opt-in prevents a pasted document from silently contacting image hosts.
@@ -36,18 +52,20 @@ function RemoteImage({ src, alt }: { src?: string; alt?: string }) {
     // eslint-disable-next-line @next/next/no-img-element
     <img
       src={src}
-      alt={alt || "Image du document"}
+      alt={alt || t("Image du document")}
       loading="lazy"
       referrerPolicy="no-referrer"
     />
   );
 }
 export default function MarkdownRenderer({ content }: { content: string }) {
+  const t = useTranslations();
   if ((content.match(/^(?:`{3,}|~{3,})mermaid\s*$/gm) ?? []).length > 10)
     return (
       <p className="message message-error" role="alert">
-        Ce document contient plus de 10 diagrammes intégrés. Réduisez leur
-        nombre ou consultez la source.
+        {t(
+          "Ce document contient plus de 10 diagrammes intégrés. Réduisez leur nombre ou consultez la source.",
+        )}
       </p>
     );
   return (

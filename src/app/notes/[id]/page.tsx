@@ -1,3 +1,5 @@
+import { getTranslations } from "@/lib/i18n/server";
+import { formatDate } from "@/lib/date";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -6,7 +8,7 @@ import { getIdentity } from "@/lib/auth";
 import { getNote } from "@/lib/data";
 import { isSupabaseConfigured } from "@/lib/env";
 import { idSchema } from "@/lib/validation";
-import { formatDate, UserAvatar } from "@/components/ui";
+import { UserAvatar } from "@/components/ui";
 import { ShareButton } from "@/components/share-button";
 import { RawLink } from "@/components/raw-link";
 import { ContentPreview } from "@/components/viewer/content-preview";
@@ -19,16 +21,20 @@ import {
 } from "@/components/note-controls";
 
 // Métadonnées volontairement génériques : un ancien aperçu ne doit pas conserver le contenu d'une note devenue privée.
-export const metadata: Metadata = {
-  title: "Un contenu à découvrir",
-  description: "Une idée partagée sur Pastly.",
-  robots: { index: false, follow: false },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations();
+  return {
+    title: t("Un contenu à découvrir"),
+    description: t("Une idée partagée sur Pastly."),
+    robots: { index: false, follow: false },
+  };
+}
 export default async function NotePage({
   params,
 }: {
   params: Promise<{ id: string }>;
 }) {
+  const t = await getTranslations();
   const { id } = await params;
   if (!isSupabaseConfigured() || !idSchema.safeParse(id).success) notFound();
   const note = await getNote(id);
@@ -42,7 +48,7 @@ export default async function NotePage({
       >
         <Link href={owned ? "/dashboard" : "/explore"} className="back-link">
           <ArrowLeft size={16} />
-          {owned ? "Ma bibliothèque" : "Explorer les contenus"}
+          {owned ? t("Ma bibliothèque") : t("Explorer les contenus")}
         </Link>
         <article
           className={
@@ -53,7 +59,7 @@ export default async function NotePage({
         >
           <div className="detail-meta">
             <time dateTime={note.created_at}>
-              Publié le {formatDate(note.created_at, true)}
+              {t("Publié le")} {formatDate(note.created_at, true, t.locale)}
             </time>
             <span className="visibility-chip">
               {note.is_public ? (
@@ -62,8 +68,8 @@ export default async function NotePage({
                 <LockKeyhole size={13} />
               )}
               {note.is_public
-                ? "Contenu public"
-                : "Privé · visible par vous uniquement"}
+                ? t("Contenu public")
+                : t("Privé · visible par vous uniquement")}
             </span>
           </div>
           <h1>{note.title}</h1>
@@ -72,7 +78,9 @@ export default async function NotePage({
             <p className="detail-content">{note.content}</p>
           ) : (
             <>
-              <span className="format-badge">{FORMAT_LABELS[note.format]}</span>
+              <span className="format-badge">
+                {t(FORMAT_LABELS[note.format])}
+              </span>
               <DocumentActions
                 content={note.content}
                 format={note.format}
@@ -80,7 +88,7 @@ export default async function NotePage({
               />
               <ContentPreview content={note.content} format={note.format} />
               <noscript>
-                Le rendu de ce format nécessite JavaScript.
+                {t("Le rendu de ce format nécessite JavaScript.")}
                 <pre className="document-source">{note.content}</pre>
               </noscript>
             </>
@@ -88,7 +96,11 @@ export default async function NotePage({
           <div className="detail-footer">
             {note.author && (
               <Link className="note-author" href={`/u/${note.author.username}`}>
-                <UserAvatar name={note.author.display_name} src={avatarUrl(note.author.avatar_path)} small />
+                <UserAvatar
+                  name={note.author.display_name}
+                  src={avatarUrl(note.author.avatar_path)}
+                  small
+                />
                 {note.author.display_name}
               </Link>
             )}
@@ -103,7 +115,7 @@ export default async function NotePage({
               href={`/notes/${id}/edit`}
             >
               <Pencil size={15} />
-              Modifier
+              {t("Modifier")}
             </Link>
             <ConfirmDeleteDialog id={id} title={note.title} />
           </div>

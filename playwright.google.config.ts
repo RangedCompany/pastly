@@ -5,6 +5,7 @@ export default defineConfig({
   outputDir: "./test-results/google",
   fullyParallel: true,
   use: {
+    locale: "fr-FR",
     baseURL: "http://127.0.0.1:3102",
     channel: "chrome",
     trace: "retain-on-failure",

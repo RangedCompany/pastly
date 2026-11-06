@@ -70,7 +70,9 @@ export function normalizeOfficeArchive(
   }
   if (!files[kind === "docx" ? "word/document.xml" : "xl/workbook.xml"])
     throw new Error(
-      `Ce fichier n’est pas un document ${kind.toUpperCase()} valide.`,
+      kind === "docx"
+        ? "Ce fichier n’est pas un document DOCX valide."
+        : "Ce fichier n’est pas un document XLSX valide.",
     );
   return zipSync(files, { level: 0 }).buffer as ArrayBuffer;
 }

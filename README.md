@@ -45,6 +45,12 @@ Les images Markdown externes sont chargées uniquement après un clic explicite.
 
 ## Utilisation
 
+L’interface est disponible en français, anglais, espagnol, allemand, italien, portugais, néerlandais et japonais. La langue est choisie dès le rendu serveur selon l’en-tête `Accept-Language` du navigateur (variantes régionales et priorités prises en compte), avec l’anglais en repli si aucune langue n’est prise en charge. Le sélecteur du pied de page permet de changer de langue sans perdre le document ouvert ; ce choix prend la priorité via un cookie `pastly-locale` pendant un an. Supprimer ce cookie réactive la détection automatique.
+
+Les traductions sont des catalogues locaux dans `src/lib/i18n/messages/`, sans appel à un service de traduction pendant l’utilisation. Les contenus, titres, noms et fichiers des utilisateurs ne sont pas traduits. Les métadonnées, libellés accessibles, messages applicatifs, dates et pluriels suivent la langue choisie. Les diagnostics techniques provenant directement des bibliothèques peuvent garder leur formulation d’origine. Aucune colonne de préférence ni migration SQL n’est nécessaire.
+
+Pour ajouter une langue : compléter `LOCALES` et `LANGUAGE_NAMES` dans `src/lib/i18n/locale.ts`, déclarer le chargement du catalogue dans `server.ts` et fournir toutes les clés du catalogue français en conservant les variables entre accolades. Utiliser `getTranslations()` dans les composants serveur et `useTranslations()` dans les composants clients. Les tests vérifient la couverture des catalogues, les variables et les parcours navigateur sur ordinateur et mobile.
+
 - `/` : éditeur pleine largeur, collage au clavier, glisser-déposer, détection automatique ou choix manuel recherchable, modes Source/Aperçu/Divisé, plein écran, effacement, copie, téléchargement et sauvegarde.
 - `/dashboard` : **Ma bibliothèque**, recherche, visibilité, filtre par format, pagination, modification, suppression et partage.
 - `/explore` : galerie publique multiformat avec recherche et filtres.

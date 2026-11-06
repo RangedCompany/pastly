@@ -1,3 +1,4 @@
+import { getTranslations } from "@/lib/i18n/server";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Plus, ShieldCheck } from "lucide-react";
@@ -6,10 +7,13 @@ import { listNotes } from "@/lib/data";
 import { parsePage, searchTerm } from "@/lib/validation";
 import { NoteGrid } from "@/components/note-card";
 import { EmptyState, Pagination, SearchBar } from "@/components/ui";
-export const metadata: Metadata = {
-  title: "Ma bibliothèque",
-  robots: { index: false, follow: false },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations();
+  return {
+    title: t("Ma bibliothèque"),
+    robots: { index: false, follow: false },
+  };
+}
 export default async function Dashboard({
   searchParams,
 }: {
@@ -22,6 +26,7 @@ export default async function Dashboard({
     format?: string;
   }>;
 }) {
+  const t = await getTranslations();
   const user = await requireIdentity();
   const params = await searchParams;
   const query = searchTerm(params.q),
@@ -40,31 +45,32 @@ export default async function Dashboard({
     <div className="container">
       <div className="heading-row">
         <div className="page-heading">
-          <span className="eyebrow">VOTRE ESPACE PERSONNEL</span>
-          <h1>Ma bibliothèque.</h1>
+          <span className="eyebrow">{t("VOTRE ESPACE PERSONNEL")}</span>
+          <h1>{t("Ma bibliothèque.")}</h1>
           <p>
-            Un coin à vous pour retrouver, organiser et faire grandir vos
-            pensées.
+            {t(
+              "Un coin à vous pour retrouver, organiser et faire grandir vos pensées.",
+            )}
           </p>
         </div>
         <Link href="/" className="button button-primary">
           <Plus size={17} />
-          Nouveau contenu
+          {t("Nouveau contenu")}
         </Link>
       </div>
       {params.success === "saved" && (
         <p className="message message-success" role="status">
-          Votre contenu a bien été enregistré.
+          {t("Votre contenu a bien été enregistré.")}
         </p>
       )}
       {params.success === "deleted" && (
         <p className="message message-success" role="status">
-          Votre contenu a été supprimé.
+          {t("Votre contenu a été supprimé.")}
         </p>
       )}
       {params.error === "signout" && (
         <p className="message message-error" role="alert">
-          Déconnexion impossible. Vérifiez votre connexion et réessayez.
+          {t("Déconnexion impossible. Vérifiez votre connexion et réessayez.")}
         </p>
       )}
       <div className="toolbar">
@@ -72,16 +78,14 @@ export default async function Dashboard({
           query={query}
           visibility={visibility}
           format={params.format}
-          placeholder="Retrouver un contenu…"
+          placeholder={t("Retrouver un contenu…")}
         />
       </div>
       <div className="wall-caption">
-        <span>
-          {count} contenu{count > 1 ? "s" : ""}
-        </span>
+        <span>{t.plural("{count} contenu", "{count} contenus", count)}</span>
         <span>
           <ShieldCheck size={14} />
-          Vous décidez de ce que vous partagez
+          {t("Vous décidez de ce que vous partagez")}
         </span>
       </div>
       {notes.length ? (
@@ -92,8 +96,8 @@ export default async function Dashboard({
             query ||
             visibility !== "all" ||
             (params.format && params.format !== "all")
-              ? "Aucun contenu ne correspond à ces filtres."
-              : "Votre première idée n’attend qu’un peu de place."
+              ? t("Aucun contenu ne correspond à ces filtres.")
+              : t("Votre première idée n’attend qu’un peu de place.")
           }
           href="/notes/new"
         />

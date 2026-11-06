@@ -1,3 +1,4 @@
+import { getTranslations } from "@/lib/i18n/server";
 import Link from "next/link";
 import {
   ArrowUpRight,
@@ -12,8 +13,9 @@ import {
 import type { User } from "@supabase/supabase-js";
 import type { ReactNode } from "react";
 import { signOut } from "@/app/actions/auth";
+import { LanguagePicker } from "./language-picker";
 
-export function Navbar({
+export async function Navbar({
   user,
   isAdmin = false,
   adminControl,
@@ -22,10 +24,11 @@ export function Navbar({
   isAdmin?: boolean;
   adminControl?: ReactNode;
 }) {
+  const t = await getTranslations();
   return (
     <header className="site-header">
-      <nav aria-label="Navigation principale" className="nav-inner">
-        <Link href="/" className="brand" aria-label="Pastly, accueil">
+      <nav aria-label={t("Navigation principale")} className="nav-inner">
+        <Link href="/" className="brand" aria-label={t("Pastly, accueil")}>
           <span className="brand-icon">
             <StickyNote size={22} strokeWidth={2} />
           </span>
@@ -34,12 +37,12 @@ export function Navbar({
         <div className="nav-links">
           <Link href="/explore">
             <Compass size={17} />
-            Explorer
+            {t("Explorer")}
           </Link>
           {user && (
             <Link href="/dashboard">
               <LayoutGrid size={17} />
-              Ma bibliothèque
+              {t("Ma bibliothèque")}
             </Link>
           )}
         </div>
@@ -49,8 +52,8 @@ export function Navbar({
             <Link
               href="/admin"
               className="icon-button"
-              aria-label="Administration"
-              title="Administration"
+              aria-label={t("Administration")}
+              title={t("Administration")}
             >
               <ShieldCheck size={21} />
             </Link>
@@ -60,15 +63,15 @@ export function Navbar({
               <Link
                 href="/profile"
                 className="icon-button"
-                aria-label="Mon profil"
+                aria-label={t("Mon profil")}
               >
                 <UserRound size={20} />
               </Link>
               <form action={signOut}>
                 <button
                   className="icon-button"
-                  aria-label="Déconnexion"
-                  title="Déconnexion"
+                  aria-label={t("Déconnexion")}
+                  title={t("Déconnexion")}
                 >
                   <LogOut size={19} />
                 </button>
@@ -76,50 +79,52 @@ export function Navbar({
             </>
           ) : (
             <Link className="login-link" href="/login">
-              Connexion
+              {t("Connexion")}
             </Link>
           )}
           <Link
             className="button button-primary nav-create"
             href="/"
-            aria-label="Nouveau contenu"
+            aria-label={t("Nouveau contenu")}
           >
             <Plus size={17} />
-            <span>Nouveau contenu</span>
+            <span>{t("Nouveau contenu")}</span>
           </Link>
         </div>
       </nav>
-      <nav aria-label="Navigation mobile" className="mobile-nav">
+      <nav aria-label={t("Navigation mobile")} className="mobile-nav">
         <Link href="/explore">
           <Compass size={17} />
-          Explorer
+          {t("Explorer")}
         </Link>
         <Link href="/dashboard">
           <LayoutGrid size={17} />
-          Ma bibliothèque
+          {t("Ma bibliothèque")}
         </Link>
         <Link href={user ? "/profile" : "/signup"}>
           <UserRound size={17} />
-          {user ? "Mon profil" : "S’inscrire"}
+          {user ? t("Mon profil") : t("S’inscrire")}
         </Link>
       </nav>
     </header>
   );
 }
-export function Footer() {
+export async function Footer() {
+  const t = await getTranslations();
   return (
     <footer className="site-footer">
       <Link className="brand footer-brand" href="/">
         pastly<span className="brand-dot">.</span>
       </Link>
-      <p>Collez. Visualisez. Conservez. Partagez.</p>
+      <p>{t("Collez. Visualisez. Conservez. Partagez.")}</p>
       <Link href="/explore" className="footer-explore">
-        Un peu d’inspiration
+        {t("Un peu d’inspiration")}
         <ArrowUpRight size={15} />
       </Link>
-      <nav className="footer-legal" aria-label="Informations légales">
-        <Link href="/terms">Conditions d’utilisation</Link>
-        <Link href="/privacy">Confidentialité</Link>
+      <nav className="footer-legal" aria-label={t("Informations légales")}>
+        <LanguagePicker />
+        <Link href="/terms">{t("Conditions d’utilisation")}</Link>
+        <Link href="/privacy">{t("Confidentialité")}</Link>
       </nav>
     </footer>
   );

@@ -1,4 +1,5 @@
 "use client";
+import { useTranslations } from "@/components/i18n";
 import { useState } from "react";
 export function CopyButton({
   value,
@@ -7,6 +8,7 @@ export function CopyButton({
   value: string;
   label?: string;
 }) {
+  const t = useTranslations();
   const [status, setStatus] = useState("");
   async function copy() {
     try {
@@ -19,9 +21,9 @@ export function CopyButton({
   return (
     <span className="copy-control">
       <button type="button" className="button button-quiet" onClick={copy}>
-        {label}
+        {t(label)}
       </button>
-      <span role="status">{status}</span>
+      <span role="status">{t(status)}</span>
     </span>
   );
 }

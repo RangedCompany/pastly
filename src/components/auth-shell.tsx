@@ -1,5 +1,6 @@
+import { getTranslations } from "@/lib/i18n/server";
 import { Sprout } from "lucide-react";
-export function AuthShell({
+export async function AuthShell({
   title,
   description,
   children,
@@ -8,30 +9,32 @@ export function AuthShell({
   description: string;
   children: React.ReactNode;
 }) {
+  const t = await getTranslations();
   return (
     <div className="auth-layout">
       <aside className="auth-story" aria-hidden="true">
-        <span className="eyebrow">BIENVENUE DANS VOTRE ATELIER</span>
+        <span className="eyebrow">{t("BIENVENUE DANS VOTRE ATELIER")}</span>
         <h2>
-          Faites une place
-          <br />à vos idées.
+          {t("Faites une place")}
+          <br />
+          {t("à vos idées.")}
         </h2>
         <div className="demo-note paper-yellow">
           <span className="tape" />
-          <h3>Note à moi-même</h3>
+          <h3>{t("Note à moi-même")}</h3>
           <p>
-            Les petites choses peuvent
+            {t("Les petites choses peuvent")}
             <br />
-            être de grands débuts.
+            {t("être de grands débuts.")}
           </p>
           <Sprout size={24} className="demo-mark" />
         </div>
-        <p>Un peu de papier. Beaucoup de possibilités.</p>
+        <p>{t("Un peu de papier. Beaucoup de possibilités.")}</p>
       </aside>
       <section className="auth-panel">
-        <span className="eyebrow">PASTLY, TOUT SIMPLEMENT</span>
-        <h1>{title}</h1>
-        <p>{description}</p>
+        <span className="eyebrow">{t("PASTLY, TOUT SIMPLEMENT")}</span>
+        <h1>{t(title)}</h1>
+        <p>{t(description)}</p>
         {children}
       </section>
     </div>

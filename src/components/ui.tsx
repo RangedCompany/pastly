@@ -1,3 +1,5 @@
+"use client";
+import { useTranslations } from "@/components/i18n";
 import Link from "next/link";
 import { ArrowRight, Search, StickyNote } from "lucide-react";
 import type { ActionState } from "@/lib/validation";
@@ -14,16 +16,17 @@ export function EmptyState({
   href?: string;
   label?: string;
 }) {
+  const t = useTranslations();
   return (
     <div className="empty-state">
       <span className="empty-icon">
         <StickyNote size={30} strokeWidth={1.5} />
       </span>
-      <h2>{title}</h2>
-      <p>{description}</p>
+      <h2>{t(title)}</h2>
+      <p>{t(description)}</p>
       {href && (
         <Link href={href} className="button button-primary">
-          {label}
+          {t(label)}
           <ArrowRight size={16} />
         </Link>
       )}
@@ -31,9 +34,10 @@ export function EmptyState({
   );
 }
 export function LoadingState() {
+  const t = useTranslations();
   return (
     <div role="status" aria-live="polite">
-      <span className="sr-only">Chargement des notes…</span>
+      <span className="sr-only">{t("Chargement des notes…")}</span>
       <div className="note-grid" aria-hidden="true">
         {Array.from({ length: 6 }, (_, i) => (
           <div key={i} className="note-skeleton" />
@@ -43,28 +47,31 @@ export function LoadingState() {
   );
 }
 export function FormMessage({ state }: { state: ActionState }) {
+  const t = useTranslations();
   return (
     <>
       {state.error && (
         <p className="message message-error" role="alert">
-          {state.error}
+          {t(state.error)}
         </p>
       )}
       {state.success && (
         <p className="message message-success" role="status">
-          {state.success}
+          {t(state.success)}
         </p>
       )}
     </>
   );
 }
 export function SetupNotice() {
+  const t = useTranslations();
   return (
     <div className="setup-notice" role="status">
-      <strong>Votre atelier est presque prêt.</strong>
+      <strong>{t("Votre atelier est presque prêt.")}</strong>
       <p>
-        Connectez le projet à Supabase pour activer les comptes et afficher les
-        contenus. Les étapes sont détaillées dans le README.
+        {t(
+          "Connectez le projet à Supabase pour activer les comptes et afficher les contenus. Les étapes sont détaillées dans le README.",
+        )}
       </p>
     </div>
   );
@@ -80,12 +87,13 @@ export function SearchBar({
   visibility?: string;
   format?: string;
 }) {
+  const t = useTranslations();
   return (
     <form className="search-form" role="search">
       <div className="search-input">
         <Search size={18} aria-hidden="true" />
         <label className="sr-only" htmlFor="search">
-          Rechercher des contenus
+          {t("Rechercher des contenus")}
         </label>
         <input
           id="search"
@@ -93,34 +101,34 @@ export function SearchBar({
           name="q"
           defaultValue={query}
           maxLength={100}
-          placeholder={placeholder}
+          placeholder={t(placeholder)}
         />
       </div>
       {visibility !== undefined && (
         <>
           <label htmlFor="visibility" className="sr-only">
-            Visibilité
+            {t("Visibilité")}
           </label>
           <select id="visibility" name="visibility" defaultValue={visibility}>
-            <option value="all">Toutes les visibilités</option>
-            <option value="public">Publics</option>
-            <option value="private">Privés</option>
+            <option value="all">{t("Toutes les visibilités")}</option>
+            <option value="public">{t("Publics")}</option>
+            <option value="private">{t("Privés")}</option>
           </select>
         </>
       )}
       <label htmlFor="format-filter" className="sr-only">
-        Filtrer par format
+        {t("Filtrer par format")}
       </label>
       <select id="format-filter" name="format" defaultValue={format}>
-        <option value="all">Tous les formats</option>
+        <option value="all">{t("Tous les formats")}</option>
         {FORMATS.map((value) => (
           <option key={value} value={value}>
-            {FORMAT_LABELS[value]}
+            {t(FORMAT_LABELS[value])}
           </option>
         ))}
       </select>
       <button className="button button-secondary" type="submit">
-        Rechercher
+        {t("Rechercher")}
       </button>
     </form>
   );
@@ -140,6 +148,7 @@ export function Pagination({
   visibility?: string;
   format?: string;
 }) {
+  const t = useTranslations();
   const pages = Math.max(1, Math.ceil(count / 12));
   function href(n: number) {
     const p = new URLSearchParams({ page: String(n) });
@@ -150,32 +159,27 @@ export function Pagination({
   }
   if (pages <= 1 && page === 1) return null;
   return (
-    <nav aria-label="Pagination des contenus" className="pagination">
+    <nav aria-label={t("Pagination des contenus")} className="pagination">
       {page > 1 ? (
         <Link className="button button-secondary" href={href(page - 1)}>
-          Précédent
+          {t("Précédent")}
         </Link>
       ) : (
         <span />
       )}
       <span>
-        Page {page} · {count} contenu{count > 1 ? "s" : ""}
+        {t("Page {page} · {items}", {
+          page: page.toLocaleString(t.locale),
+          items: t.plural("{count} contenu", "{count} contenus", count),
+        })}
       </span>
       {page < pages ? (
         <Link className="button button-secondary" href={href(page + 1)}>
-          Suivant
+          {t("Suivant")}
         </Link>
       ) : (
         <span />
       )}
     </nav>
   );
-}
-export function formatDate(date: string, full = false) {
-  return new Intl.DateTimeFormat("fr-FR", {
-    day: "numeric",
-    month: full ? "long" : "short",
-    ...(full ? { year: "numeric" } : {}),
-    timeZone: "Europe/Paris",
-  }).format(new Date(date));
 }

@@ -5,6 +5,7 @@ export default defineConfig({
   fullyParallel: true,
   workers: 4,
   use: {
+    locale: "fr-FR",
     baseURL: "http://127.0.0.1:3100",
     channel: "chrome",
     trace: "retain-on-failure",

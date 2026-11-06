@@ -1,4 +1,5 @@
 "use client";
+import { useTranslations } from "@/components/i18n";
 
 import { useActionState, useEffect, useRef } from "react";
 import { ShieldCheck } from "lucide-react";
@@ -13,6 +14,7 @@ export function AdminRoleControl({
   account: AdminAccount;
   currentUserId: string;
 }) {
+  const t = useTranslations();
   const dialog = useRef<HTMLDialogElement>(null);
   const [state, action, pending] = useActionState(setAdminRole, {});
   const name = account.email ?? account.username ?? account.id;
@@ -22,11 +24,13 @@ export function AdminRoleControl({
   }, [state]);
 
   if (account.id === currentUserId)
-    return <span className="admin-self">Votre compte · droits protégés</span>;
+    return (
+      <span className="admin-self">{t("Votre compte · droits protégés")}</span>
+    );
   if (!account.is_admin && !account.email_confirmed_at)
     return (
       <span className="admin-self">
-        Confirmation requise pour devenir admin
+        {t("Confirmation requise pour devenir admin")}
       </span>
     );
 
@@ -39,13 +43,13 @@ export function AdminRoleControl({
       >
         <ShieldCheck size={17} aria-hidden="true" />
         {account.is_admin
-          ? "Retirer les droits admin"
-          : "Nommer administrateur"}
+          ? t("Retirer les droits admin")
+          : t("Nommer administrateur")}
         <span className="sr-only"> : {name}</span>
       </button>
       {state.success && (
         <p className="message message-success" role="status">
-          {state.success}
+          {t(state.success)}
         </p>
       )}
       <dialog
@@ -65,14 +69,18 @@ export function AdminRoleControl({
           />
           <h2 id={`role-${account.id}`}>
             {account.is_admin
-              ? "Retirer cet accès ?"
-              : "Accorder un accès admin ?"}
+              ? t("Retirer cet accès ?")
+              : t("Accorder un accès admin ?")}
           </h2>
           <p>
             {name}{" "}
             {account.is_admin
-              ? "perdra l’accès à la supervision et à la gestion des administrateurs."
-              : "pourra consulter les comptes, leurs emails et leurs statistiques, et gérer les autres administrateurs."}
+              ? t(
+                  "perdra l’accès à la supervision et à la gestion des administrateurs.",
+                )
+              : t(
+                  "pourra consulter les comptes, leurs emails et leurs statistiques, et gérer les autres administrateurs.",
+                )}
           </p>
           {state.error && <FormMessage state={{ error: state.error }} />}
           <div className="dialog-actions">
@@ -82,17 +90,17 @@ export function AdminRoleControl({
               disabled={pending}
               onClick={() => dialog.current?.close()}
             >
-              Annuler
+              {t("Annuler")}
             </button>
             <button
               className={`button ${account.is_admin ? "button-danger" : "button-primary"}`}
               disabled={pending}
             >
               {pending
-                ? "Enregistrement…"
+                ? t("Enregistrement…")
                 : account.is_admin
-                  ? "Confirmer le retrait"
-                  : "Confirmer l’accès"}
+                  ? t("Confirmer le retrait")
+                  : t("Confirmer l’accès")}
             </button>
           </div>
         </form>

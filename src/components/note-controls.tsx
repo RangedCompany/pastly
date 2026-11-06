@@ -1,4 +1,5 @@
 "use client";
+import { useTranslations } from "@/components/i18n";
 import { useActionState, useRef } from "react";
 import { Globe2, LockKeyhole, Trash2 } from "lucide-react";
 import { deleteNote, setNoteVisibility } from "@/app/actions/notes";
@@ -11,6 +12,7 @@ export function ConfirmDeleteDialog({
   id: string;
   title: string;
 }) {
+  const t = useTranslations();
   const dialog = useRef<HTMLDialogElement>(null);
   const [state, action, pending] = useActionState(
     deleteNote.bind(null, id),
@@ -21,7 +23,7 @@ export function ConfirmDeleteDialog({
       <button
         type="button"
         className="icon-button danger"
-        aria-label={`Supprimer « ${title} »`}
+        aria-label={t("Supprimer « {value0} »", { value0: title })}
         onClick={() => dialog.current?.showModal()}
       >
         <Trash2 size={16} />
@@ -35,10 +37,12 @@ export function ConfirmDeleteDialog({
           <span className="dialog-icon">
             <Trash2 size={24} />
           </span>
-          <h2 id={`delete-${id}`}>Supprimer ce contenu ?</h2>
+          <h2 id={`delete-${id}`}>{t("Supprimer ce contenu ?")}</h2>
           <p>
-            « {title} » sera définitivement supprimé. Cette action est
-            irréversible.
+            {t(
+              "« {title} » sera définitivement supprimé. Cette action est irréversible.",
+              { title },
+            )}
           </p>
           <FormMessage state={state} />
           <div className="dialog-actions">
@@ -48,14 +52,14 @@ export function ConfirmDeleteDialog({
               onClick={() => dialog.current?.close()}
               disabled={pending}
             >
-              Annuler
+              {t("Annuler")}
             </button>
             <button
               type="submit"
               className="button button-danger"
               disabled={pending}
             >
-              {pending ? "Suppression…" : "Supprimer"}
+              {pending ? t("Suppression…") : t("Supprimer")}
             </button>
           </div>
         </form>
@@ -70,6 +74,7 @@ export function QuickVisibility({
   id: string;
   isPublic: boolean;
 }) {
+  const t = useTranslations();
   const [state, action, pending] = useActionState(
     setNoteVisibility.bind(null, id, !isPublic),
     {},
@@ -80,13 +85,15 @@ export function QuickVisibility({
         <button
           className="visibility-chip"
           disabled={pending}
-          title={isPublic ? "Rendre privé" : "Rendre public"}
+          title={isPublic ? t("Rendre privé") : t("Rendre public")}
           aria-label={
-            isPublic ? "Rendre ce contenu privé" : "Rendre ce contenu public"
+            isPublic
+              ? t("Rendre ce contenu privé")
+              : t("Rendre ce contenu public")
           }
         >
           {isPublic ? <Globe2 size={12} /> : <LockKeyhole size={12} />}
-          {pending ? "…" : isPublic ? "Public" : "Privé"}
+          {pending ? "…" : isPublic ? t("Public") : t("Privé")}
         </button>
       </form>
       <FormMessage state={state} />

@@ -1,7 +1,27 @@
 "use client";
+import { useTranslations } from "@/components/i18n";
+import { TranslatedText } from "@/components/i18n";
 import Link from "next/link";
-import { useActionState, useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
-import { Download, Maximize2, Minimize2, Save, Upload, Trash2, Code2, Eye, Columns2, GripVertical } from "lucide-react";
+import {
+  useActionState,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type CSSProperties,
+} from "react";
+import {
+  Download,
+  Maximize2,
+  Minimize2,
+  Save,
+  Upload,
+  Trash2,
+  Code2,
+  Eye,
+  Columns2,
+  GripVertical,
+} from "lucide-react";
 import { saveNote } from "@/app/actions/notes";
 import { detectContent } from "@/lib/viewer/detect";
 import {
@@ -21,7 +41,11 @@ import { ColorPicker, VisibilityToggle } from "../note-editor";
 import { FormMessage } from "../ui";
 import dynamic from "next/dynamic";
 const FilePreview = dynamic(() => import("./file-preview"), {
-  loading: () => <p role="status">Ouverture du fichier…</p>,
+  loading: () => (
+    <p role="status">
+      <TranslatedText text={"Ouverture du fichier…"} />
+    </p>
+  ),
 });
 const DRAFT_KEY = "pastly-v2-explicit-draft";
 export function ViewerWorkspace({
@@ -35,6 +59,7 @@ export function ViewerWorkspace({
   configured?: boolean;
   resumeDraft?: boolean;
 }) {
+  const t = useTranslations();
   const [content, setContent] = useState(note?.content ?? "");
   const [preview, setPreview] = useState(content);
   const [manualFormat, setManualFormat] = useState<ContentFormat>(
@@ -62,7 +87,10 @@ export function ViewerWorkspace({
     saveNote.bind(null, note?.id ?? null),
     {},
   );
-  const detection = useMemo(() => detectContent({ content, filename }), [content, filename]);
+  const detection = useMemo(
+    () => detectContent({ content, filename }),
+    [content, filename],
+  );
   const format = auto ? detection.format : manualFormat;
   useEffect(() => {
     const timer = setTimeout(() => setPreview(content), 300);
@@ -171,14 +199,21 @@ export function ViewerWorkspace({
   }
   function clearSource() {
     ++acquisition.current;
-    setContent(""); setPreview(""); setFilename(null); setFile(null); setAuto(true); setMessage("");
+    setContent("");
+    setPreview("");
+    setFilename(null);
+    setFile(null);
+    setAuto(true);
+    setMessage("");
     document.getElementById("viewer-source")?.focus();
   }
   function resizeSplit(clientX: number, clientY: number) {
     const bounds = panes.current?.getBoundingClientRect();
     if (!bounds) return;
     const stacked = window.matchMedia("(max-width: 760px)").matches;
-    const ratio = stacked ? (clientY - bounds.top) / bounds.height : (clientX - bounds.left) / bounds.width;
+    const ratio = stacked
+      ? (clientY - bounds.top) / bounds.height
+      : (clientX - bounds.left) / bounds.width;
     setSplit(Math.max(15, Math.min(85, ratio * 100)));
   }
   function saveDraft() {
@@ -198,7 +233,7 @@ export function ViewerWorkspace({
   return (
     <section
       className={`viewer-workspace ${fullscreen ? "workspace-fullscreen" : ""}`}
-      aria-label="Atelier de visualisation"
+      aria-label={t("Atelier de visualisation")}
       onDragOver={(e) => e.preventDefault()}
       onDrop={(e) => {
         e.preventDefault();
@@ -213,13 +248,13 @@ export function ViewerWorkspace({
             onClick={() => fileInput.current?.click()}
           >
             <Upload size={15} />
-            Ouvrir un fichier
+            {t("Ouvrir un fichier")}
           </button>
           <input
             ref={fileInput}
             type="file"
             className="sr-only"
-            aria-label="Ouvrir un fichier local"
+            aria-label={t("Ouvrir un fichier local")}
             onChange={(e) => {
               void openFile(e.target.files?.[0]);
               e.target.value = "";
@@ -236,7 +271,7 @@ export function ViewerWorkspace({
               className="button button-secondary"
               onClick={() => downloadBlob(file, file.name)}
             >
-              Télécharger l’original
+              {t("Télécharger l’original")}
             </button>
             <button
               type="button"
@@ -246,12 +281,13 @@ export function ViewerWorkspace({
                 setFile(null);
               }}
             >
-              Retour au texte
+              {t("Retour au texte")}
             </button>
           </div>
           <p className="viewer-hint">
-            Fichier local · aucun téléversement · sauvegarde des fichiers
-            binaires indisponible.
+            {t(
+              "Fichier local · aucun téléversement · sauvegarde des fichiers binaires indisponible.",
+            )}
           </p>
           <FilePreview file={file} />
         </div>
@@ -272,14 +308,18 @@ export function ViewerWorkspace({
             </>
           )}
           <div className="workspace-toolbar">
-            <FormatPicker format={format} auto={auto} onChange={(next) => {
-              setAuto(next === "auto");
-              if (next !== "auto") setManualFormat(next);
-            }} />
+            <FormatPicker
+              format={format}
+              auto={auto}
+              onChange={(next) => {
+                setAuto(next === "auto");
+                if (next !== "auto") setManualFormat(next);
+              }}
+            />
             <div
               className="mode-switch"
               role="group"
-              aria-label="Mode de l’éditeur"
+              aria-label={t("Mode de l’éditeur")}
             >
               {(["source", "preview", "split"] as const).map((value) => (
                 <button
@@ -288,36 +328,53 @@ export function ViewerWorkspace({
                   aria-pressed={mode === value}
                   onClick={() => setMode(value)}
                 >
-                  {value === "source" ? <Code2 size={16} /> : value === "preview" ? <Eye size={16} /> : <Columns2 size={16} />}
+                  {value === "source" ? (
+                    <Code2 size={16} />
+                  ) : value === "preview" ? (
+                    <Eye size={16} />
+                  ) : (
+                    <Columns2 size={16} />
+                  )}
                   {value === "source"
-                    ? "Source"
+                    ? t("Source")
                     : value === "preview"
-                      ? "Aperçu"
-                      : "Divisé"}
+                      ? t("Aperçu")
+                      : t("Divisé")}
                 </button>
               ))}
             </div>
             <button
               type="button"
               className="icon-button"
-              aria-label={fullscreen ? "Quitter le plein écran" : "Plein écran"}
+              aria-label={
+                fullscreen ? t("Quitter le plein écran") : t("Plein écran")
+              }
               onClick={() => setFullscreen(!fullscreen)}
             >
               {fullscreen ? <Minimize2 size={18} /> : <Maximize2 size={18} />}
             </button>
           </div>
-          <div ref={panes} className={`workspace-panes mode-${mode}`} style={{ "--source-size": `${split}fr`, "--preview-size": `${100 - split}fr` } as CSSProperties}>
+          <div
+            ref={panes}
+            className={`workspace-panes mode-${mode}`}
+            style={
+              {
+                "--source-size": `${split}fr`,
+                "--preview-size": `${100 - split}fr`,
+              } as CSSProperties
+            }
+          >
             {mode !== "preview" && (
               <div className="source-pane">
                 <div className="pane-heading">
                   <label htmlFor="viewer-source">
-                    Source {filename && <span>{filename}</span>}
+                    {t("Source")} {filename && <span>{filename}</span>}
                   </label>
                   <button
                     type="button"
                     className="icon-button"
-                    aria-label="Effacer"
-                    title="Effacer la source"
+                    aria-label={t("Effacer")}
+                    title={t("Effacer la source")}
                     disabled={!content}
                     onClick={clearSource}
                   >
@@ -329,9 +386,7 @@ export function ViewerWorkspace({
                   value={content}
                   maxLength={MAX_TEXT_LENGTH}
                   spellCheck={false}
-                  placeholder={
-                    "Collez du texte ou glissez un fichier…"
-                  }
+                  placeholder={t("Collez du texte ou glissez un fichier…")}
                   onChange={(e) => {
                     ++acquisition.current;
                     setContent(e.target.value);
@@ -354,28 +409,70 @@ export function ViewerWorkspace({
                   }}
                 />
                 <span className="source-count">
-                  {content.length.toLocaleString("fr-FR")} / 100 000
+                  {content.length.toLocaleString(t.locale)} / 100 000
                 </span>
               </div>
             )}
             {mode === "split" && (
-              <div className="split-handle" role="separator" tabIndex={0}
-                aria-label="Redimensionner les panneaux" aria-orientation="vertical"
-                aria-valuemin={15} aria-valuemax={85} aria-valuenow={Math.round(split)}
-                onPointerDown={(event) => { event.preventDefault(); event.currentTarget.setPointerCapture(event.pointerId); }}
-                onPointerMove={(event) => { if (event.currentTarget.hasPointerCapture(event.pointerId)) resizeSplit(event.clientX, event.clientY); }}
-                onPointerUp={(event) => { event.currentTarget.releasePointerCapture(event.pointerId); }}
+              <div
+                className="split-handle"
+                role="separator"
+                tabIndex={0}
+                aria-label={t("Redimensionner les panneaux")}
+                aria-orientation="vertical"
+                aria-valuemin={15}
+                aria-valuemax={85}
+                aria-valuenow={Math.round(split)}
+                onPointerDown={(event) => {
+                  event.preventDefault();
+                  event.currentTarget.setPointerCapture(event.pointerId);
+                }}
+                onPointerMove={(event) => {
+                  if (event.currentTarget.hasPointerCapture(event.pointerId))
+                    resizeSplit(event.clientX, event.clientY);
+                }}
+                onPointerUp={(event) => {
+                  event.currentTarget.releasePointerCapture(event.pointerId);
+                }}
                 onKeyDown={(event) => {
-                  if (["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown", "Home", "End"].includes(event.key)) {
+                  if (
+                    [
+                      "ArrowLeft",
+                      "ArrowRight",
+                      "ArrowUp",
+                      "ArrowDown",
+                      "Home",
+                      "End",
+                    ].includes(event.key)
+                  ) {
                     event.preventDefault();
-                    setSplit(value => event.key === "Home" ? 15 : event.key === "End" ? 85 : Math.max(15, Math.min(85, value + (["ArrowLeft", "ArrowUp"].includes(event.key) ? -2 : 2))));
+                    setSplit((value) =>
+                      event.key === "Home"
+                        ? 15
+                        : event.key === "End"
+                          ? 85
+                          : Math.max(
+                              15,
+                              Math.min(
+                                85,
+                                value +
+                                  (["ArrowLeft", "ArrowUp"].includes(event.key)
+                                    ? -2
+                                    : 2),
+                              ),
+                            ),
+                    );
                   }
-                }} onDoubleClick={() => setSplit(50)}><GripVertical size={14} /></div>
+                }}
+                onDoubleClick={() => setSplit(50)}
+              >
+                <GripVertical size={14} />
+              </div>
             )}
             {mode !== "source" && (
               <div className="preview-pane">
                 <div className="pane-heading">
-                  Aperçu <span>{FORMAT_LABELS[format]}</span>
+                  {t("Aperçu")} <span>{t(FORMAT_LABELS[format])}</span>
                 </div>
                 <div className="preview-body" aria-busy={content !== preview}>
                   <ContentPreview
@@ -389,7 +486,16 @@ export function ViewerWorkspace({
           </div>
           <div className="workspace-bottom">
             <div className="workspace-actions">
-              <button type="button" className="icon-button" aria-label="Effacer" title="Effacer la source" disabled={!content} onClick={clearSource}><Trash2 size={15} /></button>
+              <button
+                type="button"
+                className="icon-button"
+                aria-label={t("Effacer")}
+                title={t("Effacer la source")}
+                disabled={!content}
+                onClick={clearSource}
+              >
+                <Trash2 size={15} />
+              </button>
               <CopyButton value={content} />
               <button
                 type="button"
@@ -398,7 +504,7 @@ export function ViewerWorkspace({
                 onClick={() => downloadSource(content, format, filename)}
               >
                 <Download size={15} />
-                Télécharger
+                {t("Télécharger")}
               </button>
               <button
                 type="button"
@@ -410,7 +516,7 @@ export function ViewerWorkspace({
                 }}
               >
                 <Save size={15} />
-                Sauvegarder
+                {t("Sauvegarder")}
               </button>
             </div>
           </div>
@@ -418,13 +524,13 @@ export function ViewerWorkspace({
             <div className="workspace-save">
               {authenticated ? (
                 <>
-                  <label htmlFor="document-title">Titre</label>
+                  <label htmlFor="document-title">{t("Titre")}</label>
                   <input
                     id="document-title"
                     name="title"
                     required
                     maxLength={120}
-                    placeholder="Un titre pour le retrouver"
+                    placeholder={t("Un titre pour le retrouver")}
                     value={title}
                     onChange={(e) => setTitle(e.target.value)}
                   />
@@ -444,17 +550,21 @@ export function ViewerWorkspace({
                     disabled={pending || !content}
                   >
                     {pending
-                      ? "Enregistrement…"
-                      : "Enregistrer dans ma bibliothèque"}
+                      ? t("Enregistrement…")
+                      : t("Enregistrer dans ma bibliothèque")}
                   </button>
                 </>
               ) : (
                 <>
-                  <h2>Gardez ce contenu dans votre bibliothèque.</h2>
+                  <h2>{t("Gardez ce contenu dans votre bibliothèque.")}</h2>
                   <p>
                     {configured
-                      ? "Connectez-vous pour sauvegarder. Votre brouillon sera conservé temporairement dans cet onglet, puis restauré après la connexion."
-                      : "La sauvegarde nécessite une connexion Supabase configurée. Vous pouvez déjà visualiser, copier et télécharger votre contenu."}
+                      ? t(
+                          "Connectez-vous pour sauvegarder. Votre brouillon sera conservé temporairement dans cet onglet, puis restauré après la connexion.",
+                        )
+                      : t(
+                          "La sauvegarde nécessite une connexion Supabase configurée. Vous pouvez déjà visualiser, copier et télécharger votre contenu.",
+                        )}
                   </p>
                   {configured && (
                     <Link
@@ -464,7 +574,7 @@ export function ViewerWorkspace({
                         if (!saveDraft()) event.preventDefault();
                       }}
                     >
-                      Se connecter pour sauvegarder
+                      {t("Se connecter pour sauvegarder")}
                     </Link>
                   )}
                 </>
@@ -473,9 +583,9 @@ export function ViewerWorkspace({
           )}
         </form>
       )}
-      {message && (
+      {t(message) && (
         <p className="message message-error" role="status">
-          {message}
+          {t(message)}
         </p>
       )}
     </section>

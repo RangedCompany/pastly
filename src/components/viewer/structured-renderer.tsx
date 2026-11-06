@@ -1,8 +1,10 @@
 "use client";
+import { useTranslations } from "@/components/i18n";
 import { useState } from "react";
 import { CopyButton } from "./copy-button";
 function stringify(value: unknown) {
-  if (typeof value === "number" && !Number.isFinite(value)) return String(value);
+  if (typeof value === "number" && !Number.isFinite(value))
+    return String(value);
   return JSON.stringify(value, null, 2) ?? String(value);
 }
 function TreeNode({
@@ -16,6 +18,7 @@ function TreeNode({
   depth: number;
   openDepth: number;
 }) {
+  const t = useTranslations();
   const [limit, setLimit] = useState(50);
   const [open, setOpen] = useState(depth < openDepth);
   if (value !== null && typeof value === "object" && !(value instanceof Date)) {
@@ -29,12 +32,16 @@ function TreeNode({
         <summary>
           <strong>{name}</strong>{" "}
           <span className="tree-type">
-            {Array.isArray(value) ? "Tableau" : "Objet"} · {entries.length}
+            {Array.isArray(value) ? t("Tableau") : t("Objet")} ·{" "}
+            {entries.length}
           </span>
         </summary>
         {open && (
           <>
-            <CopyButton value={stringify(value)} label="Copier la valeur" />
+            <CopyButton
+              value={stringify(value)}
+              label={t("Copier la valeur")}
+            />
             <div className="tree-children">
               {entries.slice(0, limit).map(([key, child]) => (
                 <TreeNode
@@ -51,8 +58,9 @@ function TreeNode({
                   className="button button-quiet"
                   onClick={() => setLimit(limit + 50)}
                 >
-                  Afficher 50 valeurs de plus ({entries.length - limit}{" "}
-                  restantes)
+                  {t("Afficher 50 valeurs de plus ({count} restantes)", {
+                    count: (entries.length - limit).toLocaleString(t.locale),
+                  })}
                 </button>
               )}
             </div>
@@ -69,12 +77,13 @@ function TreeNode({
       </span>
       <CopyButton
         value={typeof value === "string" ? value : stringify(value)}
-        label="Copier la valeur"
+        label={t("Copier la valeur")}
       />
     </div>
   );
 }
 export default function StructuredRenderer({ value }: { value: unknown }) {
+  const t = useTranslations();
   const [expanded, setExpanded] = useState(1);
   return (
     <div className="structured-view">
@@ -84,19 +93,19 @@ export default function StructuredRenderer({ value }: { value: unknown }) {
           type="button"
           onClick={() => setExpanded(3)}
         >
-          Déplier 3 niveaux
+          {t("Déplier 3 niveaux")}
         </button>
         <button
           className="button button-quiet"
           type="button"
           onClick={() => setExpanded(0)}
         >
-          Tout replier
+          {t("Tout replier")}
         </button>
       </div>
       <TreeNode
         key={expanded}
-        name="racine"
+        name={t("racine")}
         value={value}
         depth={0}
         openDepth={expanded}

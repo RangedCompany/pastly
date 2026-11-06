@@ -1,13 +1,17 @@
+import { getTranslations } from "@/lib/i18n/server";
 import type { Metadata } from "next";
 import { AdminDashboard } from "@/components/admin-dashboard";
 import { getAdminOverview, requireAdmin } from "@/lib/admin";
 import { adminRoleFilter } from "@/lib/admin.types";
 import { parsePage, searchTerm } from "@/lib/validation";
 
-export const metadata: Metadata = {
-  title: "Administration",
-  robots: { index: false, follow: false },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations();
+  return {
+    title: t("Administration"),
+    robots: { index: false, follow: false },
+  };
+}
 
 export default async function AdminPage({
   searchParams,

@@ -1,9 +1,11 @@
 "use client";
+import { useTranslations } from "@/components/i18n";
 import { useActionState } from "react";
 import { signInWithGoogle } from "@/app/actions/auth";
 import { FormMessage } from "./ui";
 
 export function GoogleSignIn({ next }: { next: string }) {
+  const t = useTranslations();
   const [state, action, pending] = useActionState(signInWithGoogle, {});
   return (
     <>
@@ -32,11 +34,11 @@ export function GoogleSignIn({ next }: { next: string }) {
               d="M12 5.96c1.47 0 2.79.5 3.83 1.5l2.88-2.87A9.6 9.6 0 0 0 12 2a10 10 0 0 0-8.95 5.49l3.35 2.59C7.19 7.72 9.4 5.96 12 5.96Z"
             />
           </svg>
-          {pending ? "Redirection vers Google…" : "Continuer avec Google"}
+          {pending ? t("Redirection vers Google…") : t("Continuer avec Google")}
         </button>
         <FormMessage state={state} />
       </form>
-      <div className="auth-divider">ou avec votre email</div>
+      <div className="auth-divider">{t("ou avec votre email")}</div>
     </>
   );
 }

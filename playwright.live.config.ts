@@ -27,6 +27,7 @@ export default defineConfig({
   workers: 1,
   timeout: 120000,
   use: {
+    locale: "fr-FR",
     baseURL: "http://127.0.0.1:3101",
     actionTimeout: 15000,
     navigationTimeout: 20000,

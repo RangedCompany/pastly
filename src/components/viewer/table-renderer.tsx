@@ -1,6 +1,8 @@
 "use client";
+import { useTranslations } from "@/components/i18n";
 import { useMemo, useState } from "react";
 export default function TableRenderer({ rows }: { rows: string[][] }) {
+  const t = useTranslations();
   const [query, setQuery] = useState("");
   const [sort, setSort] = useState<{
     index: number;
@@ -11,18 +13,20 @@ export default function TableRenderer({ rows }: { rows: string[][] }) {
   const filtered = useMemo(() => {
     const result = data.filter((row) =>
       row.some((cell) =>
-        cell.toLocaleLowerCase("fr").includes(query.toLocaleLowerCase("fr")),
+        cell
+          .toLocaleLowerCase(t.locale)
+          .includes(query.toLocaleLowerCase(t.locale)),
       ),
     );
     if (sort)
       result.sort(
         (a, b) =>
-          (a[sort.index] ?? "").localeCompare(b[sort.index] ?? "", "fr", {
+          (a[sort.index] ?? "").localeCompare(b[sort.index] ?? "", t.locale, {
             numeric: true,
           }) * (sort.ascending ? 1 : -1),
       );
     return result;
-  }, [data, query, sort]);
+  }, [data, query, sort, t.locale]);
   const current = Math.min(
     page,
     Math.max(0, Math.ceil(filtered.length / 100) - 1),
@@ -31,7 +35,7 @@ export default function TableRenderer({ rows }: { rows: string[][] }) {
     <div className="table-view">
       <div className="render-toolbar">
         <label>
-          Rechercher dans le tableau{" "}
+          {t("Rechercher dans le tableau")}{" "}
           <input
             type="search"
             value={query}
@@ -42,14 +46,14 @@ export default function TableRenderer({ rows }: { rows: string[][] }) {
           />
         </label>
         <span>
-          {filtered.length} lignes · {header.length} colonnes
+          {filtered.length} {t("lignes ·")} {header.length} {t("colonnes")}
         </span>
       </div>
       <div
         className="table-scroll"
         tabIndex={0}
         role="region"
-        aria-label="Tableau de données"
+        aria-label={t("Tableau de données")}
       >
         <table>
           <thead>
@@ -76,7 +80,7 @@ export default function TableRenderer({ rows }: { rows: string[][] }) {
                       setPage(0);
                     }}
                   >
-                    {cell || `Colonne ${i + 1}`}{" "}
+                    {cell || t("Colonne {number}", { number: i + 1 })}{" "}
                     {sort?.index === i ? (sort.ascending ? "↑" : "↓") : "↕"}
                   </button>
                 </th>
@@ -104,10 +108,10 @@ export default function TableRenderer({ rows }: { rows: string[][] }) {
             disabled={current === 0}
             onClick={() => setPage(current - 1)}
           >
-            Précédent
+            {t("Précédent")}
           </button>
           <span>
-            Page {current + 1} / {Math.ceil(filtered.length / 100)}
+            {t("Page")} {current + 1} / {Math.ceil(filtered.length / 100)}
           </span>
           <button
             className="button button-secondary"
@@ -115,13 +119,14 @@ export default function TableRenderer({ rows }: { rows: string[][] }) {
             disabled={(current + 1) * 100 >= filtered.length}
             onClick={() => setPage(current + 1)}
           >
-            Suivant
+            {t("Suivant")}
           </button>
         </div>
       )}
       <p className="viewer-hint">
-        La première ligne sert d’en-tête. Le téléchargement conserve le fichier
-        original, sans appliquer le tri.
+        {t(
+          "La première ligne sert d’en-tête. Le téléchargement conserve le fichier original, sans appliquer le tri.",
+        )}
       </p>
     </div>
   );

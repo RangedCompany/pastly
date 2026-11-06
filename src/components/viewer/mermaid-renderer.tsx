@@ -1,4 +1,5 @@
 "use client";
+import { useTranslations } from "@/components/i18n";
 import { useEffect, useRef, useState } from "react";
 import { MAX_DIAGRAM_LENGTH } from "@/lib/viewer/types";
 import { downloadBlob } from "@/lib/viewer/download";
@@ -61,6 +62,7 @@ async function diagram(content: string, active: () => boolean) {
   return task;
 }
 export default function MermaidRenderer({ content }: { content: string }) {
+  const t = useTranslations();
   const [result, setResult] = useState<{
     source: string;
     svg?: string;
@@ -121,11 +123,11 @@ export default function MermaidRenderer({ content }: { content: string }) {
     }
   }
   if (result?.source !== content)
-    return <p role="status">Création du diagramme…</p>;
+    return <p role="status">{t("Création du diagramme…")}</p>;
   if (result.error)
     return (
       <p className="message message-error" role="alert">
-        Syntaxe Mermaid : {result.error}
+        {t("Syntaxe Mermaid :")} {t(result.error)}
       </p>
     );
   return (
@@ -134,7 +136,7 @@ export default function MermaidRenderer({ content }: { content: string }) {
         <button
           className="button button-quiet"
           type="button"
-          aria-label="Réduire le diagramme"
+          aria-label={t("Réduire le diagramme")}
           onClick={() => setZoom(Math.max(0.25, zoom - 0.25))}
         >
           −
@@ -144,12 +146,12 @@ export default function MermaidRenderer({ content }: { content: string }) {
           type="button"
           onClick={() => setZoom(1)}
         >
-          Adapter à la largeur
+          {t("Adapter à la largeur")}
         </button>
         <button
           className="button button-quiet"
           type="button"
-          aria-label="Agrandir le diagramme"
+          aria-label={t("Agrandir le diagramme")}
           onClick={() => setZoom(Math.min(3, zoom + 0.25))}
         >
           +
@@ -165,28 +167,28 @@ export default function MermaidRenderer({ content }: { content: string }) {
             )
           }
         >
-          Exporter SVG
+          {t("Exporter SVG")}
         </button>
         <button className="button button-secondary" type="button" onClick={png}>
-          Exporter PNG
+          {t("Exporter PNG")}
         </button>
       </div>
       <div
         className="diagram-scroll"
         tabIndex={0}
         role="region"
-        aria-label="Diagramme Mermaid"
+        aria-label={t("Diagramme Mermaid")}
       >
         {/* Blob SVG displayed as an image: no active document or script context. */}
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img
           ref={img}
           src={result.url}
-          alt="Diagramme Mermaid généré depuis votre source"
+          alt={t("Diagramme Mermaid généré depuis votre source")}
           style={{ width: `${zoom * 100}%`, maxWidth: "none" }}
         />
       </div>
-      {exportError && <p role="status">{exportError}</p>}
+      {exportError && <p role="status">{t(exportError)}</p>}
     </div>
   );
 }

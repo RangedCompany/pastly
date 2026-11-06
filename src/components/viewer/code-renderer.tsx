@@ -1,4 +1,5 @@
 "use client";
+import { useTranslations } from "@/components/i18n";
 import { useEffect, useState } from "react";
 import type { BundledLanguage, ThemedToken } from "shiki";
 import { CopyButton } from "./copy-button";
@@ -9,6 +10,7 @@ export default function CodeRenderer({
   content: string;
   language?: string;
 }) {
+  const t = useTranslations();
   const [result, setResult] = useState<{
     source: string;
     language: string;
@@ -46,16 +48,17 @@ export default function CodeRenderer({
   return (
     <div className="code-view">
       <div className="render-toolbar">
-        <span>{language === "text" ? "Source" : language}</span>
+        <span>{language === "text" ? t("Source") : language}</span>
         <CopyButton value={content} />
       </div>
       {content.length > 30_000 && (
         <p className="viewer-hint">
-          Coloration désactivée au-delà de 30 000 caractères ; source intégrale
-          conservée.
+          {t(
+            "Coloration désactivée au-delà de 30 000 caractères ; source intégrale conservée.",
+          )}
         </p>
       )}
-      <pre tabIndex={0} aria-label="Code source">
+      <pre tabIndex={0} aria-label={t("Code source")}>
         <code>
           {tokens
             ? tokens.map((line, i) => (

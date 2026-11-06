@@ -1,4 +1,5 @@
 "use client";
+import { useTranslations } from "@/components/i18n";
 import Link from "next/link";
 import { useActionState } from "react";
 import { ArrowRight, Mail } from "lucide-react";
@@ -12,6 +13,7 @@ export function AuthForm({
   mode: "login" | "signup" | "forgot" | "reset";
   next?: string;
 }) {
+  const t = useTranslations();
   const [state, action, pending] = useActionState(
     authenticate.bind(null, mode),
     {},
@@ -27,7 +29,7 @@ export function AuthForm({
       <input type="hidden" name="next" value={next} />
       {mode !== "reset" && (
         <div className="field">
-          <label htmlFor="email">Adresse email</label>
+          <label htmlFor="email">{t("Adresse email")}</label>
           <input
             id="email"
             name="email"
@@ -43,9 +45,11 @@ export function AuthForm({
         <div className="field">
           <div className="label-row">
             <label htmlFor="password">
-              {mode === "reset" ? "Nouveau mot de passe" : "Mot de passe"}
+              {mode === "reset" ? t("Nouveau mot de passe") : t("Mot de passe")}
             </label>
-            {mode === "login" && <Link href="/forgot-password">Oublié ?</Link>}
+            {mode === "login" && (
+              <Link href="/forgot-password">{t("Oublié ?")}</Link>
+            )}
           </div>
           <input
             id="password"
@@ -58,12 +62,14 @@ export function AuthForm({
             minLength={mode === "login" ? 1 : 12}
             maxLength={128}
             placeholder={
-              mode === "login" ? "Votre mot de passe" : "12 caractères minimum"
+              mode === "login"
+                ? t("Votre mot de passe")
+                : t("12 caractères minimum")
             }
           />
           {mode !== "login" && (
             <small>
-              Au moins 12 caractères. Une phrase fonctionne très bien.
+              {t("Au moins 12 caractères. Une phrase fonctionne très bien.")}
             </small>
           )}
         </div>
@@ -71,7 +77,7 @@ export function AuthForm({
       {mode === "reset" && (
         <div className="field">
           <label htmlFor="password_confirmation">
-            Confirmer le mot de passe
+            {t("Confirmer le mot de passe")}
           </label>
           <input
             id="password_confirmation"
@@ -90,28 +96,31 @@ export function AuthForm({
         type="submit"
         disabled={pending}
       >
-        {pending ? "Un instant…" : label}
+        {pending ? t("Un instant…") : t(label)}
         {mode === "forgot" ? <Mail size={17} /> : <ArrowRight size={17} />}
       </button>
       {mode === "signup" && (
         <p className="form-hint">
-          Un email vous permettra de confirmer votre inscription. Vous pourrez
-          personnaliser votre profil ensuite.
+          {t(
+            "Un email vous permettra de confirmer votre inscription. Vous pourrez personnaliser votre profil ensuite.",
+          )}
         </p>
       )}
       {mode === "login" && (
         <p className="auth-switch">
-          Pas encore de compte ? <Link href="/signup">Rejoignez Pastly</Link>
+          {t("Pas encore de compte ?")}{" "}
+          <Link href="/signup">{t("Rejoignez Pastly")}</Link>
         </p>
       )}
       {mode === "signup" && (
         <p className="auth-switch">
-          Déjà un compte ? <Link href="/login">Connectez-vous</Link>
+          {t("Déjà un compte ?")}{" "}
+          <Link href="/login">{t("Connectez-vous")}</Link>
         </p>
       )}
       {(mode === "forgot" || mode === "reset") && (
         <Link href="/login" className="auth-switch">
-          Retour à la connexion
+          {t("Retour à la connexion")}
         </Link>
       )}
     </form>

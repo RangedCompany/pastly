@@ -1,4 +1,5 @@
 "use client";
+import { useTranslations } from "@/components/i18n";
 import { useState } from "react";
 import { Check, Link2 } from "lucide-react";
 export function ShareButton({
@@ -8,6 +9,7 @@ export function ShareButton({
   id: string;
   label?: boolean;
 }) {
+  const t = useTranslations();
   const [status, setStatus] = useState("");
   async function share() {
     try {
@@ -25,15 +27,15 @@ export function ShareButton({
         type="button"
         onClick={share}
         className={label ? "button button-secondary" : "icon-button"}
-        aria-label="Copier le lien du contenu"
-        title="Copier le lien"
+        aria-label={t("Copier le lien du contenu")}
+        title={t("Copier le lien")}
       >
         {status === "Lien copié !" ? <Check size={16} /> : <Link2 size={16} />}
-        {label && "Partager"}
+        {label && t("Partager")}
       </button>
-      {status && (
+      {t(status) && (
         <span className="share-feedback" role="status">
-          {status}
+          {t(status)}
         </span>
       )}
     </span>

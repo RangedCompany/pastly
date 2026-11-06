@@ -1,3 +1,4 @@
+import { getTranslations } from "@/lib/i18n/server";
 import Link from "next/link";
 import {
   ArrowUpRight,
@@ -15,16 +16,16 @@ import {
 } from "@/lib/admin.types";
 import { AdminRoleControl } from "./admin-role-control";
 
-function date(value: string | null) {
+function date(value: string | null, t: import("@/lib/i18n/locale").Translator) {
   return value
-    ? new Intl.DateTimeFormat("fr-FR", {
+    ? new Intl.DateTimeFormat(t.locale, {
         dateStyle: "medium",
         timeZone: "Europe/Paris",
       }).format(new Date(value))
-    : "Jamais";
+    : t("Jamais");
 }
 
-export function AdminDashboard({
+export async function AdminDashboard({
   data,
   currentUserId,
   query,
@@ -37,6 +38,7 @@ export function AdminDashboard({
   role: AdminRoleFilter;
   page: number;
 }) {
+  const t = await getTranslations();
   const { summary, accounts, total, events } = data;
   const pages = Math.max(1, Math.ceil(total / ADMIN_PAGE_SIZE));
   function href(n: number) {
@@ -47,9 +49,11 @@ export function AdminDashboard({
     <div className="container admin-page">
       <div className="heading-row">
         <header className="page-heading">
-          <span className="eyebrow">LES COULISSES DE PASTLY</span>
-          <h1>Administration</h1>
-          <p>Les comptes, les notes et les accès, réunis au même endroit.</p>
+          <span className="eyebrow">{t("LES COULISSES DE PASTLY")}</span>
+          <h1>{t("Administration")}</h1>
+          <p>
+            {t("Les comptes, les notes et les accès, réunis au même endroit.")}
+          </p>
         </header>
         <Link
           href={href(page)}
@@ -57,64 +61,77 @@ export function AdminDashboard({
           className="button button-secondary"
         >
           <RefreshCw size={17} aria-hidden="true" />
-          Actualiser
+          {t("Actualiser")}
         </Link>
       </div>
 
-      <section className="admin-stats" aria-label="Vue d’ensemble">
+      <section className="admin-stats" aria-label={t("Vue d’ensemble")}>
         <article className="admin-stat">
           <Users size={21} aria-hidden="true" />
-          <h2>Comptes créés</h2>
+          <h2>{t("Comptes créés")}</h2>
           <strong>{summary.accounts}</strong>
-          <p>+{summary.new_accounts_7d} sur les 7 derniers jours</p>
+          <p>
+            +{summary.new_accounts_7d} {t("sur les 7 derniers jours")}
+          </p>
         </article>
         <article className="admin-stat">
           <StickyNote size={21} aria-hidden="true" />
-          <h2>Notes</h2>
+          <h2>{t("Notes")}</h2>
           <strong>{summary.notes}</strong>
           <p>
-            {summary.public_notes} publics · {summary.private_notes} privés
+            {t("{public} publics · {private} privés", {
+              public: summary.public_notes,
+              private: summary.private_notes,
+            })}
           </p>
         </article>
         <article className="admin-stat">
           <ShieldCheck size={21} aria-hidden="true" />
-          <h2>Administrateurs</h2>
+          <h2>{t("Administrateurs")}</h2>
           <strong>{summary.admins}</strong>
-          <p>Accès à la supervision et aux droits</p>
+          <p>{t("Accès à la supervision et aux droits")}</p>
         </article>
         <article className="admin-stat">
           <Activity size={21} aria-hidden="true" />
-          <h2>Connexions récentes</h2>
+          <h2>{t("Connexions récentes")}</h2>
           <strong>{summary.sign_ins_7d}</strong>
-          <p>Comptes connectés sur les 7 derniers jours</p>
+          <p>{t("Comptes connectés sur les 7 derniers jours")}</p>
         </article>
       </section>
 
       <section className="admin-health" aria-labelledby="health-heading">
-        <h2 id="health-heading">À suivre</h2>
+        <h2 id="health-heading">{t("À suivre")}</h2>
         <div>
           <Link href="/admin?role=pending">
-            {summary.pending} email{summary.pending > 1 ? "s" : ""} à confirmer{" "}
+            {t.plural(
+              "{count} email à confirmer",
+              "{count} emails à confirmer",
+              summary.pending,
+            )}{" "}
             <ArrowUpRight size={15} aria-hidden="true" />
           </Link>
           <span>
-            {summary.without_notes} compte{summary.without_notes > 1 ? "s" : ""}{" "}
-            sans note
+            {summary.without_notes} {t("compte")}
+            {summary.without_notes > 1 ? "s" : ""} {t("sans note")}
           </span>
-          <span>{summary.new_notes_7d} notes créées sur 7 jours</span>
+          <span>
+            {summary.new_notes_7d} {t("notes créées sur 7 jours")}
+          </span>
           <span className={summary.missing_profiles ? "admin-warning" : ""}>
-            {summary.missing_profiles} profil
-            {summary.missing_profiles > 1 ? "s" : ""} manquant
-            {summary.missing_profiles > 1 ? "s" : ""}
+            {t.plural(
+              "{count} profil manquant",
+              "{count} profils manquants",
+              summary.missing_profiles,
+            )}
           </span>
         </div>
       </section>
 
       <section aria-labelledby="accounts-heading">
         <div className="admin-section-heading">
-          <h2 id="accounts-heading">Les comptes</h2>
+          <h2 id="accounts-heading">{t("Les comptes")}</h2>
           <span>
-            {total} résultat{total > 1 ? "s" : ""}
+            {t.plural("{count} résultat", "{count} résultats", total)}
           </span>
         </div>
         <form
@@ -125,7 +142,7 @@ export function AdminDashboard({
           <div className="search-input">
             <Search size={18} aria-hidden="true" />
             <label htmlFor="admin-search" className="sr-only">
-              Rechercher un compte
+              {t("Rechercher un compte")}
             </label>
             <input
               id="admin-search"
@@ -133,22 +150,22 @@ export function AdminDashboard({
               name="q"
               defaultValue={query}
               maxLength={100}
-              placeholder="Email, pseudo, nom ou identifiant…"
+              placeholder={t("Email, pseudo, nom ou identifiant…")}
             />
           </div>
           <label className="sr-only" htmlFor="admin-role">
-            Filtrer les comptes
+            {t("Filtrer les comptes")}
           </label>
           <select id="admin-role" name="role" defaultValue={role}>
-            <option value="all">Tous les comptes</option>
-            <option value="admin">Administrateurs</option>
-            <option value="member">Membres</option>
-            <option value="pending">Email à confirmer</option>
+            <option value="all">{t("Tous les comptes")}</option>
+            <option value="admin">{t("Administrateurs")}</option>
+            <option value="member">{t("Membres")}</option>
+            <option value="pending">{t("Email à confirmer")}</option>
           </select>
-          <button className="button button-primary">Rechercher</button>
+          <button className="button button-primary">{t("Rechercher")}</button>
           {(query || role !== "all") && (
             <Link href="/admin" className="button button-secondary">
-              Effacer les filtres
+              {t("Effacer les filtres")}
             </Link>
           )}
         </form>
@@ -162,9 +179,9 @@ export function AdminDashboard({
             >
               <div className="admin-account-heading">
                 <div>
-                  <h3>{account.display_name ?? "Profil manquant"}</h3>
+                  <h3>{account.display_name ?? t("Profil manquant")}</h3>
                   <p className="admin-email">
-                    {account.email ?? "Sans adresse email"}
+                    {account.email ?? t("Sans adresse email")}
                   </p>
                   {account.username && (
                     <Link
@@ -181,43 +198,45 @@ export function AdminDashboard({
                   <span
                     className={`admin-badge ${account.is_admin ? "admin-badge-green" : ""}`}
                   >
-                    {account.is_admin ? "Administrateur" : "Membre"}
+                    {account.is_admin ? t("Administrateur") : t("Membre")}
                   </span>
                   <span
                     className={`admin-badge ${account.email_confirmed_at ? "" : "admin-badge-amber"}`}
                   >
                     {account.email_confirmed_at
-                      ? "Email confirmé"
-                      : "Email à confirmer"}
+                      ? t("Email confirmé")
+                      : t("Email à confirmer")}
                   </span>
                 </div>
               </div>
               <dl className="admin-account-details">
                 <div>
-                  <dt>Notes</dt>
+                  <dt>{t("Notes")}</dt>
                   <dd>
                     <strong>{account.note_count}</strong>{" "}
                     <span>
-                      dont {account.public_note_count} publics et{" "}
-                      {account.private_note_count} privés
+                      {t("dont")} {account.public_note_count} {t("publics et")}{" "}
+                      {account.private_note_count} {t("privés")}
                     </span>
                   </dd>
                 </div>
                 <div>
-                  <dt>Inscription</dt>
-                  <dd>{date(account.created_at)}</dd>
+                  <dt>{t("Inscription")}</dt>
+                  <dd>{date(account.created_at, t)}</dd>
                 </div>
                 <div>
-                  <dt>Dernière connexion</dt>
-                  <dd>{date(account.last_sign_in_at)}</dd>
+                  <dt>{t("Dernière connexion")}</dt>
+                  <dd>{date(account.last_sign_in_at, t)}</dd>
                 </div>
                 <div>
-                  <dt>Dernière note créée</dt>
-                  <dd>{date(account.last_note_at)}</dd>
+                  <dt>{t("Dernière note créée")}</dt>
+                  <dd>{date(account.last_note_at, t)}</dd>
                 </div>
               </dl>
               <div className="admin-account-bottom">
-                <span className="admin-account-id">ID : {account.id}</span>
+                <span className="admin-account-id">
+                  {t("ID :")} {account.id}
+                </span>
                 <AdminRoleControl
                   account={account}
                   currentUserId={currentUserId}
@@ -227,29 +246,33 @@ export function AdminDashboard({
           ))}
           {!accounts.length && (
             <div className="empty-state">
-              <h3>Aucun compte ne correspond.</h3>
-              <p>Essayez un autre nom ou effacez les filtres.</p>
+              <h3>{t("Aucun compte ne correspond.")}</h3>
+              <p>{t("Essayez un autre nom ou effacez les filtres.")}</p>
               <Link className="button button-secondary" href="/admin">
-                Voir tous les comptes
+                {t("Voir tous les comptes")}
               </Link>
             </div>
           )}
         </div>
         {(pages > 1 || page > 1) && (
-          <nav aria-label="Pagination des comptes" className="pagination">
+          <nav aria-label={t("Pagination des comptes")} className="pagination">
             {page > 1 ? (
               <Link
                 className="button button-secondary"
                 href={href(page - 1)}
                 prefetch={false}
               >
-                Précédent
+                {t("Précédent")}
               </Link>
             ) : (
               <span />
             )}
             <span>
-              Page {page} sur {pages} · {total} comptes
+              {t("Page {page} sur {pages} · {total} comptes", {
+                page,
+                pages,
+                total,
+              })}
             </span>
             {page < pages ? (
               <Link
@@ -257,7 +280,7 @@ export function AdminDashboard({
                 href={href(page + 1)}
                 prefetch={false}
               >
-                Suivant
+                {t("Suivant")}
               </Link>
             ) : (
               <span />
@@ -268,12 +291,13 @@ export function AdminDashboard({
 
       <section className="admin-audit" aria-labelledby="audit-heading">
         <div className="admin-section-heading">
-          <h2 id="audit-heading">Historique des accès</h2>
-          <span>30 derniers changements</span>
+          <h2 id="audit-heading">{t("Historique des accès")}</h2>
+          <span>{t("30 derniers changements")}</span>
         </div>
         <p className="admin-section-description">
-          Chaque attribution ou retrait de droits est enregistré avec son
-          auteur.
+          {t(
+            "Chaque attribution ou retrait de droits est enregistré avec son auteur.",
+          )}
         </p>
         {events.length ? (
           <ol className="admin-events">
@@ -283,19 +307,19 @@ export function AdminDashboard({
                   className={`admin-badge ${event.action === "granted" ? "admin-badge-green" : "admin-badge-amber"}`}
                 >
                   {event.action === "granted"
-                    ? "Accès accordé"
-                    : "Accès retiré"}
+                    ? t("Accès accordé")
+                    : t("Accès retiré")}
                 </span>
                 <div>
-                  <strong>{event.target_email ?? "Compte supprimé"}</strong>
+                  <strong>{event.target_email ?? t("Compte supprimé")}</strong>
                   <p>
-                    Par{" "}
+                    {t("Par")}{" "}
                     {event.actor_email ??
-                      "Initialisation SQL / compte supprimé"}
+                      t("Initialisation SQL / compte supprimé")}
                   </p>
                 </div>
                 <time dateTime={event.created_at}>
-                  {new Intl.DateTimeFormat("fr-FR", {
+                  {new Intl.DateTimeFormat(t.locale, {
                     dateStyle: "medium",
                     timeStyle: "short",
                     timeZone: "Europe/Paris",
@@ -306,15 +330,14 @@ export function AdminDashboard({
           </ol>
         ) : (
           <p className="admin-empty-audit">
-            Aucun changement de droits enregistré.
+            {t("Aucun changement de droits enregistré.")}
           </p>
         )}
       </section>
       <p className="admin-footnote">
-        Les statistiques incluent les nombres de notes privées, jamais leur
-        contenu. La dernière connexion correspond à l’authentification, pas à
-        une présence en temps réel. Données actualisées au chargement de la
-        page.
+        {t(
+          "Les statistiques incluent les nombres de notes privées, jamais leur contenu. La dernière connexion correspond à l’authentification, pas à une présence en temps réel. Données actualisées au chargement de la page.",
+        )}
       </p>
     </div>
   );

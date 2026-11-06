@@ -1,4 +1,6 @@
 "use client";
+import { useTranslations } from "@/components/i18n";
+import { TranslatedText } from "@/components/i18n";
 import dynamic from "next/dynamic";
 import { useEffect, useState } from "react";
 import { getRenderer } from "@/lib/viewer/registry";
@@ -8,7 +10,11 @@ import {
   type ContentFormat,
   type ParseResult,
 } from "@/lib/viewer/types";
-const loading = () => <p role="status">Chargement du visualiseur…</p>;
+const loading = () => (
+  <p role="status">
+    <TranslatedText text={"Chargement du visualiseur…"} />
+  </p>
+);
 const Markdown = dynamic(() => import("./markdown-renderer"), { loading });
 const Mermaid = dynamic(() => import("./mermaid-renderer"), { loading });
 const Code = dynamic(() => import("./code-renderer"), { loading });
@@ -24,6 +30,7 @@ export function ContentPreview({
   format: ContentFormat;
   color?: string;
 }) {
+  const t = useTranslations();
   const renderer = getRenderer(format);
   const [parsed, setParsed] = useState<{
     content: string;
@@ -83,14 +90,14 @@ export function ContentPreview({
   if (!content)
     return (
       <div className="preview-placeholder">
-        <strong>Votre contenu, plus lisible.</strong>
-        <p>Collez du texte ou ouvrez un fichier pour commencer.</p>
+        <strong>{t("Votre contenu, plus lisible.")}</strong>
+        <p>{t("Collez du texte ou ouvrez un fichier pour commencer.")}</p>
       </div>
     );
   if (content.length > MAX_TEXT_LENGTH)
     return (
       <p className="message message-error" role="alert">
-        Le contenu est limité à 100 000 caractères.
+        {t("Le contenu est limité à 100 000 caractères.")}
       </p>
     );
   const result =
@@ -122,11 +129,11 @@ export function ContentPreview({
         <div>
           {result.diagnostics.map((d, i) => (
             <p className="message message-error" key={i} role="alert">
-              {d.message}
+              {t(d.message)}
             </p>
           ))}
           <p className="viewer-hint">
-            Choisissez Source ou Split pour corriger le contenu.
+            {t("Choisissez Source ou Split pour corriger le contenu.")}
           </p>
         </div>
       );

@@ -1,7 +1,9 @@
 "use client";
+import { useTranslations } from "@/components/i18n";
 import { useEffect, useRef, useState } from "react";
 import type { PDFDocumentProxy } from "pdfjs-dist";
 export default function PdfRenderer({ file }: { file: File }) {
+  const t = useTranslations();
   const canvas = useRef<HTMLCanvasElement>(null);
   const [doc, setDoc] = useState<{ file: File; pdf: PDFDocumentProxy } | null>(
     null,
@@ -124,10 +126,10 @@ export default function PdfRenderer({ file }: { file: File }) {
           disabled={!doc || page <= 1}
           onClick={() => setPage(page - 1)}
         >
-          Page précédente
+          {t("Page précédente")}
         </button>
         <span>
-          Page {page} / {doc?.file === file ? doc.pdf.numPages : "…"}
+          {t("Page")} {page} / {doc?.file === file ? doc.pdf.numPages : "…"}
         </span>
         <button
           type="button"
@@ -135,10 +137,10 @@ export default function PdfRenderer({ file }: { file: File }) {
           disabled={!doc || page >= doc.pdf.numPages}
           onClick={() => setPage(page + 1)}
         >
-          Page suivante
+          {t("Page suivante")}
         </button>
         <label>
-          Zoom{" "}
+          {t("Zoom")}{" "}
           <select
             value={scale}
             onChange={(e) => setScale(Number(e.target.value))}
@@ -150,22 +152,26 @@ export default function PdfRenderer({ file }: { file: File }) {
           </select>
         </label>
       </div>
-      {loading && <p role="status">Rendu de la page…</p>}
-      {error && (
+      {loading && <p role="status">{t("Rendu de la page…")}</p>}
+      {t(error) && (
         <p role="alert" className="message message-error">
-          {error}
+          {t(error)}
         </p>
       )}
       <div className="pdf-canvas">
         <canvas
           ref={canvas}
           role="img"
-          aria-label={`Page ${page} du PDF ${file.name}`}
+          aria-label={t("Page {value0} du PDF {value1}", {
+            value0: page,
+            value1: file.name,
+          })}
         />
       </div>
       <p className="viewer-hint">
-        Aperçu graphique avec PDF.js. Les liens, formulaires, scripts et pièces
-        jointes du PDF ne sont pas activés.
+        {t(
+          "Aperçu graphique avec PDF.js. Les liens, formulaires, scripts et pièces jointes du PDF ne sont pas activés.",
+        )}
       </p>
     </div>
   );
