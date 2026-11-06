@@ -23,7 +23,7 @@ export default async function EditNote({
     <div
       className={
         note.format === "note"
-          ? "container narrow"
+          ? "container"
           : "container document-editor"
       }
     >

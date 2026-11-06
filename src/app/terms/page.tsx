@@ -79,7 +79,8 @@ export default function Terms() {
           habilitées.
         </p>
         <p>
-          Votre pseudonyme, votre nom affiché, votre date d’inscription et vos
+          Votre pseudonyme, votre nom affiché, votre photo de profil facultative,
+          votre date d’inscription et vos
           notes publiques apparaissent sur votre profil public. Votre adresse
           email n’y est pas affichée.
         </p>

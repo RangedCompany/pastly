@@ -16,6 +16,7 @@
   --line: #e5e5dc;
   --green: #344f3e;
   --yellow: #f9edac;
+  --page-gutter: 12px;
 }
 * {
   box-sizing: border-box;
@@ -101,9 +102,8 @@ select {
   background: rgba(250, 249, 246, 0.96);
 }
 .nav-inner {
-  max-width: 1280px;
   min-height: 88px;
-  padding: 0 40px;
+  padding: 0 var(--page-gutter);
   margin: auto;
   display: flex;
   align-items: center;
@@ -224,12 +224,10 @@ select {
   min-height: calc(100vh - 214px);
 }
 .container {
-  max-width: 1280px;
-  padding: 60px 40px 80px;
+  width: 100%;
+  max-width: none;
+  padding: 60px var(--page-gutter) 80px;
   margin: 0 auto;
-}
-.narrow {
-  max-width: 1040px;
 }
 .eyebrow {
   display: inline-flex;
@@ -627,6 +625,76 @@ select {
   font-family: Arial, sans-serif;
   font-size: 8px;
 }
+.avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: inherit;
+}
+.profile-avatar {
+  margin-bottom: 15px;
+}
+.avatar-edit {
+  position: relative;
+  display: inline-flex;
+  padding: 0;
+  border: 0;
+  border-radius: 50%;
+  background: transparent;
+  vertical-align: middle;
+}
+.avatar-edit-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: inherit;
+  background: #28372e80;
+  color: white;
+  opacity: 0;
+  transition: opacity 0.15s;
+}
+.avatar-edit:hover .avatar-edit-overlay,
+.avatar-edit:focus-visible .avatar-edit-overlay,
+.avatar-edit-overlay.is-pending {
+  opacity: 1;
+}
+.avatar-edit:hover img,
+.avatar-edit:focus-visible img {
+  filter: grayscale(1);
+}
+.avatar-remove {
+  display: block;
+  margin-top: 10px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  text-decoration: underline;
+  font-size: 13px;
+}
+.profile-avatar .avatar-hint {
+  margin: 10px 0 0;
+  font-size: 12px;
+}
+.profile-avatar .message {
+  margin: 12px 0 0;
+  padding: 10px;
+  font-size: 13px;
+}
+.avatar-spinner {
+  animation: avatar-spin 1s linear infinite;
+}
+@keyframes avatar-spin {
+  to { transform: rotate(360deg); }
+}
+@media (hover: none) {
+  .avatar-edit-overlay { opacity: 1; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .avatar-edit-overlay { transition: none; }
+  .avatar-spinner { animation: none; }
+}
 .note-tools {
   display: flex;
   align-items: center;
@@ -869,10 +937,9 @@ legend {
   margin-top: 14px;
 }
 .auth-layout {
-  max-width: 1000px;
-  margin: 55px auto 75px;
+  margin: 55px var(--page-gutter) 75px;
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   border: 1px solid var(--line);
   border-radius: 12px;
   overflow: hidden;
@@ -1034,9 +1101,6 @@ legend {
   font-size: 15px;
   margin: 5px 0 20px;
 }
-.profile-form {
-  max-width: 520px;
-}
 .profile-form .button {
   align-self: flex-start;
 }
@@ -1072,7 +1136,6 @@ legend {
   overflow-wrap: anywhere;
 }
 .note-detail {
-  max-width: 780px;
   margin: auto;
 }
 .detail-paper {
@@ -1161,8 +1224,7 @@ legend {
   justify-content: flex-end;
 }
 .site-footer {
-  max-width: 1200px;
-  margin: auto;
+  margin: 0 var(--page-gutter);
   border-top: 1px solid var(--line);
   padding: 28px 0;
   display: flex;
@@ -1192,9 +1254,8 @@ legend {
   line-height: 1.7;
 }
 .legal-page {
-  max-width: 840px;
   margin: 0 auto;
-  padding: 56px 24px 80px;
+  padding: 56px var(--page-gutter) 80px;
   overflow-wrap: anywhere;
 }
 .legal-page .page-heading h1 {
@@ -1252,8 +1313,7 @@ legend {
 }
 .error-page {
   text-align: center;
-  max-width: 600px;
-  padding: 100px 20px;
+  padding: 100px var(--page-gutter);
   margin: auto;
 }
 .error-page h1 {
@@ -1267,23 +1327,16 @@ legend {
   .note-grid {
     grid-template-columns: repeat(4, minmax(0, 1fr));
   }
-  .container {
-    max-width: 1400px;
-  }
-  .narrow {
-    max-width: 1040px;
-  }
 }
 @media (max-width: 1000px) {
   .nav-inner {
     gap: 25px;
-    padding: 0 25px;
   }
   .nav-links {
     gap: 20px;
   }
   .container {
-    padding: 45px 25px 65px;
+    padding: 45px var(--page-gutter) 65px;
   }
   .hero {
     gap: 25px;
@@ -1311,14 +1364,11 @@ legend {
   .intro-strip {
     gap: 20px;
   }
-  .site-footer {
-    margin: 0 25px;
-  }
   .editor-layout {
     gap: 25px;
   }
   .auth-layout {
-    margin: 35px 25px 55px;
+    margin: 35px var(--page-gutter) 55px;
   }
   .auth-panel {
     padding: 40px 28px;
@@ -1327,7 +1377,6 @@ legend {
 @media (max-width: 760px) {
   .nav-inner {
     min-height: 73px;
-    padding: 0 20px;
     gap: 10px;
   }
   .brand {
@@ -1356,7 +1405,7 @@ legend {
     display: flex;
     flex-wrap: wrap;
     gap: 12px 20px;
-    padding: 0 20px 13px;
+    padding: 0 var(--page-gutter) 13px;
     font-size: 14px;
   }
   .mobile-nav a {
@@ -1365,7 +1414,7 @@ legend {
     gap: 6px;
   }
   .container {
-    padding: 35px 20px 55px;
+    padding: 35px var(--page-gutter) 55px;
   }
   .hero {
     grid-template-columns: 1fr;
@@ -1478,7 +1527,7 @@ legend {
   }
   .auth-layout {
     grid-template-columns: 1fr;
-    margin: 25px 20px 45px;
+    margin: 25px var(--page-gutter) 45px;
   }
   .auth-story {
     display: none;
@@ -1492,10 +1541,6 @@ legend {
   }
   .profile-summary {
     padding: 25px;
-  }
-  .profile-summary .avatar {
-    float: left;
-    margin-right: 20px;
   }
   .profile-summary h2 {
     margin-top: 0;
@@ -1517,7 +1562,6 @@ legend {
   }
   .site-footer {
     flex-wrap: wrap;
-    margin: 0 20px;
     padding: 25px 0;
     gap: 16px;
   }
@@ -1577,9 +1621,6 @@ legend {
     padding: 10px;
     font-size: 14px;
   }
-}
-.admin-page {
-  max-width: 1280px;
 }
 .admin-page .heading-row {
   margin-bottom: 20px;
@@ -1932,7 +1973,9 @@ legend {
 .workspace-panes.mode-split { grid-template-columns: minmax(0, .95fr) minmax(0, 1.05fr); }
 .source-pane, .preview-pane { min-width: 0; display: flex; flex-direction: column; }
 .mode-split .source-pane { border-right: 1px solid var(--line); }
-.pane-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; color: var(--muted); font-size: 12px; font-weight: 650; padding: 10px 18px; border-bottom: 1px solid #f0f1ec; }
+.pane-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 50px; color: var(--muted); font-size: 12px; font-weight: 650; padding: 8px 18px; border-bottom: 1px solid #f0f1ec; }
+.pane-heading label { display: flex; align-items: center; gap: 12px; min-width: 0; }
+.pane-heading .icon-button { flex-shrink: 0; }
 .pane-heading span { font-weight: 400; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .source-pane textarea { display: block; flex: 1; width: 100%; min-height: 345px; padding: 20px; border: 0; resize: vertical; background: #fcfcfa; font: 14px/1.8 Consolas, 'Cascadia Code', monospace; tab-size: 2; }
 .source-pane textarea:focus-visible { outline-offset: -3px; }
@@ -2011,7 +2054,7 @@ body:has(.workspace-fullscreen) { overflow: hidden; }
 .document-card:nth-child(n) { transform: none; }
 .document-card .note-card-link p { font: 13px/1.7 Consolas, monospace; color: #57606a; }
 .format-badge { display: inline-block; font-size: 11px; line-height: 1.8; font-weight: 600; background: #eaf0e5; color: #3c5638; padding: 1px 8px; border-radius: 4px; margin: 4px 0 10px; }
-.document-detail { max-width: 1080px; margin: 32px auto; }
+.document-detail { margin: 32px auto; }
 .detail-document { background: white; border: 1px solid var(--line); border-radius: 12px; padding: clamp(18px, 4vw, 44px); min-width: 0; }
 .detail-document > h1 { font-size: 32px; font-weight: 700; overflow-wrap: anywhere; margin: 18px 0; }
 .detail-document .content-renderer { padding: 16px 0; }
@@ -2049,7 +2092,7 @@ body:has(.workspace-fullscreen) { overflow: hidden; }
 }
 
 /* Compact, full-width workspace. The divider works horizontally and vertically. */
-.container.viewer-home, .container.document-editor { width: 100%; max-width: none; padding: 12px; }
+.container.viewer-home, .container.document-editor { padding: 12px var(--page-gutter); }
 .viewer-home .viewer-workspace { min-height: calc(100dvh - 190px); }
 .viewer-home .workspace-panes { min-height: calc(100dvh - 350px); }
 .workspace-acquisition { padding: 8px 12px; }

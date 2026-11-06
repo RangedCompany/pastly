@@ -8,7 +8,7 @@ export const metadata: Metadata = {
 export default async function NewNote() {
   await requireIdentity("/notes/new");
   return (
-    <div className="container narrow">
+    <div className="container">
       <NoteEditor />
     </div>
   );

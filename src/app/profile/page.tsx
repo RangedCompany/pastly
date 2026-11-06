@@ -4,7 +4,8 @@ import { ArrowUpRight } from "lucide-react";
 import { requireUser } from "@/lib/auth";
 import { ensureProfile } from "@/lib/data";
 import { ProfileForm } from "@/components/profile-form";
-import { UserAvatar, formatDate } from "@/components/ui";
+import { formatDate } from "@/components/ui";
+import { ProfileAvatar } from "@/components/profile-avatar";
 export const metadata: Metadata = {
   title: "Mon profil",
   robots: { index: false, follow: false },
@@ -18,7 +19,7 @@ export default async function ProfilePage({
   const profile = await ensureProfile();
   const params = await searchParams;
   return (
-    <div className="container narrow">
+    <div className="container">
       <div className="page-heading">
         <span className="eyebrow">FAITES COMME CHEZ VOUS</span>
         <h1>Un visage derrière les idées.</h1>
@@ -32,7 +33,7 @@ export default async function ProfilePage({
       )}
       <div className="profile-layout">
         <aside className="profile-summary">
-          <UserAvatar name={profile.display_name} />
+          <ProfileAvatar name={profile.display_name} avatarPath={profile.avatar_path} />
           <h2>{profile.display_name}</h2>
           <p>Membre depuis le {formatDate(user.created_at, true)}</p>
           <Link
