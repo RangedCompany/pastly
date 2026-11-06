@@ -16,7 +16,7 @@ export const noteSchema = z
       .max(120, "Le titre est limité à 120 caractères."),
     content: z
       .string()
-      .min(1, "Votre post-it est encore vide.")
+      .min(1, "Votre note est encore vide.")
       .max(MAX_TEXT_LENGTH, "Le contenu est limité à 100 000 caractères.")
       .refine((value) => /\S/.test(value), "Ajoutez du contenu."),
     color: z.enum(COLORS, { error: "Choisissez une couleur proposée." }),
@@ -37,7 +37,7 @@ export const noteSchema = z
         code: "custom",
         path: ["content"],
         message:
-          "Un post-it est limité à 5 000 caractères. Choisissez Texte brut pour un texte plus long.",
+          "Une note colorée est limitée à 5 000 caractères. Choisissez Texte brut pour un texte plus long.",
       });
   })
   .transform((note) => ({ ...note, content_kind: contentKind(note.format) }));

@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Plus, ShieldCheck } from "lucide-react";
-import { requireUser } from "@/lib/auth";
+import { requireIdentity } from "@/lib/auth";
 import { listNotes } from "@/lib/data";
 import { parsePage, searchTerm } from "@/lib/validation";
 import { NoteGrid } from "@/components/note-card";
@@ -22,7 +22,7 @@ export default async function Dashboard({
     format?: string;
   }>;
 }) {
-  const user = await requireUser();
+  const user = await requireIdentity();
   const params = await searchParams;
   const query = searchTerm(params.q),
     page = parsePage(params.page);

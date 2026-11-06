@@ -42,7 +42,7 @@ export default async function PublicProfile({
       </header>
       <div className="wall-caption section-divider" style={{ paddingTop: 24 }}>
         <span>
-          {count} post-it public{count > 1 ? "s" : ""}
+          {count} contenu{count > 1 ? "s" : ""} public{count > 1 ? "s" : ""}
         </span>
         <span>Ses idées partagées avec le monde</span>
       </div>
@@ -51,7 +51,7 @@ export default async function PublicProfile({
       ) : (
         <EmptyState
           title="Les idées prennent leur temps."
-          description="Ce membre n’a pas encore de post-it public à partager."
+          description="Ce membre n’a pas encore de contenu public à partager."
         />
       )}
       <Pagination page={page} count={count} base={`/u/${username}`} />

@@ -1,3 +1,4 @@
+import { FORMAT_LABELS, type ContentFormat } from "../src/lib/viewer/types";
 import { test, expect, type Page } from "@playwright/test";
 import { zipSync, strToU8 } from "fflate";
 import { readFile } from "node:fs/promises";
@@ -5,12 +6,37 @@ import { readFile } from "node:fs/promises";
 test.beforeEach(async ({ page }) => {
   await page.goto("/");
 });
+
+test("détection, largeur, séparation ajustable et effacement sans réseau", async ({ page }) => {
+  const requests: string[] = [];
+  page.on("request", request => {
+    if (request.method() === "POST" || request.url().includes("supabase")) requests.push(request.url());
+  });
+  await source(page, "const answer: number = 42;");
+  await expect(page.locator('input[name="format"]')).toHaveValue("typescript");
+  const bounds = await page.locator(".viewer-workspace").boundingBox();
+  expect(bounds!.width).toBeGreaterThan(page.viewportSize()!.width - 30);
+  const separator = page.getByRole("separator", { name: "Redimensionner les panneaux" });
+  await separator.focus();
+  await page.keyboard.press("ArrowRight");
+  await expect(separator).toHaveAttribute("aria-valuenow", "52");
+  const bar = (await separator.boundingBox())!;
+  await page.mouse.move(bar.x + bar.width / 2, bar.y + bar.height / 2);
+  await page.mouse.down();
+  await page.mouse.move(bar.x + bar.width / 2 + 35, bar.y + bar.height / 2 + 35);
+  await page.mouse.up();
+  await expect(separator).not.toHaveAttribute("aria-valuenow", "52");
+  await page.getByRole("button", { name: "Effacer", exact: true }).click();
+  await expect(page.locator("#viewer-source")).toHaveValue("");
+  await expect(page.locator('input[name="format"]')).toHaveValue("text");
+  expect(requests).toEqual([]);
+});
 async function source(page: Page, text: string, format?: string) {
   if (!(await page.locator("#viewer-source").count()))
-    await page.getByRole("button", { name: "Split", exact: true }).click();
+    await page.getByRole("button", { name: "Divisé", exact: true }).click();
   await page.locator("#viewer-source").fill(text);
   if (format)
-    await page.getByLabel("Format", { exact: true }).selectOption(format);
+    await chooseFormat(page, format);
 }
 test("presse-papiers sans compte, copie et refus d’un collage excessif", async ({
   page,
@@ -63,7 +89,7 @@ test("collage anonyme, Markdown GFM, Mermaid intégré, maths et mise en page", 
     page,
     "# Mon document\n\n| Nom | Valeur |\n| --- | --- |\n| Pastly | Utile |\n\n- [x] Terminé\n\n$x^2$\n\n```mermaid\nflowchart LR\n A[Coller] --> B[Visualiser]\n```\n\n```typescript\nconst x: number = 1;\n```",
   );
-  await expect(page.getByLabel("Format", { exact: true })).toHaveValue(
+  await expect(page.locator('input[name="format"]')).toHaveValue(
     "markdown",
   );
   await expect(page.locator(".markdown-body h1")).toHaveText("Mon document");
@@ -96,7 +122,7 @@ test("JSON interactif, format forcé et saisie préservée entre les modes", asy
 }) => {
   const original = '  {"nom":"Pastly","liste":[1,true,null]}  \n';
   await source(page, original);
-  await expect(page.getByLabel("Format", { exact: true })).toHaveValue("json");
+  await expect(page.locator('input[name="format"]')).toHaveValue("json");
   await expect(page.locator(".tree-leaf").first()).toContainText("Pastly");
   await page.getByRole("button", { name: "Déplier 3 niveaux" }).click();
   await expect(page.locator(".value-boolean")).toContainText("true");
@@ -104,14 +130,14 @@ test("JSON interactif, format forcé et saisie préservée entre les modes", asy
   await expect(
     page.locator(".structured-view details").first(),
   ).not.toHaveAttribute("open");
-  await page.getByLabel("Format", { exact: true }).selectOption("text");
-  await expect(page.getByLabel("Automatique")).not.toBeChecked();
+  await chooseFormat(page, "text");
+  await expect(page.locator(".format-menu summary")).not.toContainText("Auto");
   await page.getByRole("button", { name: "Aperçu", exact: true }).click();
   await expect(page.locator(".plain-view")).toHaveText(original);
   await page.getByRole("button", { name: "Source", exact: true }).click();
   await expect(page.locator("#viewer-source")).toHaveValue(original);
-  await page.getByRole("button", { name: "Split", exact: true }).click();
-  await page.getByLabel("Format", { exact: true }).selectOption("json");
+  await page.getByRole("button", { name: "Divisé", exact: true }).click();
+  await chooseFormat(page, "json");
   await source(page, '{"nom":', "json");
   await expect(page.locator(".preview-pane [role=alert]")).toBeVisible();
   await page.getByRole("button", { name: "Sauvegarder", exact: true }).click();
@@ -175,8 +201,8 @@ test("CSV cité : tableau, tri, recherche ; texte ambigu en fallback", async ({
   page,
 }) => {
   await source(page, 'nom,texte\nBob,"Bonjour, monde"\nAlice,"Il dit ""oui"""');
-  await expect(page.getByLabel("Format", { exact: true })).toHaveValue("text");
-  await page.getByLabel("Format", { exact: true }).selectOption("csv");
+  await expect(page.locator('input[name="format"]')).toHaveValue("text");
+  await chooseFormat(page, "csv");
   await expect(page.locator(".table-view tbody tr")).toHaveCount(2);
   await expect(page.locator(".table-view")).toContainText('Il dit "oui"');
   await page.locator(".table-view th button").first().click();
@@ -258,7 +284,7 @@ test("import UTF-8 et téléchargement conservent BOM, espaces et fins de ligne"
     mimeType: "application/json",
     buffer: Buffer.from(original),
   });
-  await expect(page.getByLabel("Format", { exact: true })).toHaveValue("json");
+  await expect(page.locator('input[name="format"]')).toHaveValue("json");
   await expect(page.locator(".structured-view")).toContainText("Pastly");
   const downloaded = page.waitForEvent("download");
   await page.getByRole("button", { name: "Télécharger", exact: true }).click();
@@ -402,3 +428,8 @@ test("PDF.js affiche un vrai PDF dans un canvas et refuse un fichier corrompu", 
     "PDF invalide",
   );
 });
+
+async function chooseFormat(page: Page, format: string) {
+   await page.locator(".format-menu summary").click();
+   await page.locator(".format-options").getByRole("button", { name: FORMAT_LABELS[format as ContentFormat], exact: true }).click();
+ }

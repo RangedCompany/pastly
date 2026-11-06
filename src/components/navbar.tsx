@@ -10,14 +10,17 @@ import {
   UserRound,
 } from "lucide-react";
 import type { User } from "@supabase/supabase-js";
+import type { ReactNode } from "react";
 import { signOut } from "@/app/actions/auth";
 
 export function Navbar({
   user,
   isAdmin = false,
+  adminControl,
 }: {
-  user: User | null;
+  user: Pick<User, "id"> | null;
   isAdmin?: boolean;
+  adminControl?: ReactNode;
 }) {
   return (
     <header className="site-header">
@@ -41,6 +44,7 @@ export function Navbar({
           )}
         </div>
         <div className="nav-actions">
+          {adminControl}
           {user && isAdmin && (
             <Link
               href="/admin"

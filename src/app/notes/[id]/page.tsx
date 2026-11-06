@@ -2,12 +2,13 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft, Globe2, LockKeyhole, Pencil } from "lucide-react";
-import { getUser } from "@/lib/auth";
+import { getIdentity } from "@/lib/auth";
 import { getNote } from "@/lib/data";
 import { isSupabaseConfigured } from "@/lib/env";
 import { idSchema } from "@/lib/validation";
 import { formatDate, UserAvatar } from "@/components/ui";
 import { ShareButton } from "@/components/share-button";
+import { RawLink } from "@/components/raw-link";
 import { ContentPreview } from "@/components/viewer/content-preview";
 import { DocumentActions } from "@/components/viewer/document-actions";
 import { FORMAT_LABELS } from "@/lib/viewer/types";
@@ -31,7 +32,7 @@ export default async function NotePage({
   if (!isSupabaseConfigured() || !idSchema.safeParse(id).success) notFound();
   const note = await getNote(id);
   if (!note) notFound();
-  const user = await getUser(),
+  const user = await getIdentity(),
     owned = user?.id === note.owner_id;
   return (
     <div className="container">
@@ -65,6 +66,7 @@ export default async function NotePage({
             </span>
           </div>
           <h1>{note.title}</h1>
+          <RawLink id={id} />
           {note.format === "note" ? (
             <p className="detail-content">{note.content}</p>
           ) : (

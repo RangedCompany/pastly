@@ -100,7 +100,7 @@ export function NoteEditor({ note }: { note?: Note }) {
     <>
       <Link href="/dashboard" className="back-link">
         <ArrowLeft size={16} />
-        Mes post-it
+        Mes notes
       </Link>
       <div className="page-heading">
         <span className="eyebrow">L’ATELIER</span>
@@ -115,7 +115,7 @@ export function NoteEditor({ note }: { note?: Note }) {
         <input type="hidden" name="format" value="note" />
         <input type="hidden" name="original_filename" value={note?.original_filename ?? ""} />
         <div className={`editor-paper paper-${color}`}>
-          <label htmlFor="title">Titre du post-it</label>
+          <label htmlFor="title">Titre de la note</label>
           <input
             id="title"
             name="title"
@@ -126,7 +126,7 @@ export function NoteEditor({ note }: { note?: Note }) {
             defaultValue={note?.title}
           />
           <label htmlFor="content" className="sr-only">
-            Contenu du post-it
+            Contenu de la note
           </label>
           <textarea
             id="content"
@@ -153,7 +153,7 @@ export function NoteEditor({ note }: { note?: Note }) {
             type="submit"
           >
             <Save size={17} />
-            {pending ? "Enregistrement…" : "Enregistrer le post-it"}
+            {pending ? "Enregistrement…" : "Enregistrer la note"}
           </button>
           <Link className="button button-quiet full-width" href="/dashboard">
             Annuler

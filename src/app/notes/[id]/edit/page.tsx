@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
-import { requireUser } from "@/lib/auth";
+import { requireIdentity } from "@/lib/auth";
 import { getNote } from "@/lib/data";
 import { idSchema } from "@/lib/validation";
 import { NoteEditor } from "@/components/note-editor";
@@ -15,7 +15,7 @@ export default async function EditNote({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const user = await requireUser(`/notes/${id}/edit`);
+  const user = await requireIdentity(`/notes/${id}/edit`);
   if (!idSchema.safeParse(id).success) notFound();
   const note = await getNote(id);
   if (!note || note.owner_id !== user.id) notFound();

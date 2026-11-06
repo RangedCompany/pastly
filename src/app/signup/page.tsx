@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
-import { getUser } from "@/lib/auth";
+import { getIdentity } from "@/lib/auth";
 import { AuthForm } from "@/components/auth-form";
 import { AuthShell } from "@/components/auth-shell";
 import { GoogleSignIn } from "@/components/google-sign-in";
@@ -11,11 +11,11 @@ export const metadata: Metadata = {
   robots: { index: false },
 };
 export default async function Signup() {
-  if (await getUser()) redirect("/dashboard");
+  if (await getIdentity()) redirect("/dashboard");
   return (
     <AuthShell
       title="Votre prochaine idée commence ici."
-      description="Créez votre compte gratuit et votre premier post-it."
+      description="Créez votre compte gratuit et votre première note."
     >
       <p className="auth-legal-notice">
         En créant un compte, avec votre email ou Google, vous acceptez les{" "}

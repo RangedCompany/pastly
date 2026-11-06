@@ -60,7 +60,7 @@ export const MAX_FILE_BYTES = 10 * 1024 * 1024;
 export const MAX_DIAGRAM_LENGTH = 20_000;
 export const FORMAT_LABELS: Record<ContentFormat, string> = {
   text: "Texte brut",
-  note: "Post-it",
+  note: "Note colorée",
   markdown: "Markdown",
   mermaid: "Mermaid",
   json: "JSON",

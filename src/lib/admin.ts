@@ -1,13 +1,13 @@
 import "server-only";
 import { cache } from "react";
 import { notFound } from "next/navigation";
-import { getUser, requireUser } from "./auth";
+import { getIdentity, requireUser } from "./auth";
 import { createClient } from "./supabase/server";
 import type { AdminRoleFilter } from "./admin.types";
 
 // Cache limité au rendu courant : une révocation est relue à la requête suivante.
 export const getIsAdmin = cache(async () => {
-  const user = await getUser();
+  const user = await getIdentity();
   if (!user) return false;
   const supabase = await createClient();
   const { data, error } = await supabase.rpc("is_admin");

@@ -1,7 +1,7 @@
 "use client";
 import Link from "next/link";
-import { useActionState, useEffect, useRef, useState } from "react";
-import { Download, Maximize2, Minimize2, Save, Upload } from "lucide-react";
+import { useActionState, useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
+import { Download, Maximize2, Minimize2, Save, Upload, ClipboardPaste, Trash2, Code2, Eye, Columns2, GripVertical } from "lucide-react";
 import { saveNote } from "@/app/actions/notes";
 import { detectContent } from "@/lib/viewer/detect";
 import {
@@ -15,6 +15,7 @@ import { downloadSource, downloadBlob } from "@/lib/viewer/download";
 import type { Note } from "@/lib/database.types";
 import type { NoteColor } from "@/lib/constants";
 import { ContentPreview } from "./content-preview";
+import { FormatPicker } from "./format-picker";
 import { CopyButton } from "./copy-button";
 import { ColorPicker, VisibilityToggle } from "../note-editor";
 import { FormMessage } from "../ui";
@@ -23,16 +24,6 @@ const FilePreview = dynamic(() => import("./file-preview"), {
   loading: () => <p role="status">Ouverture du fichier…</p>,
 });
 const DRAFT_KEY = "pastly-v2-explicit-draft";
-const samples: Partial<Record<ContentFormat, string>> = {
-  markdown:
-    "# Bienvenue dans Pastly\n\nCollez. **Visualisez.** Conservez. Partagez.\n\n| Format | Usage |\n| --- | --- |\n| Markdown | Un document lisible |\n| JSON | Des données à explorer |\n\n- [x] Garder une idée\n- [ ] La partager\n\n```mermaid\nflowchart LR\n  A[Coller] --> B[Visualiser] --> C[Conserver]\n```",
-  json: '{\n  "projet": "Pastly",\n  "formats": ["Markdown", "JSON", "Mermaid"],\n  "local": true\n}',
-  mermaid:
-    "flowchart LR\n  A[Collez] --> B[Visualisez]\n  B --> C[Conservez]\n  C --> D[Partagez]",
-  typescript:
-    'interface Idee {\n  titre: string;\n  privee: boolean;\n}\n\nconst idee: Idee = {\n  titre: "Une petite idée",\n  privee: true,\n};',
-  note: "Les petites idées méritent toujours une place.",
-};
 export function ViewerWorkspace({
   note,
   authenticated = false,
@@ -56,6 +47,8 @@ export function ViewerWorkspace({
   const [mode, setMode] = useState<"source" | "preview" | "split">(
     note ? "preview" : "split",
   );
+  const [split, setSplit] = useState(50);
+  const panes = useRef<HTMLDivElement>(null);
   const [fullscreen, setFullscreen] = useState(false);
   const [saving, setSaving] = useState(!!note);
   const [title, setTitle] = useState(note?.title ?? "");
@@ -69,7 +62,7 @@ export function ViewerWorkspace({
     saveNote.bind(null, note?.id ?? null),
     {},
   );
-  const detection = detectContent({ content, filename });
+  const detection = useMemo(() => detectContent({ content, filename }), [content, filename]);
   const format = auto ? detection.format : manualFormat;
   useEffect(() => {
     const timer = setTimeout(() => setPreview(content), 300);
@@ -195,14 +188,17 @@ export function ViewerWorkspace({
       );
     }
   }
-  function chooseSample(next: ContentFormat) {
-    setManualFormat(next);
-    setAuto(false);
-    if (!content) {
-      setContent(samples[next] ?? "");
-      setPreview(samples[next] ?? "");
-    }
-    setFile(null);
+  function clearSource() {
+    ++acquisition.current;
+    setContent(""); setPreview(""); setFilename(null); setFile(null); setAuto(true); setMessage("");
+    document.getElementById("viewer-source")?.focus();
+  }
+  function resizeSplit(clientX: number, clientY: number) {
+    const bounds = panes.current?.getBoundingClientRect();
+    if (!bounds) return;
+    const stacked = window.matchMedia("(max-width: 760px)").matches;
+    const ratio = stacked ? (clientY - bounds.top) / bounds.height : (clientX - bounds.left) / bounds.width;
+    setSplit(Math.max(15, Math.min(85, ratio * 100)));
   }
   function saveDraft() {
     try {
@@ -229,23 +225,9 @@ export function ViewerWorkspace({
       }}
     >
       <div className="workspace-acquisition">
-        <div className="format-shortcuts" aria-label="Formats rapides">
-          {(["markdown", "json", "mermaid", "typescript", "note"] as const).map(
-            (f) => (
-              <button
-                key={f}
-                type="button"
-                className={format === f ? "active" : ""}
-                onClick={() => chooseSample(f)}
-              >
-                {f === "typescript" ? "Code" : FORMAT_LABELS[f]}
-              </button>
-            ),
-          )}
-        </div>
         <div className="acquisition-actions">
           <button type="button" className="button button-quiet" onClick={paste}>
-            Coller
+            <ClipboardPaste size={15} /> Coller
           </button>
           <button
             type="button"
@@ -312,34 +294,10 @@ export function ViewerWorkspace({
             </>
           )}
           <div className="workspace-toolbar">
-            <div className="format-picker">
-              <label htmlFor="content-format">Format</label>
-              <select
-                id="content-format"
-                value={format}
-                onChange={(e) => {
-                  setManualFormat(e.target.value as ContentFormat);
-                  setAuto(false);
-                }}
-              >
-                {FORMATS.map((f) => (
-                  <option key={f} value={f}>
-                    {FORMAT_LABELS[f]}
-                  </option>
-                ))}
-              </select>
-              <label className="auto-detect">
-                <input
-                  type="checkbox"
-                  checked={auto}
-                  onChange={(e) => {
-                    setManualFormat(format);
-                    setAuto(e.target.checked);
-                  }}
-                />
-                Automatique
-              </label>
-            </div>
+            <FormatPicker format={format} auto={auto} onChange={(next) => {
+              setAuto(next === "auto");
+              if (next !== "auto") setManualFormat(next);
+            }} />
             <div
               className="mode-switch"
               role="group"
@@ -352,11 +310,12 @@ export function ViewerWorkspace({
                   aria-pressed={mode === value}
                   onClick={() => setMode(value)}
                 >
+                  {value === "source" ? <Code2 size={16} /> : value === "preview" ? <Eye size={16} /> : <Columns2 size={16} />}
                   {value === "source"
                     ? "Source"
                     : value === "preview"
                       ? "Aperçu"
-                      : "Split"}
+                      : "Divisé"}
                 </button>
               ))}
             </div>
@@ -369,7 +328,7 @@ export function ViewerWorkspace({
               {fullscreen ? <Minimize2 size={18} /> : <Maximize2 size={18} />}
             </button>
           </div>
-          <div className={`workspace-panes mode-${mode}`}>
+          <div ref={panes} className={`workspace-panes mode-${mode}`} style={{ "--source-size": `${split}fr`, "--preview-size": `${100 - split}fr` } as CSSProperties}>
             {mode !== "preview" && (
               <div className="source-pane">
                 <label htmlFor="viewer-source" className="pane-heading">
@@ -381,7 +340,7 @@ export function ViewerWorkspace({
                   maxLength={MAX_TEXT_LENGTH}
                   spellCheck={false}
                   placeholder={
-                    "Collez votre texte, Markdown, JSON ou code ici…\n\nVous pouvez aussi glisser un fichier."
+                    "Collez du texte ou glissez un fichier…"
                   }
                   onChange={(e) => {
                     ++acquisition.current;
@@ -409,6 +368,20 @@ export function ViewerWorkspace({
                 </span>
               </div>
             )}
+            {mode === "split" && (
+              <div className="split-handle" role="separator" tabIndex={0}
+                aria-label="Redimensionner les panneaux" aria-orientation="vertical"
+                aria-valuemin={15} aria-valuemax={85} aria-valuenow={Math.round(split)}
+                onPointerDown={(event) => { event.preventDefault(); event.currentTarget.setPointerCapture(event.pointerId); }}
+                onPointerMove={(event) => { if (event.currentTarget.hasPointerCapture(event.pointerId)) resizeSplit(event.clientX, event.clientY); }}
+                onPointerUp={(event) => { event.currentTarget.releasePointerCapture(event.pointerId); }}
+                onKeyDown={(event) => {
+                  if (["ArrowLeft", "ArrowRight", "ArrowUp", "ArrowDown", "Home", "End"].includes(event.key)) {
+                    event.preventDefault();
+                    setSplit(value => event.key === "Home" ? 15 : event.key === "End" ? 85 : Math.max(15, Math.min(85, value + (["ArrowLeft", "ArrowUp"].includes(event.key) ? -2 : 2))));
+                  }
+                }} onDoubleClick={() => setSplit(50)}><GripVertical size={14} /></div>
+            )}
             {mode !== "source" && (
               <div className="preview-pane">
                 <div className="pane-heading">
@@ -425,30 +398,8 @@ export function ViewerWorkspace({
             )}
           </div>
           <div className="workspace-bottom">
-            <p className="viewer-hint">
-              {auto ? detection.reason : "Format choisi manuellement"} ·{" "}
-              {filename
-                ? "Fichier ouvert localement"
-                : "Rendu local dans votre navigateur"}
-            </p>
             <div className="workspace-actions">
-              <button
-                type="button"
-                className="button button-primary"
-                onClick={() => {
-                  setPreview(content);
-                  setMode("preview");
-                }}
-              >
-                Visualiser
-              </button>
-              <button
-                type="button"
-                className="button button-quiet"
-                onClick={() => setMode("split")}
-              >
-                Modifier
-              </button>
+              <button type="button" className="button button-quiet" disabled={!content} onClick={clearSource}><Trash2 size={15} /> Effacer</button>
               <CopyButton value={content} />
               <button
                 type="button"

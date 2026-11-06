@@ -57,11 +57,9 @@ test("accueil français, navigation et affichage responsive", async ({
   page.on("pageerror", (e) => errors.push(e.message));
   await page.goto("/");
   await expect(page.locator("html")).toHaveAttribute("lang", "fr");
-  await expect(page.getByRole("heading", { level: 1 })).toContainText(
-    "Collez quelque chose.",
-  );
+  await expect(page.getByLabel("Atelier de visualisation")).toBeVisible();
   await expect(
-    page.getByRole("link", { name: "Explorer les contenus publics →", exact: true }),
+    page.locator('a[href="/explore"]:visible').first(),
   ).toBeVisible();
   expect(
     await page
@@ -87,7 +85,7 @@ test("accueil français, navigation et affichage responsive", async ({
     fullPage: true,
   });
   await page
-    .getByRole("link", { name: "Explorer les contenus publics →", exact: true })
+    .locator('a[href="/explore"]:visible').first()
     .click();
   await expect(page).toHaveURL(/\/explore$/);
   await expect(page.getByRole("heading", { level: 1 })).toContainText(

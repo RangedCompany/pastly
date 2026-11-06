@@ -6,11 +6,13 @@ Elle présente :
 
 - Les comptes Supabase Auth, y compris ceux dont le profil manque, avec recherche par email, nom, pseudo ou UUID et pagination de 20 comptes.
 - Les filtres administrateurs, membres et emails à confirmer.
-- Pour chaque compte : email, statut de confirmation, inscription, dernière connexion, date du dernier post-it créé et nombres de post-it publics et privés.
+- Pour chaque compte : email, statut de confirmation, inscription, dernière connexion, date de la dernière note créée et nombres de notes publiques et privées.
 - Les totaux de comptes, administrateurs et notes, les inscriptions, connexions et notes créées sur les 7 derniers jours, les comptes sans note et les profils manquants.
 - L’attribution et le retrait du rôle administrateur, avec confirmation et historique des 30 derniers changements.
 
 La dernière connexion représente une authentification, pas une présence en ligne. Les données sont relues à chaque chargement ; **Actualiser** permet de les recharger.
+
+Le lien administrateur apparaît après vérification du rôle en base. Ce contrôle est rendu sous `Suspense` pour ne pas retarder le reste de la page ; la page `/admin` et ses actions vérifient toujours les droits indépendamment du lien.
 
 ## Activer la fonctionnalité
 
@@ -34,7 +36,7 @@ Les suppressions de comptes et la modération de notes ne font pas partie de cet
 
 ## Vérification
 
-`npm test` teste les deux migrations sur PostgreSQL embarqué PGlite : privilèges, refus anonyme et membre, contournements directs, statistiques, recherche littérale, pagination, changements de droits et audit. PGlite ne vérifie pas le service Supabase distant, PostgREST ou les vraies sessions.
+`npm test` teste les migrations sur PostgreSQL embarqué PGlite : privilèges, refus anonyme et membre, contournements directs, statistiques, recherche littérale, pagination, changements de droits et audit. PGlite ne vérifie pas le service Supabase distant, PostgREST ou les vraies sessions.
 
 Après migration et déploiement : vérifier `/admin` sans connexion (redirection), avec un membre (page introuvable), avec le premier admin (supervision), puis promouvoir un compte de test confirmé, se connecter avec celui-ci et vérifier son accès. Lui retirer les droits depuis l’autre compte admin et vérifier qu’un rechargement et une nouvelle action sont refusés. Vérifier aussi les nombres de notes privées sans accès à leur texte.
 

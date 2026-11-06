@@ -66,7 +66,7 @@ https://pastly.fr/auth/callback?next=/reset-password
 https://pastly.fr/auth/confirm
 ```
 
-Les modèles d’email du README utilisent `{{ .SiteURL }}` : leurs liens pointeront vers `pastly.fr` après cette modification. La confirmation d’email doit rester activée. Configurer le SMTP personnalisé pour envoyer les emails aux utilisateurs extérieurs à l’équipe Supabase.
+Les modèles d’email du [guide Supabase/Auth](supabase-auth.md) utilisent `{{ .SiteURL }}` : leurs liens pointeront vers `pastly.fr` après cette modification. La confirmation d’email doit rester activée. Configurer le SMTP personnalisé pour envoyer les emails aux utilisateurs extérieurs à l’équipe Supabase.
 
 Conserver les URL locales seulement si ce même projet est encore utilisé en développement. Pour tester les emails sur localhost sans les envoyer vers la production, préférer un projet Supabase de développement distinct avec sa propre Site URL.
 
@@ -75,13 +75,17 @@ Pour Google, suivre le [guide de configuration Google Cloud/Supabase](auth-googl
 ## 5. Recette après déploiement
 
 - Accueil et Explorer accessibles sans connexion.
+- Éditeur pleine largeur, détection automatique, choix manuel recherchable, séparation ajustable sur ordinateur/mobile et bouton Effacer fonctionnels.
 - Inscription, email de confirmation, connexion et déconnexion sur `pastly.fr`.
 - Si Google est activé : première inscription, reconnexion au même compte, retour à une page protégée et annulation du consentement.
 - Note publique visible dans Explorer et par lien anonyme.
 - Passage en privé : disparition d’Explorer et contenu inaccessible en rechargeant l’ancien lien dans un autre navigateur.
+- Lien `/raw/[id]` public lisible sans session ; après passage en privé, refus anonyme et pour un autre compte, lecture conservée pour le propriétaire. Vérifier les en-têtes texte brut, `nosniff` et `private, no-store`.
 - Réinitialisation par email et connexion avec le nouveau mot de passe.
 - Redirection `www` vers le domaine principal, HTTPS valide et affichage mobile.
 
 Les tests locaux et Supabase ne constituent pas une vérification d’un futur déploiement Vercel : cette recette doit être faite sur l’adresse réellement publiée.
+
+Pour la réactivité, vérifier dans les outils réseau du navigateur que les changements de mode, le redimensionnement et l’effacement ne déclenchent ni POST ni appel Supabase. Distinguer le chargement des modules de rendu des échanges Auth et de données. Mesurer les lectures et sauvegardes sur l’environnement cible : les vérifications de claims et les invalidations ciblées réduisent les appels superflus sans supprimer la latence réseau. Ne pas mettre les pages de notes ni leurs sources raw en cache partagé.
 
 Sources : [domaines personnalisés Vercel](https://vercel.com/docs/domains/working-with-domains/add-a-domain), [valeurs DNS propres au projet](https://vercel.com/docs/domains/set-up-custom-domain), [Vercel et les proxies](https://vercel.com/kb/guide/can-i-use-a-proxy-on-top-of-my-vercel-deployment), [statut du proxy Cloudflare](https://developers.cloudflare.com/dns/proxy-status/).

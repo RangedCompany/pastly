@@ -49,7 +49,7 @@ export function AdminDashboard({
         <header className="page-heading">
           <span className="eyebrow">LES COULISSES DE PASTLY</span>
           <h1>Administration</h1>
-          <p>Les comptes, les post-it et les accès, réunis au même endroit.</p>
+          <p>Les comptes, les notes et les accès, réunis au même endroit.</p>
         </header>
         <Link
           href={href(page)}
@@ -70,7 +70,7 @@ export function AdminDashboard({
         </article>
         <article className="admin-stat">
           <StickyNote size={21} aria-hidden="true" />
-          <h2>Post-it</h2>
+          <h2>Notes</h2>
           <strong>{summary.notes}</strong>
           <p>
             {summary.public_notes} publics · {summary.private_notes} privés
@@ -99,9 +99,9 @@ export function AdminDashboard({
           </Link>
           <span>
             {summary.without_notes} compte{summary.without_notes > 1 ? "s" : ""}{" "}
-            sans post-it
+            sans note
           </span>
-          <span>{summary.new_notes_7d} post-it créés sur 7 jours</span>
+          <span>{summary.new_notes_7d} notes créées sur 7 jours</span>
           <span className={summary.missing_profiles ? "admin-warning" : ""}>
             {summary.missing_profiles} profil
             {summary.missing_profiles > 1 ? "s" : ""} manquant
@@ -194,7 +194,7 @@ export function AdminDashboard({
               </div>
               <dl className="admin-account-details">
                 <div>
-                  <dt>Post-it</dt>
+                  <dt>Notes</dt>
                   <dd>
                     <strong>{account.note_count}</strong>{" "}
                     <span>
@@ -212,7 +212,7 @@ export function AdminDashboard({
                   <dd>{date(account.last_sign_in_at)}</dd>
                 </div>
                 <div>
-                  <dt>Dernier post-it créé</dt>
+                  <dt>Dernière note créée</dt>
                   <dd>{date(account.last_note_at)}</dd>
                 </div>
               </dl>

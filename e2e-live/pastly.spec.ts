@@ -77,15 +77,15 @@ test("parcours réel : profil, publication, partage, confidentialité, édition 
     await a.goto("/notes/new");
     await expect(a.getByRole("radio", { name: /Privé/ })).toBeChecked();
     await a.getByRole("radio", { name: /Public/ }).check();
-    await a.getByLabel("Titre du post-it").fill(title);
+    await a.getByLabel("Titre de la note").fill(title);
     await a
-      .getByLabel("Contenu du post-it")
+      .getByLabel("Contenu de la note")
       .fill(`Contenu de contrôle ${suffix}. Une idée privée reste protégée.`);
     await a.getByTitle("Bleu ciel", { exact: true }).click();
     await expect(
       a.getByRole("radio", { name: "Bleu ciel", exact: true }),
     ).toBeChecked();
-    await a.getByRole("button", { name: "Enregistrer le post-it" }).click();
+    await a.getByRole("button", { name: "Enregistrer la note" }).click();
     await expect(a).toHaveURL(/\/dashboard\?success=saved/);
     let card = a
       .locator(".note-card")
@@ -161,12 +161,12 @@ test("parcours réel : profil, publication, partage, confidentialité, édition 
     await card
       .getByRole("link", { name: `Modifier « ${title} »`, exact: true })
       .click();
-    await a.getByLabel("Titre du post-it").fill(updatedTitle);
+    await a.getByLabel("Titre de la note").fill(updatedTitle);
     await a.getByTitle("Vert sauge", { exact: true }).click();
     await expect(
       a.getByRole("radio", { name: "Vert sauge", exact: true }),
     ).toBeChecked();
-    await a.getByRole("button", { name: "Enregistrer le post-it" }).click();
+    await a.getByRole("button", { name: "Enregistrer la note" }).click();
     await expect(a).toHaveURL(/\/dashboard\?success=saved/);
     card = a.locator(".note-card").filter({
       has: a.getByRole("heading", { name: updatedTitle, exact: true }),

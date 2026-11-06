@@ -1,7 +1,10 @@
 import type { Metadata } from "next";
 import { Telemetry } from "@/components/telemetry";
 import { Navbar, Footer } from "@/components/navbar";
-import { getUser } from "@/lib/auth";
+import { getIdentity } from "@/lib/auth";
+import { Suspense } from "react";
+import Link from "next/link";
+import { ShieldCheck } from "lucide-react";
 import { getIsAdmin } from "@/lib/admin";
 import { siteUrl } from "@/lib/env";
 import "./globals.css";
@@ -21,15 +24,14 @@ export const metadata: Metadata = {
 export default async function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
-  const user = await getUser();
-  const isAdmin = await getIsAdmin();
+  const user = await getIdentity();
   return (
     <html lang="fr">
       <body>
         <a className="skip-link" href="#main">
           Aller au contenu
         </a>
-        <Navbar user={user} isAdmin={isAdmin} />
+        <Navbar user={user} adminControl={user ? <Suspense fallback={null}><AdminLink /></Suspense> : null} />
         <main id="main" className="site-main">
           {children}
         </main>
@@ -38,4 +40,9 @@ export default async function RootLayout({
       </body>
     </html>
   );
+}
+
+async function AdminLink() {
+  if (!(await getIsAdmin())) return null;
+  return <Link href="/admin" className="icon-button" aria-label="Administration" title="Administration"><ShieldCheck size={21} /></Link>;
 }

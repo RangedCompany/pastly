@@ -4,7 +4,7 @@ import { isSupabaseConfigured, supabaseEnv } from "@/lib/env";
 
 export async function proxy(request: NextRequest) {
   let response = NextResponse.next({ request });
-  if (isSupabaseConfigured()) {
+  if (isSupabaseConfigured() && request.cookies.getAll().some(({ name }) => name.startsWith("sb-") && name.includes("auth-token"))) {
     const { url, key } = supabaseEnv();
     const supabase = createServerClient(url, key, {
       cookies: {

@@ -21,7 +21,7 @@ export default function Terms() {
         <p>
           Pastly, accessible sur pastly.fr, est un service gratuit permettant de
           coller et visualiser des textes, documents, données et diagrammes,
-          ainsi que créer des post-it. La visualisation locale et la
+          ainsi que créer des notes. La visualisation locale et la
           consultation des publications publiques sont accessibles sans compte.
           Un compte est nécessaire pour enregistrer des contenus et gérer votre
           profil.

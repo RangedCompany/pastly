@@ -18,7 +18,7 @@ export function ProfileForm({ profile }: { profile: Profile }) {
           maxLength={80}
           autoComplete="nickname"
         />
-        <small>Le nom qui accompagne vos post-it publics.</small>
+        <small>Le nom qui accompagne vos contenus publics.</small>
       </div>
       <div className="field">
         <label htmlFor="username">Nom d’utilisateur</label>

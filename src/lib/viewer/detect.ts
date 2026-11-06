@@ -142,6 +142,24 @@ export function detectContent({
     return { format: "rust", confidence: "medium", reason: "Déclaration Rust" };
   if (/^package\s+\w+\s*\n/.test(source) && /\bfunc\s+\w+\(/.test(source))
     return { format: "go", confidence: "medium", reason: "Déclaration Go" };
+  const signatures: [ContentFormat, RegExp][] = [
+    ["python", /^#!.*\bpython[\d.]*\b|^(?:from\s+[\w.]+\s+import\s+\w+|import\s+[\w.]+|class\s+\w+(?:\([^)]*\))?:)\s*$/m],
+    ["html", /^<!doctype\s+html\b|^<html\b|^<(?:div|section|article|main|h[1-6]|p)\b[^>]*>[\s\S]*<\//i],
+    ["java", /\bpublic\s+(?:final\s+)?class\s+\w+|^import\s+java\.[\w.*]+;/m],
+    ["cpp", /^\s*#include\s*<(?![^>]*\.h>)[^>]+>|\bstd::(?:cout|vector|string)\b/m],
+    ["c", /^\s*#include\s*[<"][\w/]+\.h[>"]/m],
+    ["sql", /^(?:SELECT\s+[\s\S]+?\s+FROM\s+\w+|INSERT\s+INTO\s+\w+|CREATE\s+TABLE\s+\w+|UPDATE\s+\w+\s+SET\b|DELETE\s+FROM\s+\w+)/im],
+    ["css", /^(?:[.#][\w-]+|body|html|:root|@media\b[^{}]*)[^{}]*\{\s*(?:--)?[\w-]+\s*:[^{}]+[;}]/m],
+    ["typescript", /^(?:(?:export|declare)\s+)?(?:const|let|var)\s+\w+\s*:\s*[\w<{[]|\([^)]*\b\w+\s*:\s*(?:string|number|boolean)\b/m],
+    ["javascript", /^(?:(?:export|declare)\s+)?(?:const|let|var)\s+\w+\s*=|^import\s+.+\s+from\s+['"]|\bconsole\.(?:log|error|warn)\(/m],
+    ["bash", /^#!.*\b(?:bash|sh)\b|^(?:export\s+\w+=|(?:sudo\s+)?(?:apt|npm|pnpm|yarn|git|curl)\s+[-\w])/m],
+    ["toml", /^\[[\w.-]+\]\s*\n\s*[\w-]+\s*=/m],
+    ["yaml", /^---\s*\n[\w-]+:\s|^[\w-]+:\s*\n(?:[ \t]+[\w-]+:|[ \t]+-\s)/m],
+    ["xml", /^<[\w:.-]+(?:\s[^>]*)?>[\s\S]*<\/[\w:.-]+>$/],
+  ];
+  for (const [format, signature] of signatures) {
+    if (signature.test(source)) return { format, confidence: "medium", reason: "Syntaxe reconnue" };
+  }
   return {
     format: "text",
     confidence: "fallback",

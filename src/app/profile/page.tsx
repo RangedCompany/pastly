@@ -22,12 +22,12 @@ export default async function ProfilePage({
       <div className="page-heading">
         <span className="eyebrow">FAITES COMME CHEZ VOUS</span>
         <h1>Un visage derrière les idées.</h1>
-        <p>Choisissez le nom qui accompagnera vos post-it publics.</p>
+        <p>Choisissez le nom qui accompagnera vos contenus publics.</p>
       </div>
       {params.welcome === "1" && (
         <p className="message message-success" role="status">
           Bienvenue dans Pastly ! Personnalisez votre nom d’utilisateur avant de
-          partager votre premier post-it.
+          partager votre première note.
         </p>
       )}
       <div className="profile-layout">

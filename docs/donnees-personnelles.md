@@ -7,6 +7,7 @@ Les textes publics sont les [CGU](https://pastly.fr/terms) et la [politique de c
 ## Fonctionnement décrit par les pages
 
 - Nouveaux contenus privés par défaut ; visibilité historique conservée ; profil public sans email ; changement de visibilité et suppression depuis l’espace utilisateur.
+- La source `/raw/[id]` suit la même visibilité que la note. Son lien n’ajoute aucun droit : une note privée nécessite la session du propriétaire. Les réponses raw sont du texte brut, sans cache partagé ; le passage en privé retire aussi l’accès raw anonyme lors des requêtes suivantes.
 - Authentification email ou Google via Supabase. Les informations Google de base peuvent être conservées dans Auth, même si Pastly n’en fait pas un nom public ou un avatar automatique.
 - L’administration applicative voit les comptes et les volumes de notes privées, sans leur contenu. L’administration technique de l’infrastructure reste distincte.
 - Vercel héberge le site ; Web Analytics et Speed Insights sont intégrés. Les événements admin, bibliothèque, documents et pages sensibles sont exclus ; les paramètres de recherche et fragments sont retirés des autres événements ; aucun gestionnaire de consentement ni bouton d’opposition spécifique aux mesures n’est actuellement implémenté. Ne pas présenter l’absence de cookies tiers comme une preuve d’exemption de consentement : l’appréciation dépend du fonctionnement et des paramètres effectifs des outils. Si un consentement est requis pour la configuration retenue, adapter le chargement des outils avant de les activer.

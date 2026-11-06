@@ -14,7 +14,7 @@ import { parsePage, searchTerm } from "@/lib/validation";
 export const metadata: Metadata = {
   title: "Explorer",
   description:
-    "Découvrez les documents, diagrammes, données et post-it publics de la communauté Pastly.",
+    "Découvrez les documents, diagrammes, données et contenus publics de la communauté Pastly.",
 };
 export default async function Explore({
   searchParams,
@@ -40,7 +40,7 @@ export default async function Explore({
           </h1>
           <p>
             Des pensées en passant, des découvertes à partager. Promenez-vous
-            parmi les documents, diagrammes et post-it publics de la communauté.
+            parmi les documents, diagrammes et contenus publics de la communauté.
           </p>
         </div>
         <Link href="/" className="button button-primary">
@@ -77,7 +77,7 @@ export default async function Explore({
               : "Les contenus publics apparaîtront ici. Et si vous commenciez ?"
           }
           href={query ? "/explore" : "/notes/new"}
-          label={query ? "Voir tous les post-it" : "Créer le premier post-it"}
+          label={query ? "Voir toutes les notes" : "Créer la première note"}
         />
       )}
       <Pagination

@@ -35,7 +35,7 @@ test("parcours V2 connecté : brouillon, sauvegarde privée, réouverture, édit
   try {
     await page.goto("/");
     await page.locator("#viewer-source").fill(original);
-    await expect(page.getByLabel("Format", { exact: true })).toHaveValue(
+    await expect(page.locator('input[name="format"]')).toHaveValue(
       "json",
     );
     await page
@@ -101,7 +101,7 @@ test("parcours V2 connecté : brouillon, sauvegarde privée, réouverture, édit
       third.getByRole("heading", { name: "Ce petit coin est vide." }),
     ).toBeVisible();
     await page.getByRole("link", { name: "Modifier", exact: true }).click();
-    await page.getByRole("button", { name: "Split", exact: true }).click();
+    await page.getByRole("button", { name: "Divisé", exact: true }).click();
     await page.locator("#viewer-source").fill(edited);
     await page
       .getByRole("button", { name: "Enregistrer dans ma bibliothèque" })

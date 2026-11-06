@@ -21,9 +21,9 @@ export function UserAvatar({
 }
 export function EmptyState({
   title = "Un peu de place pour de nouvelles idées.",
-  description = "Aucun post-it ici pour le moment.",
+  description = "Aucune note ici pour le moment.",
   href,
-  label = "Créer un post-it",
+  label = "Créer une note",
 }: {
   title?: string;
   description?: string;
@@ -49,7 +49,7 @@ export function EmptyState({
 export function LoadingState() {
   return (
     <div role="status" aria-live="polite">
-      <span className="sr-only">Chargement des post-it…</span>
+      <span className="sr-only">Chargement des notes…</span>
       <div className="note-grid" aria-hidden="true">
         {Array.from({ length: 6 }, (_, i) => (
           <div key={i} className="note-skeleton" />
@@ -80,7 +80,7 @@ export function SetupNotice() {
       <strong>Votre atelier est presque prêt.</strong>
       <p>
         Connectez le projet à Supabase pour activer les comptes et afficher les
-        vrais post-it. Les étapes sont détaillées dans le README.
+        contenus. Les étapes sont détaillées dans le README.
       </p>
     </div>
   );

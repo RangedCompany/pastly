@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
-import { getUser } from "@/lib/auth";
+import { getIdentity } from "@/lib/auth";
 import { safeNext } from "@/lib/validation";
 import { AuthForm } from "@/components/auth-form";
 import { AuthShell } from "@/components/auth-shell";
@@ -17,7 +17,7 @@ export default async function Login({
 }) {
   const params = await searchParams,
     next = safeNext(params.next);
-  if (await getUser()) redirect(next);
+  if (await getIdentity()) redirect(next);
   return (
     <AuthShell
       title="Heureux de vous retrouver."

@@ -2,7 +2,7 @@
 
 **Collez. Visualisez. Conservez. Partagez.**
 
-Pastly transforme un texte collé en document lisible, diagramme, arbre de données, code coloré ou tableau. Le visualiseur de l’accueil fonctionne **sans compte et sans configuration Supabase**, dans le navigateur. Les comptes permettent de conserver les contenus dans une bibliothèque et de partager ceux rendus publics. Les post-it classiques, leurs couleurs et leurs anciennes URL restent disponibles.
+Pastly transforme un texte collé en document lisible, diagramme, arbre de données, code coloré ou tableau. Le visualiseur de l’accueil fonctionne **sans compte et sans configuration Supabase**, dans le navigateur. Les comptes permettent de conserver les contenus dans une bibliothèque et de partager ceux rendus publics. Les notes colorées et les URL existantes restent disponibles.
 
 ## Démarrer
 
@@ -27,7 +27,7 @@ Utiliser uniquement une clé publique publishable ou anon, jamais de clé servic
 
 | Format                   | Rendu et fonctions                                                                                                                             |
 | ------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------- |
-| Texte brut / Post-it     | Retours à la ligne, espaces, copie, téléchargement, papier pastel pour le mode classique                                                       |
+| Texte brut / Note colorée | Retours à la ligne, espaces, copie, téléchargement, papier pastel pour les notes colorées                                                     |
 | Markdown                 | Titres, listes, tableaux GFM, citations, liens, cases à cocher, blocs Shiki, Mermaid intégré, formules KaTeX                                   |
 | Mermaid                  | Diagramme SVG réel, zoom, adaptation à la largeur, exports SVG et PNG                                                                          |
 | JSON / YAML / TOML / XML | Arbre repliable, types colorés, copie de valeurs, ouverture progressive des grandes branches, diagnostics                                      |
@@ -45,16 +45,19 @@ Les images Markdown externes sont chargées uniquement après un clic explicite.
 
 ## Utilisation
 
-- `/` : collage, presse-papiers si autorisé, glisser-déposer, format automatique ou manuel, modes Source/Aperçu/Split, plein écran, copie, téléchargement et sauvegarde.
+- `/` : éditeur pleine largeur, collage, presse-papiers si autorisé, glisser-déposer, détection automatique ou choix manuel recherchable, modes Source/Aperçu/Divisé, plein écran, effacement, copie, téléchargement et sauvegarde.
 - `/dashboard` : **Ma bibliothèque**, recherche, visibilité, filtre par format, pagination, modification, suppression et partage.
 - `/explore` : galerie publique multiformat avec recherche et filtres.
-- `/notes/new` : éditeur historique de post-it, six couleurs, privé par défaut.
+- `/notes/new` : éditeur de notes colorées, six couleurs, privé par défaut.
 - `/notes/[id]` : renderer correspondant au format sauvegardé ; URL historique conservée.
-- `/notes/[id]/edit` : éditeur classique pour les post-it, atelier source/aperçu pour les autres formats.
+- `/notes/[id]/edit` : éditeur de notes colorées ou atelier source/aperçu selon le format.
+- `/raw/[id]` : source exacte d’une note en texte brut ; lien consultable et copiable depuis sa page. Une note publique est accessible sans compte, une note privée uniquement avec la session de son propriétaire.
 - `/profile`, `/u/[username]` : profil et publications publiques ; authentification et administration existantes conservées.
 - `/terms`, `/privacy` : pages légales publiques.
 
-Les boutons de formats rapides insèrent un exemple uniquement lorsque la source est vide. Un changement de format ou de mode ne réinitialise jamais la source. L’aperçu est actualisé après 300 ms. Le téléchargement et la sauvegarde utilisent toujours la source courante.
+Le sélecteur affiche le format détecté et permet de rechercher un format ou de revenir à la détection automatique. Un changement de format ou de mode conserve la source. En mode Divisé, déplacer la séparation à la souris ou au toucher, ou utiliser les flèches au clavier après l’avoir sélectionnée. Un double-clic rétablit deux panneaux égaux ; la position reste limitée à 15–85 %. Sur mobile, les panneaux sont empilés et la séparation se déplace verticalement. La position est conservée pendant l’utilisation de l’éditeur, pas après un rechargement.
+
+**Effacer** vide la source et l’aperçu, retire le nom du fichier et réactive la détection automatique ; ce bouton ne supprime aucune note enregistrée. L’aperçu est actualisé après 300 ms. Le téléchargement et la sauvegarde utilisent toujours la source courante.
 
 Avant connexion, le bouton de sauvegarde propose de conserver explicitement le brouillon dans `sessionStorage` pour traverser la connexion dans **le même onglet**. Il est restauré sur `/?draft=1` puis retiré du stockage de session. Il n’existe aucune sauvegarde automatique persistante des collages. Télécharger un original avant de fermer l’onglet ; le parcours Google doit revenir dans cet onglet pour retrouver ce brouillon.
 
@@ -103,14 +106,24 @@ Le détail des contrats et des garde-fous est décrit dans [l’architecture V2]
 
 Pour ajouter un renderer : ajouter le format et son libellé, déclarer son plugin et ses capacités dans le registre, ajouter un parseur borné, enregistrer le composant chargé via `next/dynamic` dans `ContentPreview`, puis ajouter la détection, l’extension de fichier et les tests. Pour un format sauvegardable, une **nouvelle migration** doit étendre la contrainte format/type en même temps que les validations TypeScript. Ne pas ajouter un format seulement à l’interface sans implémenter son rendu.
 
-La détection considère l’extension, puis un MIME reconnu, puis le contenu. Le JSON valide est reconnu ; les déclarations Mermaid en tête de source sont proposées et vérifiées au rendu. Les marqueurs Markdown et les heuristiques de code sont conservateurs. YAML, TOML, CSV ou texte ambigu sans extension restent en texte brut : le sélecteur manuel permet de les forcer. La source n’est jamais reformatée silencieusement.
+La détection considère l’extension, puis un MIME reconnu, puis le contenu. Elle reconnaît le JSON valide, les déclarations Mermaid, les marqueurs Markdown et des signatures de code TypeScript, JavaScript, Python, Rust, Go, Java, C/C++, HTML, CSS, SQL et Bash. Certaines structures YAML, TOML et XML sont également reconnues sans extension. Les heuristiques restent conservatrices : le CSV et les contenus ambigus peuvent rester en texte brut ; le sélecteur permet de forcer leur format. La source n’est jamais reformatée silencieusement.
+
+## Réactivité et accès raw
+
+Les changements de mode, le redimensionnement, la détection, l’effacement, la copie et le téléchargement sont traités dans le navigateur. Le rendu peut charger ses modules à la demande, mais ces contrôles n’attendent aucune Server Action ni écriture Supabase.
+
+L’affichage de la navigation et les lectures protégées utilisant `getIdentity` vérifient les claims de session avec `getClaims` ; les clés publiques JWKS peuvent être mises en cache par le SDK. Une récupération de clés, un rafraîchissement de session ou certains modes de signature peuvent encore nécessiter le réseau. Les actions de mutation et le profil utilisent toujours `getUser`. Sans cookie de session Supabase, le proxy ne lance pas de vérification Auth. Le contrôle du lien administrateur est rendu sous `Suspense` pour ne pas bloquer le reste de la page. Après une modification, seules les pages de bibliothèque, d’exploration, de profils publics et la note concernée sont invalidées, plutôt que tout le layout.
+
+La lecture et la sauvegarde des notes nécessitent toujours Supabase. Ces optimisations réduisent les appels superflus sans garantir une latence en production ; mesurer séparément Auth, requêtes de données et rendu sur le déploiement cible.
+
+La route raw utilise la session et les policies RLS habituelles, sans clé privilégiée ni lien secret supplémentaire. Elle renvoie `text/plain; charset=utf-8`, `nosniff` et `Cache-Control: private, no-store`, sans exécuter le HTML de la source. Une note inexistante ou masquée par RLS renvoie 404 ; une erreur de base renvoie 503. Passer une note en privé retire aussi l’accès raw anonyme lors des requêtes suivantes. Un lien raw privé nécessite les cookies du propriétaire et ne donne pas accès au contenu à un outil externe non authentifié.
 
 ## Limites et sécurité
 
 | Limite                | Valeur                                                                                                                                              |
 | --------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Titre                 | 120 caractères                                                                                                                                      |
-| Post-it classique     | 5 000 caractères                                                                                                                                    |
+| Note colorée          | 5 000 caractères                                                                                                                                    |
 | Autre contenu textuel | 100 000 caractères (limite UI/Zod en unités UTF-16 ; SQL en caractères Unicode, donc la limite cliente est légèrement plus stricte pour les emojis) |
 | Fichier local         | 10 Mio                                                                                                                                              |
 | SVG importé           | 100 000 octets                                                                                                                                      |
@@ -142,9 +155,9 @@ npm run test:e2e
 npm run test:e2e:google
 ```
 
-Vitest teste les détecteurs, parseurs, limites, validations et sauvegardes serveur. PGlite exécute les migrations SQL réelles et teste RLS, droits de colonnes, transition public/privé, compatibilité et préservation des anciennes lignes, profils et administration.
+Vitest teste les détecteurs, parseurs, limites, validations, sauvegardes serveur et réponses de la route raw (source exacte, en-têtes et erreurs). PGlite exécute les migrations SQL réelles et teste RLS, droits de colonnes, transition public/privé, compatibilité et préservation des anciennes lignes, profils et administration.
 
-Playwright reconstruit un serveur de production sur `127.0.0.1:3100` **sans Supabase**, même si `.env.local` existe. Il teste les parcours anonymes desktop/mobile, les renderers réels, GFM/Mermaid/KaTeX/Shiki, erreurs, choix manuel, copie/téléchargements, fichiers Office/PDF, XSS et responsive. Chrome est nécessaire : `npx playwright install chrome` si absent. Captures et traces d’échec sont dans `test-results/offline/`. Les suites navigateur reconstruisent `.next` : les lancer successivement.
+Playwright reconstruit un serveur de production sur `127.0.0.1:3100` **sans Supabase**, même si `.env.local` existe. Il teste les parcours anonymes desktop/mobile, les renderers réels, GFM/Mermaid/KaTeX/Shiki, erreurs, choix manuel, copie/téléchargements, fichiers Office/PDF, XSS et responsive, ainsi que la largeur de l’éditeur, le redimensionnement et l’effacement sans requête POST ni appel Supabase. Chrome est nécessaire : `npx playwright install chrome` si absent. Captures et traces d’échec sont dans `test-results/offline/`. Les suites navigateur reconstruisent `.next` : les lancer successivement.
 
 Les tests distants sont **manuels, uniquement sur un projet Supabase de test dédié**, jamais sur la production :
 
@@ -167,7 +180,7 @@ Deux comptes confirmés et les trois migrations sont requis. Les scripts utilise
 
 1. Appliquer et vérifier la migration V2 sur le projet cible après une recette sur un projet dédié.
 2. Configurer les variables publiques et Auth sur Vercel/Supabase, puis reconstruire avec Node.js 24.
-3. Vérifier collage anonyme, sauvegarde privée, réouverture, édition, galerie publique, changement de visibilité et anciennes URL avec deux utilisateurs.
+3. Vérifier collage anonyme, séparation ajustable, effacement, sauvegarde privée, réouverture, édition, galerie publique et anciennes URL avec deux utilisateurs. Vérifier le lien raw en public, puis son refus anonyme et pour l’autre utilisateur après passage en privé.
 4. Vérifier les pages légales et réglages des prestataires ; voir les guides dans `docs/`.
 
 Aucune migration distante ni mise en production n’est lancée par les tests. Après une suite hors ligne, reconstruire avec la configuration cible avant de déployer.

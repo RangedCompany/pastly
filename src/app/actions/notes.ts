@@ -7,7 +7,9 @@ import { ensureProfile } from "@/lib/data";
 import { idSchema, noteSchema, type ActionState } from "@/lib/validation";
 
 function invalidate(id?: string) {
-  revalidatePath("/", "layout");
+  revalidatePath("/dashboard");
+  revalidatePath("/explore");
+  revalidatePath("/u/[username]", "page");
   if (id) revalidatePath(`/notes/${id}`);
 }
 export async function saveNote(
@@ -26,7 +28,7 @@ export async function saveNote(
   });
   if (!parsed.success) return { error: parsed.error.issues[0].message };
   if (id && !idSchema.safeParse(id).success)
-    return { error: "Ce post-it est introuvable." };
+    return { error: "Ce contenu est introuvable." };
   const supabase = await createClient();
   if (!id) {
     try {
@@ -63,7 +65,7 @@ export async function deleteNote(
   void _;
   const user = await requireUser();
   if (!idSchema.safeParse(id).success)
-    return { error: "Ce post-it est introuvable." };
+    return { error: "Ce contenu est introuvable." };
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("notes")

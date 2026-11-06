@@ -25,6 +25,17 @@ describe("détection locale et contrat des renderers", () => {
     ["sequenceDiagram\n Alice->>Bob: Bonjour", "mermaid"],
     ["interface Idee {\n titre: string;\n}", "typescript"],
     ["def salut():\n    return 1", "python"],
+    ["const answer = 42;\nconsole.log(answer);", "javascript"],
+    ["const answer: number = 42;", "typescript"],
+    ["import os\nprint(os.getcwd())", "python"],
+    ["SELECT id, title FROM notes WHERE is_public = true;", "sql"],
+    ["<!DOCTYPE html><html><body>Hello</body></html>", "html"],
+    [".panel { color: red; }", "css"],
+    ["public class Main { public static void main(String[] args) {} }", "java"],
+    ["#include <stdio.h>\nint main() { return 0; }", "c"],
+    ["#include <iostream>\nint main() { std::cout << 42; }", "cpp"],
+    ["[app]\nname = 'Pastly'", "toml"],
+    ["app:\n  name: Pastly", "yaml"],
   ])("détecte %s comme %s", (content, expected) =>
     expect(detectContent({ content }).format).toBe(expected),
   );
