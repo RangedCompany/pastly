@@ -34,8 +34,8 @@ export default function Privacy() {
         <h2>2. Les données utilisées</h2>
         <p>
           Le texte collé et les fichiers ouverts dans le visualiseur sont
-          traités localement dans votre navigateur. Les fichiers binaires ne
-          sont pas téléversés ni sauvegardés par cette version. Seul un
+          traités localement dans votre navigateur. Les fichiers binaires ouverts
+          dans le visualiseur ne sont pas téléversés ni sauvegardés. Seul un
           enregistrement explicite d’un contenu textuel l’envoie à votre
           bibliothèque Supabase. Si vous choisissez de conserver un brouillon
           avant connexion, il est temporairement placé dans le stockage de
@@ -53,8 +53,10 @@ export default function Privacy() {
             l’administration de Pastly.
           </li>
           <li>
-            <strong>Profil :</strong> pseudonyme, nom affiché et date
-            d’inscription. Vous pouvez utiliser un pseudonyme ; votre nom civil
+            <strong>Profil :</strong> pseudonyme, nom affiché, photo de profil
+            facultative et date d’inscription. La photo choisie est recadrée et
+            réencodée sans métadonnées EXIF, puis hébergée dans Supabase Storage.
+            Vous pouvez utiliser un pseudonyme ; votre nom civil
             n’est pas nécessaire pour publier des notes.
           </li>
           <li>
@@ -176,6 +178,10 @@ export default function Privacy() {
           tiers. Votre adresse email n’est pas affichée sur le profil public.
         </p>
         <p>
+          Votre photo de profil est publique, y compris lorsque vos notes sont
+          privées. Vous pouvez la remplacer ou la supprimer depuis votre profil.
+        </p>
+        <p>
           Vous pouvez choisir la visibilité avant l’enregistrement ou la
           modifier ensuite. Les autres utilisateurs ne peuvent pas consulter vos
           notes privées dans Pastly, même s’ils disposent du lien. Les personnes
@@ -201,7 +207,7 @@ export default function Privacy() {
         <ul>
           <li>
             <strong>Supabase :</strong> hébergement de la base, authentification
-            et gestion des sessions.
+            et gestion des sessions, stockage et diffusion des photos de profil.
           </li>
           <li>
             <strong>Vercel :</strong> hébergement de l’application, diffusion du
@@ -294,6 +300,12 @@ export default function Privacy() {
             jusqu’à sa fermeture et au traitement de la demande d’effacement.
             Aucune suppression automatique pour inactivité n’est actuellement
             mise en œuvre.
+          </li>
+          <li>
+            <strong>Photo de profil :</strong> jusqu’à son remplacement, sa
+            suppression depuis le profil ou la fermeture du compte. Des copies
+            peuvent subsister temporairement dans les caches et sauvegardes des
+            prestataires ou avoir été enregistrées par des tiers.
           </li>
           <li>
             <strong>Notes :</strong> jusqu’à leur suppression par vous-même ou à

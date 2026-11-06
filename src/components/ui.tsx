@@ -2,23 +2,7 @@ import Link from "next/link";
 import { ArrowRight, Search, StickyNote } from "lucide-react";
 import type { ActionState } from "@/lib/validation";
 import { FORMATS, FORMAT_LABELS } from "@/lib/viewer/types";
-
-export function UserAvatar({
-  name,
-  small = false,
-}: {
-  name: string;
-  small?: boolean;
-}) {
-  return (
-    <span
-      aria-hidden="true"
-      className={`avatar ${small ? "avatar-small" : ""}`}
-    >
-      {name.trim().slice(0, 2).toUpperCase()}
-    </span>
-  );
-}
+export { UserAvatar } from "./user-avatar";
 export function EmptyState({
   title = "Un peu de place pour de nouvelles idées.",
   description = "Aucune note ici pour le moment.",

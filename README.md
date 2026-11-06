@@ -39,20 +39,20 @@ Utiliser uniquement une clé publique publishable ou anon, jamais de clé servic
 | DOCX                     | Extraction du texte avec Mammoth ; pas de reproduction de la mise en page ni des images Word                                                   |
 | XLSX                     | Feuilles sélectionnables, valeurs enregistrées dans les cellules, tableau avec recherche et tri ; aucune formule ni macro exécutée             |
 
-Les binaires restent locaux : **pas de téléversement automatique, pas de sauvegarde binaire, pas de bucket Storage créé**, pas de base64 dans PostgreSQL. Un fichier non pris en charge affiche une explication ; l’original ouvert reste téléchargeable. Le téléchargement d’un CSV conserve sa source initiale : le tri et les filtres ne modifient pas le fichier.
+Les fichiers binaires ouverts dans le visualiseur restent locaux : **pas de téléversement automatique ni de sauvegarde binaire des documents**, pas de base64 dans PostgreSQL. Les photos de profil choisies explicitement sont enregistrées séparément dans le bucket public `avatars`. Un fichier non pris en charge affiche une explication ; l’original ouvert reste téléchargeable. Le téléchargement d’un CSV conserve sa source initiale : le tri et les filtres ne modifient pas le fichier.
 
 Les images Markdown externes sont chargées uniquement après un clic explicite. Le HTML brut est ignoré en Markdown ; le format HTML est une vue de code, jamais une page exécutée. La détection et les renderers ne transmettent pas le texte à un service externe ou à une IA.
 
 ## Utilisation
 
-- `/` : éditeur pleine largeur, collage, presse-papiers si autorisé, glisser-déposer, détection automatique ou choix manuel recherchable, modes Source/Aperçu/Divisé, plein écran, effacement, copie, téléchargement et sauvegarde.
+- `/` : éditeur pleine largeur, collage au clavier, glisser-déposer, détection automatique ou choix manuel recherchable, modes Source/Aperçu/Divisé, plein écran, effacement, copie, téléchargement et sauvegarde.
 - `/dashboard` : **Ma bibliothèque**, recherche, visibilité, filtre par format, pagination, modification, suppression et partage.
 - `/explore` : galerie publique multiformat avec recherche et filtres.
 - `/notes/new` : éditeur de notes colorées, six couleurs, privé par défaut.
 - `/notes/[id]` : renderer correspondant au format sauvegardé ; URL historique conservée.
 - `/notes/[id]/edit` : éditeur de notes colorées ou atelier source/aperçu selon le format.
 - `/raw/[id]` : source exacte d’une note en texte brut ; lien consultable et copiable depuis sa page. Une note publique est accessible sans compte, une note privée uniquement avec la session de son propriétaire.
-- `/profile`, `/u/[username]` : profil et publications publiques ; authentification et administration existantes conservées.
+- `/profile`, `/u/[username]` : profil, photo personnalisée et publications publiques. Le crayon au survol de l’avatar (ou au focus clavier, toujours visible sur écran tactile) permet de choisir un JPG, PNG ou WebP non animé de 2 Mo maximum. La photo est enregistrée immédiatement, recadrée en carré de 512 pixels et réencodée en WebP sans métadonnées EXIF. Elle peut être remplacée ou supprimée et apparaît sur les publications.
 - `/terms`, `/privacy` : pages légales publiques.
 
 Le sélecteur affiche le format détecté et permet de rechercher un format ou de revenir à la détection automatique. Un changement de format ou de mode conserve la source. En mode Divisé, déplacer la séparation à la souris ou au toucher, ou utiliser les flèches au clavier après l’avoir sélectionnée. Un double-clic rétablit deux panneaux égaux ; la position reste limitée à 15–85 %. Sur mobile, les panneaux sont empilés et la séparation se déplace verticalement. La position est conservée pendant l’utilisation de l’éditeur, pas après un rechargement.
@@ -68,8 +68,9 @@ Pour une installation neuve, appliquer les migrations dans cet ordre :
 1. `supabase/migrations/202610290001_postly.sql`
 2. `supabase/migrations/202610290002_admin.sql`
 3. `supabase/migrations/202611050001_universal_viewer.sql`
+4. `supabase/migrations/202611060001_profile_avatars.sql`
 
-Pour une installation existante avec les deux premières migrations déjà appliquées, appliquer **uniquement la troisième**. Ne pas réexécuter ni modifier les migrations historiques. La migration V2 ajoute :
+Pour une installation existante, appliquer uniquement les migrations manquantes, dans cet ordre. La quatrième ajoute `profiles.avatar_path`, les privilèges de colonne et le bucket public `avatars`. Les écritures Storage sont réservées au dossier de l’utilisateur connecté ; les images existantes ne sont pas écrasées. Un échec d’enregistrement du profil retire le nouvel objet ; un remplacement ou une suppression nettoie l’ancienne image via l’API Storage. Si ce nettoyage échoue, un avertissement serveur demande de le reprendre. Ne pas réexécuter ni modifier les migrations historiques. La migration V2 ajoute :
 
 | Colonne             | Rôle                                                                                                                   |
 | ------------------- | ---------------------------------------------------------------------------------------------------------------------- |
@@ -88,7 +89,7 @@ supabase link --project-ref VOTRE_REFERENCE
 supabase db push
 ```
 
-Tester d’abord sur un projet dédié et déployer l’application V2 **après** la migration. Le nouveau code sélectionne explicitement les colonnes V2 et nécessite donc leur présence. Aucun stockage binaire n’est activé. Les fonctionnalités Auth, Google et admin n’ont pas besoin d’être réécrites : voir [Google](docs/auth-google.md), [déploiement](docs/deploiement-pastly.fr.md), [données personnelles](docs/donnees-personnelles.md) et `supabase/bootstrap-admin.sql`.
+Tester d’abord sur un projet dédié et déployer l’application **après** les migrations. Le code sélectionne explicitement les colonnes V2 et `avatar_path` et nécessite donc leur présence. Le stockage binaire est limité aux photos de profil. Les fonctionnalités Auth, Google et admin n’ont pas besoin d’être réécrites : voir [Google](docs/auth-google.md), [déploiement](docs/deploiement-pastly.fr.md), [données personnelles](docs/donnees-personnelles.md) et `supabase/bootstrap-admin.sql`.
 
 Le [guide détaillé Supabase/Auth](docs/supabase-auth.md) conserve les modèles d’email et les paramètres historiques. Configurer Supabase Auth avec confirmation email, mot de passe minimal de 12 caractères et SMTP avant ouverture publique. Renseigner Site URL et les destinations `/auth/callback`, `/auth/confirm` et `/auth/callback?next=/reset-password` pour chaque environnement. Les modèles utilisant `token_hash` permettent la confirmation sur un autre appareil ; les détails du guide Auth restent applicables. Google reste facultatif via `NEXT_PUBLIC_GOOGLE_AUTH_ENABLED=true` et sa configuration côté Supabase.
 

@@ -26,7 +26,7 @@ test("détection, largeur, séparation ajustable et effacement sans réseau", as
   await page.mouse.move(bar.x + bar.width / 2 + 35, bar.y + bar.height / 2 + 35);
   await page.mouse.up();
   await expect(separator).not.toHaveAttribute("aria-valuenow", "52");
-  await page.getByRole("button", { name: "Effacer", exact: true }).click();
+  await page.locator(".source-pane").getByRole("button", { name: "Effacer", exact: true }).click();
   await expect(page.locator("#viewer-source")).toHaveValue("");
   await expect(page.locator('input[name="format"]')).toHaveValue("text");
   expect(requests).toEqual([]);
@@ -45,11 +45,8 @@ test("presse-papiers sans compte, copie et refus d’un collage excessif", async
   await context.grantPermissions(["clipboard-read", "clipboard-write"]);
   const pasted = "# Collé depuis le presse-papiers\n\nUne **idée** conservée.";
   await page.evaluate((text) => navigator.clipboard.writeText(text), pasted);
-  // Windows may normalize clipboard line endings to CRLF before Pastly reads them.
-  const clipboardOriginal = await page.evaluate(() =>
-    navigator.clipboard.readText(),
-  );
-  await page.getByRole("button", { name: "Coller", exact: true }).click();
+  await page.locator("#viewer-source").focus();
+  await page.keyboard.press("ControlOrMeta+V");
   await expect(page.locator("#viewer-source")).toHaveValue(pasted);
   await expect(page.locator(".markdown-body h1")).toHaveText(
     "Collé depuis le presse-papiers",
@@ -61,9 +58,9 @@ test("presse-papiers sans compte, copie et refus d’un collage excessif", async
   await expect(page.locator(".workspace-actions [role=status]")).toHaveText(
     "Copié",
   );
-  expect(await page.evaluate(() => navigator.clipboard.readText())).toBe(
-    clipboardOriginal,
-  );
+  expect(
+    (await page.evaluate(() => navigator.clipboard.readText())).replace(/\r\n/g, "\n"),
+  ).toBe(pasted);
   await page.locator("#viewer-source").evaluate((element) => {
     const data = new DataTransfer();
     data.setData("text/plain", "x".repeat(100001));

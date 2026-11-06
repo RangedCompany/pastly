@@ -12,6 +12,7 @@ import { RawLink } from "@/components/raw-link";
 import { ContentPreview } from "@/components/viewer/content-preview";
 import { DocumentActions } from "@/components/viewer/document-actions";
 import { FORMAT_LABELS } from "@/lib/viewer/types";
+import { avatarUrl } from "@/lib/avatar";
 import {
   ConfirmDeleteDialog,
   QuickVisibility,
@@ -87,7 +88,7 @@ export default async function NotePage({
           <div className="detail-footer">
             {note.author && (
               <Link className="note-author" href={`/u/${note.author.username}`}>
-                <UserAvatar name={note.author.display_name} small />
+                <UserAvatar name={note.author.display_name} src={avatarUrl(note.author.avatar_path)} small />
                 {note.author.display_name}
               </Link>
             )}

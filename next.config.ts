@@ -12,6 +12,9 @@ const formSources =
 
 const config: NextConfig = {
   poweredByHeader: false,
+  experimental: {
+    serverActions: { bodySizeLimit: "3mb" },
+  },
   async headers() {
     return [
       {

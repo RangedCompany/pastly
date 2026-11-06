@@ -5,6 +5,7 @@ import { UserAvatar, formatDate } from "./ui";
 import { ShareButton } from "./share-button";
 import { ConfirmDeleteDialog, QuickVisibility } from "./note-controls";
 import { FORMAT_LABELS } from "@/lib/viewer/types";
+import { avatarUrl } from "@/lib/avatar";
 
 export function NoteCard({
   note,
@@ -42,7 +43,7 @@ export function NoteCard({
       <div className="note-card-footer">
         {author ? (
           <Link className="note-author" href={`/u/${author.username}`}>
-            <UserAvatar name={author.display_name} small />
+            <UserAvatar name={author.display_name} src={avatarUrl(author.avatar_path)} small />
             <span>{author.display_name}</span>
           </Link>
         ) : (

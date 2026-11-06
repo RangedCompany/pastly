@@ -6,6 +6,7 @@ export type Profile = {
   id: string;
   username: string;
   display_name: string;
+  avatar_path: string | null;
   created_at: string;
 };
 export type Note = {
@@ -32,9 +33,10 @@ export type Database = {
           id: string;
           username: string;
           display_name: string;
+          avatar_path?: string | null;
           created_at?: string;
         };
-        Update: { username?: string; display_name?: string };
+        Update: { username?: string; display_name?: string; avatar_path?: string | null };
         Relationships: [];
       };
       notes: {

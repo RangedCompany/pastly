@@ -1,7 +1,7 @@
 "use client";
 import Link from "next/link";
 import { useActionState, useEffect, useMemo, useRef, useState, type CSSProperties } from "react";
-import { Download, Maximize2, Minimize2, Save, Upload, ClipboardPaste, Trash2, Code2, Eye, Columns2, GripVertical } from "lucide-react";
+import { Download, Maximize2, Minimize2, Save, Upload, Trash2, Code2, Eye, Columns2, GripVertical } from "lucide-react";
 import { saveNote } from "@/app/actions/notes";
 import { detectContent } from "@/lib/viewer/detect";
 import {
@@ -169,25 +169,6 @@ export function ViewerWorkspace({
       }
     }
   }
-  async function paste() {
-    try {
-      const text = await navigator.clipboard.readText();
-      if (text.length > MAX_TEXT_LENGTH) {
-        setMessage("Le contenu est limité à 100 000 caractères.");
-        return;
-      }
-      ++acquisition.current;
-      setFile(null);
-      setFilename(null);
-      setContent(text);
-      setPreview(text);
-      setMessage("");
-    } catch {
-      setMessage(
-        "Presse-papiers indisponible. Collez directement dans la zone Source avec Ctrl+V ou ⌘V.",
-      );
-    }
-  }
   function clearSource() {
     ++acquisition.current;
     setContent(""); setPreview(""); setFilename(null); setFile(null); setAuto(true); setMessage("");
@@ -226,9 +207,6 @@ export function ViewerWorkspace({
     >
       <div className="workspace-acquisition">
         <div className="acquisition-actions">
-          <button type="button" className="button button-quiet" onClick={paste}>
-            <ClipboardPaste size={15} /> Coller
-          </button>
           <button
             type="button"
             className="button button-quiet"
@@ -331,9 +309,21 @@ export function ViewerWorkspace({
           <div ref={panes} className={`workspace-panes mode-${mode}`} style={{ "--source-size": `${split}fr`, "--preview-size": `${100 - split}fr` } as CSSProperties}>
             {mode !== "preview" && (
               <div className="source-pane">
-                <label htmlFor="viewer-source" className="pane-heading">
-                  Source {filename && <span>{filename}</span>}
-                </label>
+                <div className="pane-heading">
+                  <label htmlFor="viewer-source">
+                    Source {filename && <span>{filename}</span>}
+                  </label>
+                  <button
+                    type="button"
+                    className="icon-button"
+                    aria-label="Effacer"
+                    title="Effacer la source"
+                    disabled={!content}
+                    onClick={clearSource}
+                  >
+                    <Trash2 size={15} />
+                  </button>
+                </div>
                 <textarea
                   id="viewer-source"
                   value={content}
@@ -399,7 +389,7 @@ export function ViewerWorkspace({
           </div>
           <div className="workspace-bottom">
             <div className="workspace-actions">
-              <button type="button" className="button button-quiet" disabled={!content} onClick={clearSource}><Trash2 size={15} /> Effacer</button>
+              <button type="button" className="icon-button" aria-label="Effacer" title="Effacer la source" disabled={!content} onClick={clearSource}><Trash2 size={15} /></button>
               <CopyButton value={content} />
               <button
                 type="button"

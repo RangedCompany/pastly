@@ -10,6 +10,7 @@ import { NoteGrid } from "@/components/note-card";
 import { getProfile, listNotes } from "@/lib/data";
 import { isSupabaseConfigured } from "@/lib/env";
 import { parsePage } from "@/lib/validation";
+import { avatarUrl } from "@/lib/avatar";
 export const metadata: Metadata = {
   title: "Le coin d’un membre",
   description: "Découvrez les idées publiques d’un membre de Pastly.",
@@ -31,7 +32,7 @@ export default async function PublicProfile({
   return (
     <div className="container">
       <header className="public-profile">
-        <UserAvatar name={profile.display_name} />
+        <UserAvatar name={profile.display_name} src={avatarUrl(profile.avatar_path)} />
         <div>
           <h1>Le coin de {profile.display_name}.</h1>
           <p>
