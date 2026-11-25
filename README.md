@@ -51,7 +51,7 @@ Les traductions sont des catalogues locaux dans `src/lib/i18n/messages/`, sans a
 
 Pour ajouter une langue : compléter `LOCALES` et `LANGUAGE_NAMES` dans `src/lib/i18n/locale.ts`, déclarer le chargement du catalogue dans `server.ts` et fournir toutes les clés du catalogue français en conservant les variables entre accolades. Utiliser `getTranslations()` dans les composants serveur et `useTranslations()` dans les composants clients. Les tests vérifient la couverture des catalogues, les variables et les parcours navigateur sur ordinateur et mobile.
 
-- `/` : éditeur pleine largeur, collage au clavier, glisser-déposer, détection automatique ou choix manuel recherchable, modes Source/Aperçu/Divisé, plein écran, effacement, copie, téléchargement et sauvegarde.
+- `/` : éditeur pleine largeur, collage au clavier, glisser-déposer, détection automatique ou choix manuel recherchable, panneaux Source et Aperçu redimensionnables, plein écran, effacement, copie, téléchargement et sauvegarde.
 - `/dashboard` : **Ma bibliothèque**, recherche, visibilité, filtre par format, pagination, modification, suppression et partage.
 - `/explore` : galerie publique multiformat avec recherche et filtres.
 - `/notes/new` : éditeur de notes colorées, six couleurs, privé par défaut.
@@ -61,7 +61,7 @@ Pour ajouter une langue : compléter `LOCALES` et `LANGUAGE_NAMES` dans `src/lib
 - `/profile`, `/u/[username]` : profil, photo personnalisée et publications publiques. Le crayon au survol de l’avatar (ou au focus clavier, toujours visible sur écran tactile) permet de choisir un JPG, PNG ou WebP non animé de 2 Mo maximum. La photo est enregistrée immédiatement, recadrée en carré de 512 pixels et réencodée en WebP sans métadonnées EXIF. Elle peut être remplacée ou supprimée et apparaît sur les publications.
 - `/terms`, `/privacy` : pages légales publiques.
 
-Le sélecteur affiche le format détecté et permet de rechercher un format ou de revenir à la détection automatique. Un changement de format ou de mode conserve la source. En mode Divisé, déplacer la séparation à la souris ou au toucher, ou utiliser les flèches au clavier après l’avoir sélectionnée. Un double-clic rétablit deux panneaux égaux ; la position reste limitée à 15–85 %. Sur mobile, les panneaux sont empilés et la séparation se déplace verticalement. La position est conservée pendant l’utilisation de l’éditeur, pas après un rechargement.
+Le sélecteur affiche le format détecté et permet de rechercher un format ou de revenir à la détection automatique. Glissez la séparation jusqu’au bord pour masquer un panneau. Ramenez-la vers le centre pour le rouvrir à 15 % de largeur. Les flèches ajustent la séparation au clavier. Les touches Début et Fin replient un panneau. Un double-clic rétablit deux panneaux égaux. Sur mobile, les panneaux sont empilés et la séparation se déplace verticalement. La position est conservée pendant l’utilisation de l’éditeur, pas après un rechargement.
 
 **Effacer** vide la source et l’aperçu, retire le nom du fichier et réactive la détection automatique ; ce bouton ne supprime aucune note enregistrée. L’aperçu est actualisé après 300 ms. Le téléchargement et la sauvegarde utilisent toujours la source courante.
 
@@ -75,6 +75,7 @@ Pour une installation neuve, appliquer les migrations dans cet ordre :
 2. `supabase/migrations/202610290002_admin.sql`
 3. `supabase/migrations/202611050001_universal_viewer.sql`
 4. `supabase/migrations/202611060001_profile_avatars.sql`
+5. `supabase/migrations/202611250001_paste_length.sql`
 
 Pour une installation existante, appliquer uniquement les migrations manquantes, dans cet ordre. La quatrième ajoute `profiles.avatar_path`, les privilèges de colonne et le bucket public `avatars`. Les écritures Storage sont réservées au dossier de l’utilisateur connecté ; les images existantes ne sont pas écrasées. Un échec d’enregistrement du profil retire le nouvel objet ; un remplacement ou une suppression nettoie l’ancienne image via l’API Storage. Si ce nettoyage échoue, un avertissement serveur demande de le reprendre. Ne pas réexécuter ni modifier les migrations historiques. La migration V2 ajoute :
 
@@ -131,7 +132,7 @@ La route raw utilise la session et les policies RLS habituelles, sans clé privi
 | --------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Titre                 | 120 caractères                                                                                                                                      |
 | Note colorée          | 5 000 caractères                                                                                                                                    |
-| Autre contenu textuel | 100 000 caractères (limite UI/Zod en unités UTF-16 ; SQL en caractères Unicode, donc la limite cliente est légèrement plus stricte pour les emojis) |
+| Autre contenu textuel | 200 000 caractères (limite UI/Zod en unités UTF-16 ; SQL en caractères Unicode, donc la limite cliente est légèrement plus stricte pour les emojis) |
 | Fichier local         | 10 Mio                                                                                                                                              |
 | SVG importé           | 100 000 octets                                                                                                                                      |
 | Mermaid               | 20 000 caractères, 200 arêtes, 500 lignes/instructions, 10 diagrammes intégrés par Markdown ; directives `init` et frontmatter désactivés           |

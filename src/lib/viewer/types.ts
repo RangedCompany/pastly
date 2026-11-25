@@ -54,7 +54,7 @@ export interface RendererPlugin {
   )[];
   parse: (input: ContentInput, format: ContentFormat) => Promise<ParseResult>;
 }
-export const MAX_TEXT_LENGTH = 100_000;
+export const MAX_TEXT_LENGTH = 200_000;
 export const MAX_NOTE_LENGTH = 5_000;
 export const MAX_FILE_BYTES = 10 * 1024 * 1024;
 export const MAX_DIAGRAM_LENGTH = 20_000;

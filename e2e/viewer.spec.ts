@@ -31,9 +31,35 @@ test("détection, largeur, séparation ajustable et effacement sans réseau", as
   await expect(page.locator('input[name="format"]')).toHaveValue("text");
   expect(requests).toEqual([]);
 });
+test("le séparateur se replie aux deux bords et rouvre chaque panneau à 15 %", async ({ page }) => {
+  await source(page, "Mon texte");
+  const panes = page.locator(".workspace-panes");
+  await panes.evaluate(el => el.scrollIntoView({ block: "center" }));
+  const bounds = (await panes.boundingBox())!;
+  const separator = page.getByRole("separator");
+  const stacked = page.viewportSize()!.width <= 760;
+  async function drag(position: number) {
+    const bar = (await separator.boundingBox())!;
+    const x = bar.x + bar.width / 2;
+    const y = bar.y + bar.height / 2;
+    await page.mouse.move(x, y);
+    await page.mouse.down();
+    await page.mouse.move(stacked ? x : bounds.x + bounds.width * position,
+      stacked ? bounds.y + bounds.height * position : y);
+    await page.mouse.up();
+  }
+  await drag(0.001);
+  await expect(page.locator(".source-pane")).toBeHidden();
+  await drag(0.05);
+  await expect(separator).toHaveAttribute("aria-valuenow", "15");
+  await drag(0.999);
+  await expect(page.locator(".preview-pane")).toBeHidden();
+  await drag(0.95);
+  await expect(separator).toHaveAttribute("aria-valuenow", "85");
+  await expect(page.locator("#viewer-source")).toHaveValue("Mon texte");
+});
+
 async function source(page: Page, text: string, format?: string) {
-  if (!(await page.locator("#viewer-source").count()))
-    await page.getByRole("button", { name: "Divisé", exact: true }).click();
   await page.locator("#viewer-source").fill(text);
   if (format)
     await chooseFormat(page, format);
@@ -61,9 +87,16 @@ test("presse-papiers sans compte, copie et refus d’un collage excessif", async
   expect(
     (await page.evaluate(() => navigator.clipboard.readText())).replace(/\r\n/g, "\n"),
   ).toBe(pasted);
-  await page.locator("#viewer-source").evaluate((element) => {
+  const limit = "x".repeat(200_000);
+  await page.evaluate(text => navigator.clipboard.writeText(text), limit);
+  const editor = page.locator("#viewer-source");
+  await editor.focus();
+  await editor.press("ControlOrMeta+a");
+  await editor.press("ControlOrMeta+v");
+  await expect(editor).toHaveValue(limit);
+  await editor.evaluate((element) => {
     const data = new DataTransfer();
-    data.setData("text/plain", "x".repeat(100001));
+    data.setData("text/plain", "x");
     element.dispatchEvent(
       new ClipboardEvent("paste", {
         clipboardData: data,
@@ -75,7 +108,7 @@ test("presse-papiers sans compte, copie et refus d’un collage excessif", async
   await expect(
     page.getByRole("status").filter({ hasText: "Ce collage dépasse" }),
   ).toBeVisible();
-  await expect(page.locator("#viewer-source")).toHaveValue(pasted);
+  await expect(editor).toHaveValue(limit);
 });
 test("collage anonyme, Markdown GFM, Mermaid intégré, maths et mise en page", async ({
   page,
@@ -114,7 +147,7 @@ test("collage anonyme, Markdown GFM, Mermaid intégré, maths et mise en page", 
   });
   expect(errors).toEqual([]);
 });
-test("JSON interactif, format forcé et saisie préservée entre les modes", async ({
+test("JSON interactif, format forcé et saisie préservée pendant le repli des panneaux", async ({
   page,
 }) => {
   const original = '  {"nom":"Pastly","liste":[1,true,null]}  \n';
@@ -129,11 +162,11 @@ test("JSON interactif, format forcé et saisie préservée entre les modes", asy
   ).not.toHaveAttribute("open");
   await chooseFormat(page, "text");
   await expect(page.locator(".format-menu summary")).not.toContainText("Auto");
-  await page.getByRole("button", { name: "Aperçu", exact: true }).click();
+  await page.getByRole("separator").press("Home");
   await expect(page.locator(".plain-view")).toHaveText(original);
-  await page.getByRole("button", { name: "Source", exact: true }).click();
+  await page.getByRole("separator").press("End");
   await expect(page.locator("#viewer-source")).toHaveValue(original);
-  await page.getByRole("button", { name: "Divisé", exact: true }).click();
+  await page.getByRole("separator").press("ArrowLeft");
   await chooseFormat(page, "json");
   await source(page, '{"nom":', "json");
   await expect(page.locator(".preview-pane [role=alert]")).toBeVisible();

@@ -128,7 +128,7 @@ describe("parsing, diagnostics et garde-fous", () => {
       (await renderContent({ content: "a: &a\n  b: *a" }, "yaml")).diagnostics,
     ).toHaveLength(1);
     expect(
-      (await renderContent({ content: "x".repeat(100001) }, "text"))
+      (await renderContent({ content: "x".repeat(200001) }, "text"))
         .diagnostics,
     ).toHaveLength(1);
   });

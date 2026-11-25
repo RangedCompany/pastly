@@ -4,7 +4,7 @@ import { TranslatedText } from "@/components/i18n";
 import { useEffect, useState } from "react";
 import dynamic from "next/dynamic";
 import { sanitizeSvg } from "@/lib/viewer/sanitize";
-import { MAX_FILE_BYTES, MAX_TEXT_LENGTH } from "@/lib/viewer/types";
+import { MAX_FILE_BYTES } from "@/lib/viewer/types";
 import type { OfficePreview } from "@/lib/viewer/files";
 import { rasterDimensions } from "@/lib/viewer/image";
 import TableRenderer from "./table-renderer";
@@ -30,7 +30,7 @@ function ImagePreview({ file }: { file: File }) {
       if (file.size > MAX_FILE_BYTES)
         throw new Error("Image limitée à 10 Mio.");
       if (/\.svg$/i.test(file.name) || file.type === "image/svg+xml") {
-        if (file.size > MAX_TEXT_LENGTH)
+        if (file.size > 100_000)
           throw new Error("SVG limité à 100 000 octets.");
         const svg = sanitizeSvg(await file.text());
         if (!active) return;

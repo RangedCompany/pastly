@@ -4,11 +4,11 @@
 
 `ViewerWorkspace` acquiert le texte (saisie, collage, fichier UTF-8) ou ouvre un binaire local. `detectContent` propose un format sans modifier la source. L’utilisateur peut le forcer. `ContentPreview` charge le composant adapté ; le registre expose les capacités et le parsing indépendant de React. La sauvegarde existante en Server Action conserve le texte exact avec le format, puis `/notes/[id]` sélectionne le même renderer.
 
-La source est la valeur de référence. L’aperçu débouncé ne remplace jamais le texte à sauvegarder ou télécharger. Les modes changent uniquement l’affichage. Un contenu invalide peut être enregistré comme source : un diagnostic n’efface pas les données. La validation de persistance ne prétend pas certifier la syntaxe ou innocuité du fichier original.
+La source est la valeur de référence. L’aperçu débouncé ne remplace jamais le texte à sauvegarder ou télécharger. Un contenu invalide peut être enregistré comme source : un diagnostic n’efface pas les données. La validation de persistance ne prétend pas certifier la syntaxe ou innocuité du fichier original.
 
 L’atelier occupe toute la largeur disponible. `FormatPicker` remplace la liste native et les raccourcis d’exemples : il affiche le format détecté, propose une recherche et permet un choix manuel ou le retour en automatique. La détection privilégie l’extension puis le MIME, avant les signatures du contenu ; elle ne prétend pas reconnaître les syntaxes ambiguës avec certitude.
 
-Le mode Divisé utilise deux panneaux et une séparation accessible au clavier, déplaçable par capture du pointeur. Les proportions sont bornées à 15–85 %, réinitialisables à 50 % par double-clic. Les panneaux sont côte à côte sur ordinateur, empilés sous 760 px ; la proportion vit dans l’état React de l’atelier. Effacer invalide les lectures de fichiers en cours, vide source et aperçu, retire le nom d’origine et réactive la détection ; aucune suppression en base n’est déclenchée.
+L’atelier utilise deux panneaux et une séparation accessible au clavier, déplaçable par capture du pointeur. Chaque panneau peut être replié au bord et se rouvre à partir de 15 %. Un double-clic rétablit deux panneaux égaux. Les panneaux sont côte à côte sur ordinateur, empilés sous 760 px ; la proportion vit dans l’état React de l’atelier. Effacer invalide les lectures de fichiers en cours, vide source et aperçu, retire le nom d’origine et réactive la détection ; aucune suppression en base n’est déclenchée.
 
 ## Contrat de plugin
 
@@ -28,7 +28,7 @@ Les lectures et écritures de notes restent des échanges réseau. Les tests hor
 
 ## Sécurité et coût
 
-- JSON/YAML/TOML/XML/CSV/TSV : worker dédié remplaçable, délai de 5 secondes, maximum 100 000 caractères, validation de profondeur et de volume. Pas de résolution d’entités externes XML ni de références YAML cycliques/partagées.
+- JSON/YAML/TOML/XML/CSV/TSV : worker dédié remplaçable, délai de 5 secondes, maximum 200 000 caractères, validation de profondeur et de volume. Pas de résolution d’entités externes XML ni de références YAML cycliques/partagées.
 - Arbre : enfants créés uniquement à l’ouverture de la branche ; pagination de 50 valeurs. Le bouton d’expansion ouvre trois niveaux, pas 20 000 nœuds simultanément.
 - Markdown : HTML ignoré, sanitation avant la génération KaTeX à configuration fermée. Les liens passent par la transformation d’URL sûre de react-markdown, et les liens externes utilisent `noopener noreferrer`. Les images distantes exigent un clic.
 - Code : tokens Shiki rendus en spans React. Tout HTML est du texte. Aucun interpréteur, eval ou iframe de code utilisateur.

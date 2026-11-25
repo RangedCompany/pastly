@@ -17,7 +17,7 @@ export const noteSchema = z
     content: z
       .string()
       .min(1, "Votre note est encore vide.")
-      .max(MAX_TEXT_LENGTH, "Le contenu est limité à 100 000 caractères.")
+      .max(MAX_TEXT_LENGTH, "Le contenu est limité à 200 000 caractères.")
       .refine((value) => /\S/.test(value), "Ajoutez du contenu."),
     color: z.enum(COLORS, { error: "Choisissez une couleur proposée." }),
     is_public: z.boolean().default(false),

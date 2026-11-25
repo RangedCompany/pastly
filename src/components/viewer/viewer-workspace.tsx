@@ -17,9 +17,6 @@ import {
   Save,
   Upload,
   Trash2,
-  Code2,
-  Eye,
-  Columns2,
   GripVertical,
 } from "lucide-react";
 import { saveNote } from "@/app/actions/notes";
@@ -69,10 +66,15 @@ export function ViewerWorkspace({
   const [filename, setFilename] = useState<string | null>(
     note?.original_filename ?? null,
   );
-  const [mode, setMode] = useState<"source" | "preview" | "split">(
-    note ? "preview" : "split",
-  );
   const [split, setSplit] = useState(50);
+  const [stacked, setStacked] = useState(false);
+  useEffect(() => {
+    const media = window.matchMedia("(max-width: 760px)");
+    const sync = () => setStacked(media.matches);
+    sync();
+    media.addEventListener("change", sync);
+    return () => media.removeEventListener("change", sync);
+  }, []);
   const panes = useRef<HTMLDivElement>(null);
   const [fullscreen, setFullscreen] = useState(false);
   const [saving, setSaving] = useState(!!note);
@@ -160,7 +162,7 @@ export function ViewerWorkspace({
         return;
       }
       if (selected.size > MAX_TEXT_LENGTH * 4)
-        throw new Error("Un texte est limité à 100 000 caractères.");
+        throw new Error("Un texte est limité à 200 000 caractères.");
       const text = new TextDecoder("utf-8", {
         fatal: true,
         ignoreBOM: true,
@@ -171,7 +173,7 @@ export function ViewerWorkspace({
           "Ce fichier binaire n’est pas pris en charge. Ouvrez un fichier texte UTF-8 ou un format proposé.",
         );
       if (text.length > MAX_TEXT_LENGTH)
-        throw new Error("Un texte est limité à 100 000 caractères.");
+        throw new Error("Un texte est limité à 200 000 caractères.");
       setFile(null);
       setContent(text);
       setPreview(text);
@@ -210,11 +212,11 @@ export function ViewerWorkspace({
   function resizeSplit(clientX: number, clientY: number) {
     const bounds = panes.current?.getBoundingClientRect();
     if (!bounds) return;
-    const stacked = window.matchMedia("(max-width: 760px)").matches;
-    const ratio = stacked
-      ? (clientY - bounds.top) / bounds.height
-      : (clientX - bounds.left) / bounds.width;
-    setSplit(Math.max(15, Math.min(85, ratio * 100)));
+    const position = stacked ? clientY - bounds.top : clientX - bounds.left;
+    const length = stacked ? bounds.height : bounds.width;
+    if (position <= 8) setSplit(0);
+    else if (position >= length - 8) setSplit(100);
+    else setSplit(Math.max(15, Math.min(85, (position / length) * 100)));
   }
   function saveDraft() {
     try {
@@ -316,33 +318,6 @@ export function ViewerWorkspace({
                 if (next !== "auto") setManualFormat(next);
               }}
             />
-            <div
-              className="mode-switch"
-              role="group"
-              aria-label={t("Mode de l’éditeur")}
-            >
-              {(["source", "preview", "split"] as const).map((value) => (
-                <button
-                  type="button"
-                  key={value}
-                  aria-pressed={mode === value}
-                  onClick={() => setMode(value)}
-                >
-                  {value === "source" ? (
-                    <Code2 size={16} />
-                  ) : value === "preview" ? (
-                    <Eye size={16} />
-                  ) : (
-                    <Columns2 size={16} />
-                  )}
-                  {value === "source"
-                    ? t("Source")
-                    : value === "preview"
-                      ? t("Aperçu")
-                      : t("Divisé")}
-                </button>
-              ))}
-            </div>
             <button
               type="button"
               className="icon-button"
@@ -356,7 +331,7 @@ export function ViewerWorkspace({
           </div>
           <div
             ref={panes}
-            className={`workspace-panes mode-${mode}`}
+            className="workspace-panes"
             style={
               {
                 "--source-size": `${split}fr`,
@@ -364,125 +339,111 @@ export function ViewerWorkspace({
               } as CSSProperties
             }
           >
-            {mode !== "preview" && (
-              <div className="source-pane">
-                <div className="pane-heading">
-                  <label htmlFor="viewer-source">
-                    {t("Source")} {filename && <span>{filename}</span>}
-                  </label>
-                  <button
-                    type="button"
-                    className="icon-button"
-                    aria-label={t("Effacer")}
-                    title={t("Effacer la source")}
-                    disabled={!content}
-                    onClick={clearSource}
-                  >
-                    <Trash2 size={15} />
-                  </button>
-                </div>
-                <textarea
-                  id="viewer-source"
-                  value={content}
-                  maxLength={MAX_TEXT_LENGTH}
-                  spellCheck={false}
-                  placeholder={t("Collez du texte ou glissez un fichier…")}
-                  onChange={(e) => {
-                    ++acquisition.current;
-                    setContent(e.target.value);
-                  }}
-                  onPaste={(e) => {
-                    const selected =
-                      e.currentTarget.selectionEnd -
-                      e.currentTarget.selectionStart;
-                    if (
-                      e.clipboardData.getData("text").length +
-                        content.length -
-                        selected >
-                      MAX_TEXT_LENGTH
-                    ) {
-                      e.preventDefault();
-                      setMessage(
-                        "Ce collage dépasse la limite de 100 000 caractères. Votre texte est conservé.",
-                      );
-                    }
-                  }}
-                />
-                <span className="source-count">
-                  {content.length.toLocaleString(t.locale)} / 100 000
-                </span>
+            <div className="source-pane" inert={split === 0}>
+              <div className="pane-heading">
+                <label htmlFor="viewer-source">
+                  {t("Source")} {filename && <span>{filename}</span>}
+                </label>
+                <button
+                  type="button"
+                  className="icon-button"
+                  aria-label={t("Effacer")}
+                  title={t("Effacer la source")}
+                  disabled={!content}
+                  onClick={clearSource}
+                >
+                  <Trash2 size={15} />
+                </button>
               </div>
-            )}
-            {mode === "split" && (
-              <div
-                className="split-handle"
-                role="separator"
-                tabIndex={0}
-                aria-label={t("Redimensionner les panneaux")}
-                aria-orientation="vertical"
-                aria-valuemin={15}
-                aria-valuemax={85}
-                aria-valuenow={Math.round(split)}
-                onPointerDown={(event) => {
-                  event.preventDefault();
-                  event.currentTarget.setPointerCapture(event.pointerId);
+              <textarea
+                id="viewer-source"
+                value={content}
+                maxLength={MAX_TEXT_LENGTH}
+                spellCheck={false}
+                placeholder={t("Collez du texte ou glissez un fichier…")}
+                onChange={(e) => {
+                  ++acquisition.current;
+                  setContent(e.target.value);
                 }}
-                onPointerMove={(event) => {
-                  if (event.currentTarget.hasPointerCapture(event.pointerId))
-                    resizeSplit(event.clientX, event.clientY);
-                }}
-                onPointerUp={(event) => {
-                  event.currentTarget.releasePointerCapture(event.pointerId);
-                }}
-                onKeyDown={(event) => {
+                onPaste={(e) => {
+                  const selected =
+                    e.currentTarget.selectionEnd -
+                    e.currentTarget.selectionStart;
                   if (
-                    [
-                      "ArrowLeft",
-                      "ArrowRight",
-                      "ArrowUp",
-                      "ArrowDown",
-                      "Home",
-                      "End",
-                    ].includes(event.key)
+                    e.clipboardData.getData("text").length +
+                      content.length -
+                      selected >
+                    MAX_TEXT_LENGTH
                   ) {
-                    event.preventDefault();
-                    setSplit((value) =>
-                      event.key === "Home"
-                        ? 15
-                        : event.key === "End"
-                          ? 85
-                          : Math.max(
-                              15,
-                              Math.min(
-                                85,
-                                value +
-                                  (["ArrowLeft", "ArrowUp"].includes(event.key)
-                                    ? -2
-                                    : 2),
-                              ),
-                            ),
+                    e.preventDefault();
+                    setMessage(
+                      "Ce collage dépasse la limite de 200 000 caractères. Votre texte est conservé.",
                     );
                   }
                 }}
-                onDoubleClick={() => setSplit(50)}
-              >
-                <GripVertical size={14} />
+              />
+              <span className="source-count">
+                {content.length.toLocaleString(t.locale)} / {MAX_TEXT_LENGTH.toLocaleString(t.locale)}
+              </span>
+            </div>
+            <div
+              className="split-handle"
+              role="separator"
+              tabIndex={0}
+              aria-label={t("Redimensionner les panneaux")}
+              aria-orientation={stacked ? "horizontal" : "vertical"}
+              aria-valuemin={0}
+              aria-valuemax={100}
+              aria-valuenow={Math.round(split)}
+              onPointerDown={(event) => {
+                event.preventDefault();
+                event.currentTarget.setPointerCapture(event.pointerId);
+              }}
+              onPointerMove={(event) => {
+                if (event.currentTarget.hasPointerCapture(event.pointerId))
+                  resizeSplit(event.clientX, event.clientY);
+              }}
+              onPointerUp={(event) => {
+                event.currentTarget.releasePointerCapture(event.pointerId);
+              }}
+              onKeyDown={(event) => {
+                if (
+                  [
+                    "ArrowLeft",
+                    "ArrowRight",
+                    "ArrowUp",
+                    "ArrowDown",
+                    "Home",
+                    "End",
+                  ].includes(event.key)
+                ) {
+                  event.preventDefault();
+                  const decrease = ["ArrowLeft", "ArrowUp"].includes(event.key);
+                  setSplit((value) => {
+                    if (event.key === "Home") return 0;
+                    if (event.key === "End") return 100;
+                    if (decrease && value <= 15) return 0;
+                    if (!decrease && value >= 85) return 100;
+                    return Math.max(15, Math.min(85, value + (decrease ? -2 : 2)));
+                  });
+                }
+              }}
+              onDoubleClick={() => setSplit(50)}
+            >
+              <GripVertical size={14} />
+            </div>
+            <div className="preview-pane" inert={split === 100}>
+              <div className="pane-heading">
+                {t("Aperçu")} <span>{t(FORMAT_LABELS[format])}</span>
               </div>
-            )}
-            {mode !== "source" && (
-              <div className="preview-pane">
-                <div className="pane-heading">
-                  {t("Aperçu")} <span>{t(FORMAT_LABELS[format])}</span>
-                </div>
-                <div className="preview-body" aria-busy={content !== preview}>
-                  <ContentPreview
-                    content={preview}
-                    format={format}
-                    color={color}
-                  />
-                </div>
+              <div className="preview-body" aria-busy={content !== preview}>
+                <ContentPreview
+                  content={preview}
+                  format={format}
+                  color={color}
+                />
               </div>
-            )}
+            </div>
           </div>
           <div className="workspace-bottom">
             <div className="workspace-actions">

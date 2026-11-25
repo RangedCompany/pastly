@@ -67,6 +67,7 @@ beforeAll(async () => {
       "utf8",
     ),
   );
+  await db.exec(readFileSync(new URL("../supabase/migrations/202611250001_paste_length.sql", import.meta.url), "utf8"));
 });
 afterAll(async () => {
   await db?.close();
@@ -325,7 +326,8 @@ describe("formats V2, privilèges de colonnes et conservation de la source", () 
     });
   });
   it("sauvegarde puis rouvre un contenu volumineux sans toucher à l’indentation", async () => {
-    const source = "  \tconst texte = `" + "a".repeat(6000) + "`;  \n";
+    const ending = "`;  \n";
+    const source = "  \tconst texte = `".padEnd(200_000 - ending.length, "a") + ending;
     await as("authenticated", A, async () => {
       const { rows } = await db.query<{ id: string }>(
         "insert into public.notes (title,content,content_kind,format,original_filename,metadata) values ('Code',$1,'code','typescript','exemple.ts','{}') returning id",
@@ -359,7 +361,7 @@ describe("formats V2, privilèges de colonnes et conservation de la source", () 
     "metadata='{\"script\":true}'",
     "original_filename='../secret'",
     "content_kind='file'",
-    "content=repeat('a',100001)",
+    "content_kind='text', format='text', content=repeat('a',200001)",
   ])("rejette les colonnes V2 invalides : %s", async (invalid) => {
     const id = await createNote(false);
     try {

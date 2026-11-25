@@ -1,5 +1,5 @@
 import { unzipSync, zipSync } from "fflate";
-import { MAX_FILE_BYTES, MAX_TEXT_LENGTH } from "./types";
+import { MAX_FILE_BYTES } from "./types";
 export type OfficePreview = {
   text?: string;
   sheets?: { name: string; rows: string[][] }[];
@@ -84,7 +84,7 @@ export async function parseOffice(
   if (kind === "docx") {
     const mammoth = await import("mammoth");
     const result = await mammoth.extractRawText({ arrayBuffer: normalized });
-    if (result.value.length > MAX_TEXT_LENGTH)
+    if (result.value.length > 100_000)
       throw new Error("Aperçu DOCX limité à 100 000 caractères.");
     return { text: result.value };
   }

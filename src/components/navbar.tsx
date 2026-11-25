@@ -113,15 +113,17 @@ export async function Footer() {
   const t = await getTranslations();
   return (
     <footer className="site-footer">
-      <Link className="brand footer-brand" href="/">
-        pastly<span className="brand-dot">.</span>
-      </Link>
-      <p>{t("Collez. Visualisez. Conservez. Partagez.")}</p>
-      <Link href="/explore" className="footer-explore">
-        {t("Un peu d’inspiration")}
-        <ArrowUpRight size={15} />
-      </Link>
-      <nav className="footer-legal" aria-label={t("Informations légales")}>
+      <div className="footer-identity">
+        <Link className="brand footer-brand" href="/">
+          pastly<span className="brand-dot">.</span>
+        </Link>
+        <p>{t("Collez. Visualisez. Conservez. Partagez.")}</p>
+      </div>
+      <nav className="footer-legal" aria-label={t("Pied de page")}>
+        <Link href="/explore" className="footer-explore">
+          {t("Un peu d’inspiration")}
+          <ArrowUpRight size={15} />
+        </Link>
         <LanguagePicker />
         <Link href="/terms">{t("Conditions d’utilisation")}</Link>
         <Link href="/privacy">{t("Confidentialité")}</Link>

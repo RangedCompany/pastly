@@ -97,7 +97,7 @@ export function ContentPreview({
   if (content.length > MAX_TEXT_LENGTH)
     return (
       <p className="message message-error" role="alert">
-        {t("Le contenu est limité à 100 000 caractères.")}
+        {t("Le contenu est limité à 200 000 caractères.")}
       </p>
     );
   const result =

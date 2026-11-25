@@ -106,7 +106,7 @@ export async function renderContent(
       diagnostics: [
         {
           severity: "error",
-          message: "Le contenu est limité à 100 000 caractères.",
+          message: "Le contenu est limité à 200 000 caractères.",
         },
       ],
     };

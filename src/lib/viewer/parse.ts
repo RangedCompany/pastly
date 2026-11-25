@@ -31,7 +31,7 @@ export async function parseStructured(
   format: ContentFormat,
 ): Promise<ParseResult> {
   if (content.length > MAX_TEXT_LENGTH)
-    throw new Error("Le contenu est limité à 100 000 caractères.");
+    throw new Error("Le contenu est limité à 200 000 caractères.");
   // Ignore the UTF-8 file marker for parsing only; preserve the original source.
   const input = content.startsWith("\uFEFF") ? content.slice(1) : content;
   let value: unknown;
